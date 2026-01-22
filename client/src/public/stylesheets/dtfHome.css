@@ -1,0 +1,12 @@
+dtf-home {
+	.submit {
+		margin-top: 3rem;
+		display: block;
+		width: 100%;
+		background-color: var(--background-color);
+		height: 3rem;
+		border: 2px solid var(--font-color);
+		border-radius: 1rem;
+		font-size: 1.5rem;
+	}
+}

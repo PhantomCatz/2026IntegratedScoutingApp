@@ -1,0 +1,23 @@
+{
+	"include": [ "*.js" ],
+	"compilerOptions": {
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+		"target": "ESNext",
+		"lib": ["ESNext"],
+		"module": "ESNext",
+		"skipLibCheck": true,
+
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+		"allowJs": true,
+
+		"strict": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true
+	},
+}

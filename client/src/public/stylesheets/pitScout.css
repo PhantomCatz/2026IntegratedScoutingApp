@@ -1,0 +1,13 @@
+pit-scout {
+	#robotImageInput {
+		display: none;
+	}
+	.robotImageLabel {
+		display: block;
+		border: 2px solid var(--font-color);
+		border-radius: 5px;
+		height: 100px;
+		width: 100%;
+		text-align: center;
+	}
+}

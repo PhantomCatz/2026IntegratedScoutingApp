@@ -1,0 +1,20 @@
+{
+	"name": "2026-integrated-scouting-app-server",
+	"version": "1.0.0",
+	"type": "module",
+	"dependencies": {
+		"dotenv": "^17.2.3",
+		"express": "^5.2.1",
+		"mysql2": "^3.16.1",
+		"nodemon": "^3.1.11"
+	},
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon index.js"
+	},
+	"devDependencies": {
+		"eslint": "^9.39.2",
+		"typescript-eslint": "^8.53.1",
+		"typescript": "^5.9.3"
+	}
+}
