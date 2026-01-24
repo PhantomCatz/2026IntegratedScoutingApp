@@ -14,7 +14,6 @@ function Tabs(props: Props): React.ReactElement {
 
 	const defaultActiveKey = props.defaultActiveKey ??
 		(items.length ?
-
 			items[0].key :
 			""
 		);
@@ -22,6 +21,10 @@ function Tabs(props: Props): React.ReactElement {
 	const activeKey = props.activeKey;
 
 	const [currentKey, _setCurrentKey] = useState<string>(defaultActiveKey);
+
+	if(!currentKey && currentKey !== defaultActiveKey) {
+		_setCurrentKey(defaultActiveKey);
+	}
 
 	function setCurrentKey(key: string): void {
 		_setCurrentKey(key);

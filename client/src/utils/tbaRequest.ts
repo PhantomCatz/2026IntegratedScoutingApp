@@ -10,8 +10,8 @@ function isInPlayoffs(compLevel: TbaApi.Comp_Level): boolean {
 		false :
 		true;
 }
-function isRoundNumberVisible(matchLevel: string): boolean {
-	return matchLevel === "Playoffs" ?
+function isRoundNumberVisible(matchLevel: TbaApi.Comp_Level): boolean {
+	return matchLevel === "f" ?
 		true :
 		false;
 }
@@ -28,6 +28,7 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 	//eslint-disable-next-line @typescript-eslint/no-magic-numbers
 	return teamKeys.map((team) => Number(team.substring(3)));
 }
+// TODO: remove?
 function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch): number[] {
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
@@ -218,9 +219,8 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 function getMatchId(eventKey: TbaApi.EventKey,
 	compLevel: TbaApi.Comp_Level,
 	matchNumber: number): TbaApi.MatchKey {
-	const roundIsVisible = isRoundNumberVisible(compLevel);
 	// TODO: make proper match id
-	const matchId: TbaApi.MatchKey = roundIsVisible ?
+	const matchId: TbaApi.MatchKey = compLevel === 'qf' || compLevel === 'sf' ?
 		`${eventKey}_${compLevel}${matchNumber}m1` :
 		compLevel === "f" ?
 		`${eventKey}_${compLevel}1m${matchNumber}` :

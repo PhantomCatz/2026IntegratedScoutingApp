@@ -8,6 +8,7 @@ import ChartComponent from '../parts/dtfChart';
 import PitTabs from '../parts/pitTabs';
 import StrategicTabs from '../parts/strategicTabs';
 import Constants from '../utils/constants';
+import * as Utils from '../utils/utils';
 
 import type { TabItems, TabItem } from '../parts/tabs';
 import type * as Database from '../types/database';
@@ -83,6 +84,8 @@ type AggregateData = {
 
 	"robot_played": boolean,
 
+	"endgame_climb_successful_total": number,
+
 	"total_score": number,
 	"average_score": number,
 	"match_count": number,
@@ -91,8 +94,8 @@ type AggregateData = {
 function DTFTeams(props: Props): React.ReactElement {
 	const { teamParams } = useParams();
 	const [loading, setLoading] = useState(false);
-	const [items, setItems] = useState<{ key: string, label: string, children: React.ReactElement }[]>([]);
-	const [teamList, setTeamList] = useState<string[]>([]);
+	const [tabItems, setTabItems] = useState<TabItems>([]);
+	const [teamList, setTeamList] = useState<number[]>([]);
 	const [teamIndex, setTeamIndex] = useState<{ [team: string]: number } | null>(null);
 	const [teamsMatchData, setTeamsMatchData] = useState<{[index: number]: Database.MatchEntry[] | undefined} | null>(null);
 	const [teamsStrategicData, setTeamsStrategicData] = useState<{[index: string]: Database.StrategicEntry[]} | null>(null);
@@ -101,12 +104,12 @@ function DTFTeams(props: Props): React.ReactElement {
 		document.title = props.title;
 	}, [props.title]);
 	useEffect(() => {
-		const teams = teamParams?.split(",") || [];
+		const teams = teamParams?.split(",").map(Utils.toNumber) || [];
 
 		const inverse: { [team: string]: number } = {};
 
 		for(let i = 0; i < teams.length; i++) {
-			const num = teams[i] || 0;
+			const num = teams[i];
 			if(!num) {
 				continue;
 			}
@@ -120,9 +123,10 @@ function DTFTeams(props: Props): React.ReactElement {
 	useEffect(() => {
 		let fetchLink = Constants.SERVER_ADDRESS;
 
-		const teams = teamList.map((num) => {
-			return Number(num || 0);
-		});
+		const teams = teamList;
+		if(!teams.some(x => x)) {
+			return;
+		}
 
 		if(!fetchLink) {
 			console.error("Could not get fetch link; Check .env");
@@ -132,8 +136,8 @@ function DTFTeams(props: Props): React.ReactElement {
 		fetchLink += "reqType=getTeam"
 
 		for(let i = 0; i < Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
-			if(teamList[i]) {
-				fetchLink += `&team${i+1}=${teamList[i]}`;
+			if(teams[i]) {
+				fetchLink += `&team${i+1}=${teams[i]}`;
 			}
 		}
 
@@ -156,7 +160,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			try {
 				const strategicData: { [teamIndex: number]: Database.StrategicEntry[] } = {};
 
-				await Promise.all(teams.map(async (team) => {
+				await Promise.all(teams.filter(team => team).map(async (team) => {
 					const res = await fetch(fetchLink + `&team=${team}`);
 					const data = await res.json() as Database.StrategicEntry[];
 					strategicData[team] = data;
@@ -167,7 +171,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			} catch(err) {
 				console.error("An error occurred:", err);
 			}
-		})()
+		})();
 	}, [teamList]);
 	useEffect(() => {
 		getDTF(teamList);
@@ -410,6 +414,8 @@ function DTFTeams(props: Props): React.ReactElement {
 
 			"robot_played": false,
 
+			"endgame_climb_successful_total": 0,
+
 			"total_score": 0,
 			"average_score": 0,
 			"match_count": 0,
@@ -442,7 +448,7 @@ function DTFTeams(props: Props): React.ReactElement {
 		return data;
 	}
 
-	function getAllianceTab(teams: string[], persistentData: { [team: string]: AggregateData }, index: number): TabItems {
+	function getAllianceTabItems(teams: number[], persistentData: { [team: string]: AggregateData | undefined }, index: number): TabItems {
 		const tabs: TabItems = [];
 		const alliancePersistentData: AggregateData[] = [];
 
@@ -468,6 +474,7 @@ function DTFTeams(props: Props): React.ReactElement {
 
 			if(teamMatches && teamMatches.length) {
 				const data = mergeTeamData(teamMatches);
+
 				persistentData[team] = data;
 				alliancePersistentData.push(data);
 
@@ -536,7 +543,7 @@ function DTFTeams(props: Props): React.ReactElement {
 							<h2>Climb Type</h2>
 							<Input disabled defaultValue={data.endgame_climb_type} />
 							<h2>Avg Climb Success</h2>
-							<Input disabled defaultValue={data.endgame_climb_successful_total} />
+							<Input disabled defaultValue={data.endgame_climb_successful_total.toString()} />
 							<h2>Avg Climb Time</h2>
 							<Input disabled defaultValue={data.endgame_climb_time.toString()} />
 						</>
@@ -581,7 +588,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					</>
 			});
 
-			tabs.push({ key: `${team}|${teamCount}`, label: team, children:
+			tabs.push({ key: `${team}|${teamCount}`, label: team.toString(), children:
 					<>
 						<Tabs items={teamTabs} />
 					</>
@@ -632,28 +639,29 @@ function DTFTeams(props: Props): React.ReactElement {
 
 		return tabs;
 	}
-	function getDTF(teams: string[]): void {
+	function getDTF(teams: number[]): void {
 		setLoading(true);
 
 		if(!teamsMatchData || !teamsStrategicData) {
 			console.error("Could not load DTF. No data found");
 			return;
 		}
+		console.log("Loaded data.");
 
 		try {
-			const persistentData: { [teamNumber: number]: AggregateData } = {};
+			const persistentData: { [teamNumber: number]: AggregateData | undefined } = {};
 			const allianceTabs = [];
 
 			for(let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
-					const alliance = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
+				const alliance = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
 
-					const allianceTab = getAllianceTab(alliance, persistentData, i);
+				const allianceTabItems = getAllianceTabItems(alliance, persistentData, i);
 
-					allianceTabs.push({ key: `Alliance${i}`, label: `Alliance ${i}`, children:
-							<>
-								<Tabs items={allianceTab} />
-							</>
-					});
+				allianceTabs.push({ key: `Alliance${i}`, label: `Alliance ${i}`, children:
+						<>
+							<Tabs items={allianceTabItems} />
+						</>
+				});
 			}
 
 			const allianceAverageScores: React.ReactElement[] = [];
@@ -665,13 +673,15 @@ function DTFTeams(props: Props): React.ReactElement {
 
 				for(let j = 0; j < Constants.TEAMS_PER_ALLIANCE; j++) {
 					const index = i * Constants.TEAMS_PER_ALLIANCE + j;
-					const teamNumber = Number(teamList[index]);
+					const teamNumber = teamList[index];
 
 					if(!teamNumber) {
 						continue;
 					}
 
 					const data = persistentData[teamNumber];
+
+					assertNonNull(data);
 
 					averageScoresGroup.push(
 						<div key={`${i}|${j}`}>
@@ -705,7 +715,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					</>
 			});
 
-			setItems(allianceTabs);
+			setTabItems(allianceTabs);
 		} catch (error) {
 			console.error("Error fetching team data:", error);
 		}
@@ -717,7 +727,11 @@ function DTFTeams(props: Props): React.ReactElement {
 
 			<dtf-teams>
 				<h2 style={{ display: loading ? 'inherit' : 'none' }}>Loading data...</h2>
-				<Tabs defaultActiveKey="1" items={items} />
+				{ tabItems.length ?
+					<Tabs items={tabItems} />
+					:
+					<h1>No Data QAQ</h1>
+				}
 			</dtf-teams>
 		</>
 	);

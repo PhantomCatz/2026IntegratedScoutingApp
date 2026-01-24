@@ -3,6 +3,7 @@ export type Comp_Level = "ef" | "f" | "sf" | "qf" | "qm";
 export type AllianceColor = "blue" | "red";
 export type EventKey = `${number}${string}`;
 export type MatchKey = `${EventKey}_${Comp_Level}m${number}`;
+export type MatchKey2 = `${EventKey}_${Comp_Level}${number | ""}m${number}`;
 
 /******* /match/{match_key} **********/
 export type Match = {

@@ -60,8 +60,8 @@ async function requestDatabase(query, substitution, config) {
 			for(const val of substitution) {
 				const [res, fields] = await conn.query(sqlQuery, [val]);
 
-				if(forEach) {
-					await forEach(val, res, fields);
+				if(config?.forEach) {
+					await config.forEach(val, res, fields);
 				} else {
 					result.push(res);
 				}
@@ -69,14 +69,14 @@ async function requestDatabase(query, substitution, config) {
 		} else {
 			const [res, fields] = await conn.query(sqlQuery, [substitution]);
 
-			if(forEach) {
-				res.map((x) => forEach(x, fields));
+			if(config?.forEach) {
+				res.forEach((x) => config.forEach(x, fields));
 			}
 
 			result = res;
 		}
 
-		await conn.release();
+		conn.release();
 	} catch(err) {
 		console.error("Failed to resolve request:");
 		console.dir(err);
@@ -118,9 +118,10 @@ async function getTeamInfo(queries) {
 
 	// val=team number, res=match data
 	// TODO: refactor await loop
-	await requestDatabase(sqlQuery, teams, function(val, res) {
+	await requestDatabase(sqlQuery, teams, { forEach: function(val, res) {
 		const index = inverse[val];
 		result[index] = res;
+	}, mapSubstitution: true
 	});
 
 	return result;
@@ -163,7 +164,7 @@ async function submitData(data, table) {
 
 		result = res;
 
-		await conn.release();
+		conn.release();
 	} catch(err) {
 		console.error(`Failed to resolve request to ${table}:`);
 		console.dir(err);

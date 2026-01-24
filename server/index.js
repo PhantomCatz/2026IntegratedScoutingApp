@@ -52,7 +52,7 @@ app.get("/api", async function(req, res) {
 		result = null
 	}
 	if(!result) {
-		console.error(`ERROR: could not resolve request`, err);
+		console.error(`ERROR: could not resolve request`);
 	}
 
 	res.json(result);
@@ -85,8 +85,8 @@ app.post("/api", async function(req, res) {
 				break;
 			default:
 				console.error("query type not found", queries);
-				await res.status(404);
-				await res.json(null);
+				res.status(404);
+				res.json(null);
 				return res;
 		}
 	} catch (err) {

@@ -21,14 +21,14 @@
 			outline: 0px;
 		}
 	}
-	/* DEBUG */
+	/* DEBUG
 	&:has(:is(input, select, textarea):valid) label {
 		color: green;
 	}
 	&:has(:is(input, select, textarea):user-invalid) label {
 		color: red;
 	}
-	/* END DEBUG */
+	END DEBUG */
 	.message {
 		transition: max-height 0.1s linear;
 		text-align: center;

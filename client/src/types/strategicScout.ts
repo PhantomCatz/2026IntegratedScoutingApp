@@ -7,6 +7,7 @@ export type PreMatch = {
 	comp_level: TbaApi.Comp_Level;
 	match_number: number;
 	robot_position: TbaRequest.RobotPosition;
+	// TODO: fix
 	red_alliance: TbaApi.AllianceColor;
 	blue_alliance: TbaApi.AllianceColor;
 };
@@ -24,6 +25,7 @@ export type SubmitBody = {
 	comp_level: TbaApi.Comp_Level;
 	match_number: number;
 	robot_position: TbaRequest.RobotPosition;
+	// TODO: fix
 	red_alliance: TbaApi.AllianceColor;
 	blue_alliance: TbaApi.AllianceColor;
 	comments: string;
