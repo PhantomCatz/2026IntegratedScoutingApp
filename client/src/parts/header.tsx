@@ -21,8 +21,8 @@ function Header(props: Props): React.ReactElement {
 
 	const [backgroundColor, _setBackgroundColor] = useLocalStorage<string>('backgroundColor', '#ffffff');
 	const [fontColor, _setFontColor] = useLocalStorage<string>('fontColor', '#000000');
-	console.log(`backgroundColor=`, backgroundColor);
-	console.log(`fontColor=`, fontColor);
+	// console.log(`backgroundColor=`, backgroundColor);
+	// console.log(`fontColor=`, fontColor);
 
 	const icons = {
 		light: {
@@ -59,7 +59,7 @@ function Header(props: Props): React.ReactElement {
 	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 	const isLight = lightness >= 0.5;
 
-	console.log(`lightness=`, lightness);
+	// console.log(`lightness=`, lightness);
 
 	const theme = isLight ? "light" : "dark";
 	const iconSet = icons[theme];

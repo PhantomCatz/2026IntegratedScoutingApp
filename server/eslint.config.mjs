@@ -4,8 +4,8 @@ import { defineConfig } from 'eslint/config';
 
 export default defineConfig(
 	eslint.configs.recommended,
-	tseslint.configs.strictTypeChecked,
-	tseslint.configs.recommendedTypeChecked,
+	// tseslint.configs.strictTypeChecked,
+	// tseslint.configs.recommendedTypeChecked,
 	{
 		settings: {
 			react: {

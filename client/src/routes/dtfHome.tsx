@@ -19,12 +19,12 @@ function DTFHome(props: Props): React.ReactElement {
 		const teamNumberInput = [];
 
 		for(let teamNumber = 1; teamNumber <= Constants.TEAMS_PER_ALLIANCE; teamNumber++) {
-			const teamNumberId = `team${teamNumber + Constants.TEAMS_PER_ALLIANCE * (allianceNumber - 1)}Num`;
+			const teamNumberId: keyof All = `teamNumber${teamNumber + Constants.TEAMS_PER_ALLIANCE * (allianceNumber - 1)}` as keyof All;
 
 			teamNumberInput.push(
 				<NumberInput<All>
 					key={teamNumberId}
-					name={`teamNumber${teamNumberId}` as keyof All}
+					name={teamNumberId}
 					title={`Team ${teamNumber + Constants.TEAMS_PER_ALLIANCE * (allianceNumber - 1)} Number`}
 					min={0}
 					buttons={false}
@@ -49,14 +49,14 @@ function DTFHome(props: Props): React.ReactElement {
 			<dtf-home>
 				<Form<All>
 					onFinish={(event: All) => {
-						const teamNums: number[] = [];
+						const teamNumbers: (number | undefined)[] = [];
 
 						for(let i = 1; i <= Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
-							const number = event[`teamNumber${i}` as keyof All];
-							teamNums.push(number);
+							const number = event[`teamNumber${i}` as keyof All] || undefined;
+							teamNumbers.push(number);
 						}
 
-						window.location.href = "#dtf/" + teamNums.join(",");
+						window.location.href = "#dtf/" + teamNumbers.join(",");
 					}}
 					accessor={accessor}
 				>

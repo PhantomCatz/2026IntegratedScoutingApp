@@ -519,6 +519,7 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 						case "checkbox":
 							return element.checked as ResultType;
 						case "number":
+							return Number(element.value) as ResultType;
 						case "text":
 							return element.value as ResultType;
 						case "submit":
