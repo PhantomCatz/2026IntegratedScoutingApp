@@ -5,7 +5,7 @@ import { Table } from 'antd';
 import { Tabs } from '../parts/tabs';
 import Header from '../parts/header';
 import QrCode from '../parts/qrCodeViewer';
-import { isInPlayoffs, getTeamsInMatch, getAllianceTags, parseRobotPosition } from '../utils/tbaRequest.ts';
+import { isInPlayoffs, getTeamsInMatch, getAllianceTags, parseRobotPosition, getRobotPositionOptions } from '../utils/tbaRequest.ts';
 import { escapeUnicode } from '../utils/utils';
 import { getFieldAccessor } from '../parts/formItems';
 import Form, { NumberInput, Select, Input, TextArea, } from '../parts/formItems';
@@ -18,7 +18,7 @@ import type * as ResultTypes from '../types/resultTypes';
 
 const formDefaultValues = {
 	"scouter_initials": "",
-	"match_level": "",
+	"comp_level": "qm",
 	"match_number": 0,
 	"robot_position": undefined,
 	"comments": "",
@@ -48,7 +48,9 @@ function StrategicScout(props: Props): React.ReactElement {
 
 	const accessor = getFieldAccessor<StrategicScoutTypes.All>();
 
-	useEffect(() => { document.title = props.title; return () => { } }, [props.title]);
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 	useEffect(() => {
 		void (async function() {
 			let fetchLink = Constants.SERVER_ADDRESS;
@@ -222,37 +224,7 @@ function StrategicScout(props: Props): React.ReactElement {
 			{ label: "Finals", value: "f" },
 		];
 
-		function getRobotPositionOptions(): { label: string, value: string }[] {
-			if(teamsInMatch?.blue) {
-				const blueTeams = teamsInMatch.blue.map((team, index) => {
-					const positionNumber = index + 1;
-					return {
-						label: `B${positionNumber}: ${team}`,
-						value: `B${positionNumber}`,
-					};
-				});
-
-				const redTeams = teamsInMatch.red.map((team, index) => {
-					const positionNumber = index + 1;
-					return {
-						label: `R${positionNumber}: ${team}`,
-						value: `R${positionNumber}`,
-					};
-				});
-
-				return blueTeams.concat(redTeams);
-			} else {
-				return [
-					{ label: "R1", value: "R1" },
-					{ label: "R2", value: "R2" },
-					{ label: "R3", value: 'R3' },
-					{ label: "B1", value: "B1" },
-					{ label: "B2", value: "B2" },
-					{ label: "B3", value: 'B3' },
-				];
-			}
-		}
-		const robot_position = getRobotPositionOptions();
+		const robot_position = getRobotPositionOptions(teamsInMatch);
 		const playoff_alliances = getAllianceTags(eventKey);
 
 		return (

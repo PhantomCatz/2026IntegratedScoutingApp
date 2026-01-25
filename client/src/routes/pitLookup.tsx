@@ -31,7 +31,9 @@ function PitLookup(props: Props): React.ReactElement {
 
 	const eventKey = _eventKey;
 
-	useEffect(() => { document.title = props.title }, [props.title]);
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 	useEffect(() => {
 		void (async function() {
 			setIsLoading(true);

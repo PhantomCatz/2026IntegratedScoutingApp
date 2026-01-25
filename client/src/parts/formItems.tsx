@@ -215,7 +215,7 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "center";
 	const buttons = props.buttons ?? true;
-	const defaultValue = props.defaultValue ?? min;
+	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
 
 	const input = useRef<HTMLInputElement>(null);
 

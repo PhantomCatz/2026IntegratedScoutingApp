@@ -32,3 +32,9 @@ export function assertNonNull<T>(value: T): asserts value is NonNullable<T> {
 		throw new Error(`Assertion Error: ${value} is null`);
 	}
 }
+
+export function assertTinyInt(value: unknown): asserts value is 0 | 1 {
+	if(value !== 0 && value !== 1) {
+		throw new Error(`Assertion Error: ${value} is not 0 or 1`);
+	}
+}

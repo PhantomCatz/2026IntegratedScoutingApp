@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useLocalStorage, } from 'react-use';
 import Header from '../parts/header';
 import QrCode from '../parts/qrCodeViewer';
-import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getOpposingAllianceColor, parseRobotPosition } from '../utils/tbaRequest.ts';
+import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getOpposingAllianceColor, parseRobotPosition, getRobotPositionOptions } from '../utils/tbaRequest.ts';
 import { escapeUnicode, toTinyInt } from "../utils/utils";
 import Form, { NumberInput, Select, Checkbox, Input, TextArea } from '../parts/formItems';
 import { getFieldAccessor, } from '../parts/formItems';
@@ -25,7 +25,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"scouter_initials": "",
 	"comp_level": "qm",
 	"match_number": 0,
-	"robot_position": "B1",
+	"robot_position": "R1",
 	// Auton
 	"auton_leave_starting_line": false,
 	"auton_coral_scored_l4": 0,
@@ -83,7 +83,7 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	//"match_event": "",
 	//"team_number": 0,
 	//"scouter_initials": "",
-	//"match_level": "",
+	//"comp_level": "",
 	//"match_number": 0,
 	//"robot_position": "",
 	// Auton
@@ -187,12 +187,12 @@ function MatchScout(props: Props): React.ReactElement {
 		setOpposingTeamNum(team);
 	}, [teamsInMatch, currentRobotPosition]);
 
-	function setNewMatchScout(event: MatchScoutTypes.All): void {
-
+	function submitData(event: MatchScoutTypes.All): void {
 		if (team_number === 0) {
 			window.alert("Team number is 0, please check in Pre.");
 			return;
 		}
+
 		// TODO: write SubmitBody
 		const body: MatchScoutTypes.SubmitBody = {
 			// Pre-match
@@ -310,7 +310,7 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("auton_leave_starting_line", true);
 		}
 	}
-	async function trySubmit(event: MatchScoutTypes.All): Promise<void> {
+	async function onSubmit(event: MatchScoutTypes.All): Promise<void> {
 		if(isLoading) {
 			return;
 		}
@@ -318,17 +318,17 @@ function MatchScout(props: Props): React.ReactElement {
 		setLoading(true);
 
 		try {
-			setNewMatchScout(event);
+			submitData(event);
 
 			const scouter_initials = accessor.getFieldValue("scouter_initials");
 			const match_number = accessor.getFieldValue("match_number");
-			const match_level = accessor.getFieldValue("comp_level");
+			const comp_level = accessor.getFieldValue("comp_level");
 			const robot_position = accessor.getFieldValue("robot_position");
 
 			accessor.resetFields();
-			accessor.setFieldValue("scouter_initials", scouter_initials);
-			accessor.setFieldValue("comp_level", match_level);
 
+			accessor.setFieldValue("scouter_initials", scouter_initials);
+			accessor.setFieldValue("comp_level", comp_level);
 			accessor.setFieldValue("match_number", match_number + 1);
 			accessor.setFieldValue("robot_position", robot_position);
 
@@ -399,37 +399,7 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Finals", value: "f" },
 		];
 
-		function getRobotPositionOptions(): { label: string, value: string }[] {
-			if(teamsInMatch?.blue) {
-				const blueTeams = teamsInMatch.blue.map((team, index) => {
-					const positionNumber = index + 1;
-					return {
-						label: `B${positionNumber}: ${team}`,
-						value: `B${positionNumber}`,
-					};
-				});
-
-				const redTeams = teamsInMatch.red.map((team, index) => {
-					const positionNumber = index + 1;
-					return {
-						label: `R${positionNumber}: ${team}`,
-						value: `R${positionNumber}`,
-					};
-				});
-
-				return blueTeams.concat(redTeams);
-			} else {
-				return [
-					{ label: "R1", value: "R1" },
-					{ label: "R2", value: "R2" },
-					{ label: "R3", value: 'R3' },
-					{ label: "B1", value: "B1" },
-					{ label: "B2", value: "B2" },
-					{ label: "B3", value: 'B3' },
-				];
-			}
-		}
-		const robot_position = getRobotPositionOptions();
+		const robot_position = getRobotPositionOptions(teamsInMatch);
 		const playoff_alliances = getAllianceTags(eventKey);
 
 		return (
@@ -481,7 +451,6 @@ function MatchScout(props: Props): React.ReactElement {
 					buttons={false}
 					align={"left"}
 				/>
-
 
 				<Select<FieldType>
 					title={"Robot Position"}
@@ -933,7 +902,7 @@ function MatchScout(props: Props): React.ReactElement {
 			<match-scout>
 				<Form<MatchScoutTypes.All>
 					initialValues={formDefaultValues}
-					onFinish={trySubmit}
+					onFinish={onSubmit}
 					onFinishFailed={(_values, errorFields) => {
 						const errorMessage = Object.entries(errorFields).map((x) => x[0]).join("\n");
 						window.alert(errorMessage);

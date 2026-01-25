@@ -4,16 +4,20 @@ import { useParams } from 'react-router-dom';
 import { Table } from 'antd';
 import Column from 'antd/es/table/Column';
 import ColumnGroup from 'antd/es/table/ColumnGroup';
+import { Checkbox } from '../parts/formItems';
 import Header from '../parts/header';
 
 import Constants from '../utils/constants';
+import { assertNumber, assertString, assertTinyInt  } from '../types/assertions';
+
+import type * as Database from '../types/database';
 
 const DATA_COLUMNS = {
 	"Match Identifier": {
 		"Team Number": "team_number",
 		"Match Event": "match_event",
 		"Scouter Initials": "scouter_initials",
-		"Match Level": "match_level",
+		"Match Level": "comp_level",
 		"Match #": "match_number",
 		"Robot Appeared": "robot_appeared",
 	},
@@ -57,9 +61,9 @@ const DATA_COLUMNS = {
 		"Penalties Incurred": "overall_penalties_incurred",
 		"Comments": "overall_comments",
 	},
-};
+} as const;
 
-const HIDABLE_FIELDS = {
+const HIDABLE_FIELDS: { readonly [key: string]: false | undefined } = {
 	"robot_appeared": false,
 
 	//"teleop_coral_scored_l4": false,
@@ -85,11 +89,11 @@ const HIDABLE_FIELDS = {
 	//"auton_algae_scored_net": false,
 	//"auton_algae_missed_net": false,
 	"auton_algae_scored_processor": false,
-};
+} as const;
 
-const FIXED_FIELDS = {
+const FIXED_FIELDS: { readonly [key: string]: true | undefined } = {
 	"match_number": true,
-};
+} as const;
 
 type Props = {
 	title: string
@@ -98,10 +102,11 @@ type Props = {
 function MatchData(props: Props): React.ReactElement {
 	const { teamNumber } = useParams();
 	const [loading, setLoading] = useState(true);
-	const [matchData, setMatchData] = useState<{ [x: string]: any; }[]>([]);
-	const [hiddenColumns, setHiddenColumns] = useState({...HIDABLE_FIELDS});
+	const [matchData, setMatchData] = useState<Database.MatchEntry[]>([]);
 
-	useEffect(() => { document.title = props.title }, [props.title]);
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 	useEffect(() => {
 		async function fetchData(teamNumber: number): Promise<void> {
 			try {
@@ -115,17 +120,17 @@ function MatchData(props: Props): React.ReactElement {
 				fetchLink += "reqType=getTeam";
 				fetchLink += `&team1=${teamNumber}`;
 
-				const response = await (await fetch(fetchLink)).json();
+				const response = await (await fetch(fetchLink)).json() as { [teamIndex: number]: Database.MatchEntry[] | undefined };
 
 				const table = [];
-				const data: any[] = response[1];
+				const data  = response[1];
 				if(!data) {
 					window.alert("Could not get data");
 					return;
 				}
 
 				for (const match of data) {
-					const row: any = {};
+					const row = {};
 
 					for (const field in match) {
 						const [result, location, hasValue] = getCellValue(field, match[field], match);
@@ -135,8 +140,8 @@ function MatchData(props: Props): React.ReactElement {
 						}
 						row[location] = result;
 
-						if(hiddenColumns[location] === false && hasValue === true) {
-							hiddenColumns[location] = true;
+						if(HIDABLE_FIELDS[location] === false && hasValue === true) {
+							HIDABLE_FIELDS[location] = true;
 						}
 					}
 					const key = `${match.id}`;
@@ -155,7 +160,7 @@ function MatchData(props: Props): React.ReactElement {
 			}
 		}
 		if (teamNumber) {
-			fetchData(parseInt(teamNumber));
+			void fetchData(parseInt(teamNumber));
 		}
 	}, [teamNumber]);
 	useEffect(() => {
@@ -166,10 +171,10 @@ function MatchData(props: Props): React.ReactElement {
 
 	let titleCount = 0;
 
-	function getCellValue(field: any, value: any, data: any): any {
-		let result = null;
-		let location = null;
-		let hasValue = null;
+	function getCellValue(field: string, value: unknown, data) {
+		let result: unknown = null;
+		let location = "";
+		let hasValue = false;
 
 		if(value === null || value === undefined || value === "") {
 			console.error(`field=`, field);
@@ -186,28 +191,39 @@ function MatchData(props: Props): React.ReactElement {
 			case "teleop_coral_scored_l3":
 			case "teleop_coral_scored_l2":
 			case "teleop_coral_scored_l1":
-			case "teleop_algae_scored_net":
+			case "teleop_algae_scored_net": {
+				assertNumber(value);
+
 				const scored = value;
-				const missed = data[field.replace("scored", "missed")];
+				// :eyes:
+				const missed = data[field.replace("scored", "missed") as keyof typeof data];
 				const total = scored + missed;
 
 				result = `${scored}/${total}`;
 				location = field.replace("_scored", "");
 				hasValue = true;
 				break;
+			}
 			case "robot_appeared":
 			case "auton_leave_starting_line":
 			case "endgame_climb_successful":
 			case "overall_robot_died":
 			case "overall_defended_others":
-			case "overall_was_defended":
-				result = (<div className={`booleanValue booleanValue__${Boolean(value)}`} key={`field`}>&nbsp;</div>);
+			case "overall_was_defended": {
+				assertTinyInt(value);
+
+				const newValue = Boolean(value);
+
+				result = (<Checkbox disabled defaultValue={newValue} />);
 				location = field;
 				// Negate certain values
-				hasValue = ["robot_appeared"].includes(field) != value;
+				hasValue = ["robot_appeared"].includes(field) !== newValue;
 				break;
+			}
 			case "overall_penalties_incurred":
-			case "overall_comments":
+			case "overall_comments": {
+				assertString(value);
+
 				const text = (value || "").replaceAll("\\n", "\n");
 				result = (<p className="commentBox">
 					{text}
@@ -215,10 +231,11 @@ function MatchData(props: Props): React.ReactElement {
 				location = field;
 				hasValue = Boolean(value);
 				break;
+			}
 			case "team_number":
 			case "match_event":
 			case "scouter_initials":
-			case "match_level":
+			case "comp_level":
 			case "match_number":
 			case "robot_position":
 			case "robot_starting_position":
@@ -236,11 +253,12 @@ function MatchData(props: Props): React.ReactElement {
 			case "overall_counter_defense":
 			case "overall_driver_skill":
 			case "overall_major_penalties":
-			case "overall_minor_penalties":
+			case "overall_minor_penalties": {
 				result = (value || "").toString();
 				location = field;
 				hasValue = Boolean(value);
 				break;
+			}
 			case "id":
 			case "auton_coral_missed_l4":
 			case "auton_coral_missed_l3":
@@ -260,12 +278,12 @@ function MatchData(props: Props): React.ReactElement {
 
 		return [result, location, hasValue];
 	}
-	function makeColumns() {
+	function makeColumns(): React.ReactElement[] {
 		const groups = [];
 		for(const [section, fields] of Object.entries(DATA_COLUMNS)) {
 			const group = [];
 			for(const [title, field] of Object.entries(fields)) {
-				if(hiddenColumns[field] === false) {
+				if(HIDABLE_FIELDS[field] === false) {
 					continue;
 				}
 
@@ -288,7 +306,7 @@ function MatchData(props: Props): React.ReactElement {
 		return groups;
 	}
 
-	function fixFields() {
+	function fixFields(): void {
 		for(const num of fixedFields) {
 			document.querySelectorAll(`.matchDataTable table tr > :nth-child(${num + 1}):not([scope=colgroup])`)
 				.forEach((x) => {

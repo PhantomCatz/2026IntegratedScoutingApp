@@ -10,6 +10,7 @@ function isInPlayoffs(compLevel: TbaApi.Comp_Level): boolean {
 		false :
 		true;
 }
+// TODO: remove?
 function isRoundNumberVisible(matchLevel: TbaApi.Comp_Level): boolean {
 	return matchLevel === "f" ?
 		true :
@@ -32,6 +33,36 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch): number[] {
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
+function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
+	if(teamsInMatch?.blue) {
+		const blueTeams = teamsInMatch.blue.map((team, index) => {
+			const positionNumber = index + 1;
+			return {
+				label: `B${positionNumber}: ${team}`,
+				value: `B${positionNumber}`,
+			};
+		});
+
+		const redTeams = teamsInMatch.red.map((team, index) => {
+			const positionNumber = index + 1;
+			return {
+				label: `R${positionNumber}: ${team}`,
+				value: `R${positionNumber}`,
+			};
+		});
+
+		return blueTeams.concat(redTeams);
+	} else {
+		return [
+			{ label: "R1", value: "R1" },
+			{ label: "R2", value: "R2" },
+			{ label: "R3", value: 'R3' },
+			{ label: "B1", value: "B1" },
+			{ label: "B2", value: "B2" },
+			{ label: "B3", value: 'B3' },
+		];
+	}
+}
 function parseRobotPosition(robotPosition: TbaRequest.RobotPosition): [TbaApi.AllianceColor, number] {
 	const allianceColors: { [colorString: string]: TbaApi.AllianceColor } = {
 		"R": "red",
@@ -46,7 +77,7 @@ function parseRobotPosition(robotPosition: TbaRequest.RobotPosition): [TbaApi.Al
 	return [allianceColor, positionNumber];
 }
 
-// abstracting this was too hard...
+// abstracting these three functions more was too hard...
 async function getAllTeams(eventKey: TbaApi.EventKey): Promise<ResultTypes.AllTeams | null> {
 	try {
 		const response = await request('event/' + eventKey + '/teams/simple');
@@ -111,6 +142,7 @@ async function getTeamsNotScouted(eventKey: TbaApi.EventKey): Promise<ResultType
 		return null;
 	}
 }
+// TODO: add information to return to show which function it returned from: Promise<[ResultTypes.TeamsInMatch | null, ENUM]>?
 async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 	compLevel: TbaApi.Comp_Level,
 	matchNumber: number,
@@ -219,7 +251,6 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 function getMatchId(eventKey: TbaApi.EventKey,
 	compLevel: TbaApi.Comp_Level,
 	matchNumber: number): TbaApi.MatchKey {
-	// TODO: make proper match id
 	const matchId: TbaApi.MatchKey = compLevel === 'qf' || compLevel === 'sf' ?
 		`${eventKey}_${compLevel}${matchNumber}m1` :
 		compLevel === "f" ?
@@ -227,6 +258,7 @@ function getMatchId(eventKey: TbaApi.EventKey,
 		`${eventKey}_${compLevel}${matchNumber}`;
 	return matchId;
 }
+// TODO: remove?
 function getMatchLevel(name: string): TbaApi.Comp_Level {
 	const levels: {[matchLevel: string]: TbaApi.Comp_Level} = {
 		"Qualifications": "qm",
@@ -300,16 +332,14 @@ function getAllianceTags(eventKey: TbaApi.EventKey): { label: string, value: str
 }
 
 export {
-	teamsPlayingToTeamsList,
+	getRobotPositionOptions,
 	isInPlayoffs,
-	isRoundNumberVisible,
 	parseRobotPosition,
 	getOpposingAllianceColor,
 	getAllTeams,
 	getTeamsNotScouted,
 	getTeamsInMatch,
 	getMatchId,
-	getMatchLevel,
 	request,
 	getAllianceTags,
 };

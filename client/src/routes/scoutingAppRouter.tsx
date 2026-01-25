@@ -7,7 +7,9 @@ type Props = {
 };
 
 function ScoutingAppRouter(props: Props): React.ReactElement {
-	useEffect(() => { document.title = props.title }, [props.title]);
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 
 	return (
 		<>

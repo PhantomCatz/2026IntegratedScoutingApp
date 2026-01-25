@@ -24,8 +24,11 @@ type FieldType = {
 	scouter_initials: string,
 	event_key: TbaApi.EventKey,
 }
+type Props = {
+	title: string
+};
 
-function SettingsPage(): React.ReactElement {
+function SettingsPage(props: Props): React.ReactElement {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [backgroundColor, setBackgroundColor] = useLocalStorage<string>('backgroundColor', DEFAULT_SETTINGS.backgroundColor);
 	const [fontColor, setFontColor] = useLocalStorage<string>('fontColor', DEFAULT_SETTINGS.fontColor);
@@ -39,6 +42,9 @@ function SettingsPage(): React.ReactElement {
 	const textColorInput = useRef(null)
 	const backgroundColorInput = useRef(null)
 
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 	useEffect(() => {
 		const rootElement = document.querySelector(":root") as HTMLHtmlElement;
 

@@ -102,11 +102,11 @@ function PitScout(props: Props): React.ReactElement {
 			"wheel_type": event.wheel_type,
 			"intake_width": event.intake_width,
 			"coral_intake_capability": event.coral_intake_capability,
-			"coral_scoring_l1": event.coral_scoring_l1 || false,
-			"coral_scoring_l2": event.coral_scoring_l2 || false,
-			"coral_scoring_l3": event.coral_scoring_l3 || false,
-			"coral_scoring_l4": event.coral_scoring_l4 || false,
-			"can_remove_algae": event.can_remove_algae || false,
+			"coral_scoring_l1": event.coral_scoring_l1,
+			"coral_scoring_l2": event.coral_scoring_l2,
+			"coral_scoring_l3": event.coral_scoring_l3,
+			"coral_scoring_l4": event.coral_scoring_l4,
+			"can_remove_algae": event.can_remove_algae,
 			"algae_intake_capability": event.algae_intake_capability,
 			"algae_scoring_capability": event.algae_scoring_capability,
 			"score_aiming_coral": event.score_aiming_coral,
@@ -442,24 +442,10 @@ function PitScout(props: Props): React.ReactElement {
 
 							accessor.resetFields();
 
-							if(robotImageInput.current) {
-								const fileList: FileList = robotImageInput.current.files ?? new FileList();
+							if(robotImageInput.current && robotImageInput.current.files) {
+								const fileList: FileList = robotImageInput.current.files;
 
-								const promises: Promise<string>[] = [];
-
-								try {
-									// cannot map over FileList
-									for (const file of fileList) {
-										const image = readImage(file);
-										promises.push(image);
-									}
-								} catch (err) {
-									console.error(`File reading error =`, err);
-									window.alert("Error in reading file");
-									return;
-								}
-
-								const parsedFiles: string[] = await Promise.all(promises);
+								const parsedFiles: string[] = await Promise.all(fileList[Symbol.iterator]().map(readImage));
 
 								setRobotImageURI(parsedFiles)
 								robotImageInput.current.value = "";
@@ -481,7 +467,7 @@ function PitScout(props: Props): React.ReactElement {
 						window.alert(errorMessage);
 					}}
 				>
-					{Pit()}
+					<Pit />
 				</Form>
 				<QrCode value={qrValue} />
 			</pit-scout>
