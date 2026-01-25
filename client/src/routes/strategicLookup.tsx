@@ -37,7 +37,9 @@ function StrategicLookup(props: Props): React.ReactElement {
 
 	const accessor = getFieldAccessor<Fields>();
 
-	useEffect(() => { document.title = props.title }, [props.title]);
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 	useEffect(() => {
 		void (async function() {
 			setIsLoading(true);

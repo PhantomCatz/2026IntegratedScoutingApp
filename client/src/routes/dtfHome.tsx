@@ -8,7 +8,9 @@ import Constants from '../utils/constants';
 import type { All, Props, } from '../types/dtfHome';
 
 function DTFHome(props: Props): React.ReactElement {
-	useEffect(() => { document.title = props.title; return () => { } }, [props.title]);
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
 
 	const accessor = getFieldAccessor<All>();
 
@@ -26,9 +28,9 @@ function DTFHome(props: Props): React.ReactElement {
 					key={teamNumberId}
 					name={teamNumberId}
 					title={`Team ${teamNumber + Constants.TEAMS_PER_ALLIANCE * (allianceNumber - 1)} Number`}
-					min={0}
 					buttons={false}
 					align="left"
+					required={false}
 				/>
 			);
 		}

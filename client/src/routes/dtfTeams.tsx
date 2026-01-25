@@ -10,10 +10,10 @@ import StrategicTabs from '../parts/strategicTabs';
 import Constants from '../utils/constants';
 import * as Utils from '../utils/utils';
 
-import type { TabItems, TabItem } from '../parts/tabs';
+import type { TabItems, } from '../parts/tabs';
 import type * as Database from '../types/database';
 import type * as TbaApi from '../types/tbaApi';
-import { assertNumber, assertBoolean, assertString, assertNonNull } from '../types/assertions';
+import { assertNumber, assertString, assertNonNull } from '../types/assertions';
 
 type Props = {
 	title: string;

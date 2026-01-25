@@ -1,4 +1,4 @@
-import '../public/stylesheets/qrcode.css';
+import '../public/stylesheets/qrCodeViewer.css';
 
 import { QRCode as AntQr } from 'antd';
 import { useState, useEffect } from 'react';
@@ -87,29 +87,31 @@ function QrCode(props: Props): React.ReactElement {
 
 	const qrInfo: React.ReactElement[] = [];
 	for(const value of valuesToDisplay) {
-		const item = qrValue[value.key];
+		// :eyes:
+		const item = qrValue[value.key as keyof typeof qrValue] as unknown;
+
 		if(item) {
-			qrInfo.push(<p className={"qrIdentifier"} key={value.key}>{value.display} {item}</p>);
+			// :eyes:
+			// eslint-disable-next-line @typescript-eslint/no-base-to-string
+			qrInfo.push(<p className={"qrIdentifier"} key={value.key}>{value.display} {item.toString()}</p>);
 		}
 	}
 
 	return (
 		<div className="qrCode">
-			{shouldShow && (
-				<div>
-					<h1 className={"qrTitle"}>{`Last submitted at ${timestamp}`}</h1>
-					{qrInfo}
-					<div className={"qrCodeHolder"}>
-						<div>
-							<AntQr value={
-								/*Limit: 2324 chars*/
-								shownValue
-							} type={"svg"} />
-						</div>
+			<div style={{ display: shouldShow ? 'initial' : 'none' }}>
+				<h1 className={"qrTitle"}>{`Last submitted at ${timestamp}`}</h1>
+				{qrInfo}
+				<div className={"qrCodeHolder"}>
+					<div>
+						<AntQr value={
+							/*Limit: 2324 chars*/
+							shownValue
+						} type={"svg"} />
 					</div>
-					<h2>Please take a screenshot of this and show it to WebDev</h2>
 				</div>
-			)}
+				<h2>Please take a screenshot of this and show it to WebDev</h2>
+			</div>
 		</div>);
 }
 
