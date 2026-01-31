@@ -216,6 +216,7 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const align = props.align ?? "center";
 	const buttons = props.buttons ?? true;
 	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
+	const disabled = props.disabled;
 
 	const input = useRef<HTMLInputElement>(null);
 
@@ -235,7 +236,6 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 		}
 
 		input.current.value = newValue.toString();
-		console.log(`input.current.value=`, input.current.value);
 
 		// if we didn't have to clamp it
 		if(parsedValue === newValue) {
@@ -275,10 +275,10 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						<button
 							type="button"
 							className="changeButton changeButton__decrement"
-							onClick={ () => {
-
+							onClick={() => {
 								updateInputValue(-1);
 							}}
+							disabled={disabled}
 						>-</button>
 					}
 					<input
@@ -291,15 +291,16 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						onChange={handleChange}
 						required={required}
 						defaultValue={defaultValue}
+						disabled={disabled}
 					/>
 					{ buttons &&
 						<button
 							type="button"
 							className="changeButton changeButton__increment"
-							onClick={ () => {
-
+							onClick={() => {
 								updateInputValue(1);
 							}}
+							disabled={disabled}
 						>+</button>
 					}
 				</div>

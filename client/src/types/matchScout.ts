@@ -67,6 +67,7 @@ export type OverallMatch = {
 
 export type All = PreMatch & AutonMatch & TeleopMatch & EndgameMatch & OverallMatch;
 
+// TODO: red_alliance, blue_alliance ????
 export type SubmitBody = {
 	event_key: string,
 	team_number: number,
