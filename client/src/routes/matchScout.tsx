@@ -500,7 +500,6 @@ function MatchScout(props: Props): React.ReactElement {
 						}}
 					>No Show</button>
 				</details>
-
 			</>
 		);
 	}
