@@ -5,7 +5,7 @@ import Header from '../parts/header';
 import QrCode from '../parts/qrCodeViewer';
 import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getOpposingAllianceColor, parseRobotPosition, getRobotPositionOptions } from '../utils/tbaRequest.ts';
 import { escapeUnicode, toTinyInt } from "../utils/utils";
-import Form, { NumberInput, Select, Checkbox, Input, TextArea } from '../parts/formItems';
+import Form, { NumberInput, Select, Checkbox, Input, TextArea, Radio } from '../parts/formItems';
 import { getFieldAccessor, } from '../parts/formItems';
 import { Tabs, } from "../parts/tabs";
 import Constants from '../utils/constants';
@@ -27,30 +27,15 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"match_number": 0,
 	"robot_position": "B1",
 	// Auton
-	"auton_leave_starting_line": false,
-	"auton_coral_scored_l4": 0,
-	"auton_coral_missed_l4": 0,
-	"auton_coral_scored_l3": 0,
-	"auton_coral_missed_l3": 0,
-	"auton_coral_scored_l2": 0,
-	"auton_coral_missed_l2": 0,
-	"auton_coral_scored_l1": 0,
-	"auton_coral_missed_l1": 0,
-	"auton_algae_scored_net": 0,
-	"auton_algae_missed_net": 0,
-	"auton_algae_scored_processor": 0,
+	"auton_fuel_scored": 0,
+	"auton_fuel_score_multiplier": "1x",
+	"auton_shoot_location": [],
+	"auton_intake_location": [],
+	"auton_climb_attempted": false,
+	"auton_climb_successful": false,
 	// Teleop
-	"teleop_coral_scored_l4": 0,
-	"teleop_coral_missed_l4": 0,
-	"teleop_coral_scored_l3": 0,
-	"teleop_coral_missed_l3": 0,
-	"teleop_coral_scored_l2": 0,
-	"teleop_coral_missed_l2": 0,
-	"teleop_coral_scored_l1": 0,
-	"teleop_coral_missed_l1": 0,
-	"teleop_algae_scored_net": 0,
-	"teleop_algae_missed_net": 0,
-	"teleop_algae_scored_processor": 0,
+	"teleop_fuel_scored": 0,
+	"teleop_fuel_score_multiplier": "1x",
 	// Endgame
 	"endgame_coral_intake_capability": "",
 	"endgame_algae_intake_capability": "",
@@ -87,30 +72,15 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	//"match_number": 0,
 	//"robot_position": "",
 	// Auton
-	"auton_leave_starting_line": false,
-	"auton_coral_scored_l4": 0,
-	"auton_coral_missed_l4": 0,
-	"auton_coral_scored_l3": 0,
-	"auton_coral_missed_l3": 0,
-	"auton_coral_scored_l2": 0,
-	"auton_coral_missed_l2": 0,
-	"auton_coral_scored_l1": 0,
-	"auton_coral_missed_l1": 0,
-	"auton_algae_scored_net": 0,
-	"auton_algae_missed_net": 0,
-	"auton_algae_scored_processor": 0,
+	"auton_fuel_scored": 0,
+	"auton_fuel_score_multiplier": "1x",
+	"auton_shoot_location": [],
+	"auton_intake_location": [],
+	"auton_climb_attempted": false,
+	"auton_climb_successful": false,
 	// Teleop
-	"teleop_coral_scored_l4": 0,
-	"teleop_coral_missed_l4": 0,
-	"teleop_coral_scored_l3": 0,
-	"teleop_coral_missed_l3": 0,
-	"teleop_coral_scored_l2": 0,
-	"teleop_coral_missed_l2": 0,
-	"teleop_coral_scored_l1": 0,
-	"teleop_coral_missed_l1": 0,
-	"teleop_algae_scored_net": 0,
-	"teleop_algae_missed_net": 0,
-	"teleop_algae_scored_processor": 0,
+	"teleop_fuel_scored": 0,
+	"teleop_fuel_score_multiplier": "1x",
 	// Endgame
 	"endgame_coral_intake_capability": "Neither",
 	"endgame_algae_intake_capability": "Neither",
@@ -140,10 +110,14 @@ function MatchScout(props: Props): React.ReactElement {
 	const [isLoading, setLoading] = useState(false);
 	const [tabNum, setTabNum] = useState("1");
 	const [team_number, setTeamNumber] = useState(0);
+	const [auton_fuel_number, setAutonFuelNumber] = useState(0);
+	const [teleop_fuel_number, setTeleopFuelNumber] = useState(0);
+	const [fuel_multiplier, setFuelMultiplier] = useState(0);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
 	const [defendedIsVisible, setDefendedIsVisible] = useState(false);
 	const [wasDefendedIsVisible, setWasDefendedIsVisible] = useState(false);
+	const [autonClimbSuccessfulIsVisible, setAutonClimbSuccessfulIsVisible] = useState(false);
 	const [penaltiesIsVisible, setPenaltiesIsVisible] = useState(false);
 	const [opposingTeamNum, setOpposingTeamNum] = useState<number[]>([]);
 	const [inPlayoffs, setInPlayoffs] = useState(false);
@@ -203,30 +177,13 @@ function MatchScout(props: Props): React.ReactElement {
 			"match_number": event.match_number,
 			"robot_position": event.robot_position,
 			// Auton
-			"auton_leave_starting_line": toTinyInt(event.auton_leave_starting_line),
-			"auton_coral_scored_l4": event.auton_coral_scored_l4,
-			"auton_coral_missed_l4": event.auton_coral_missed_l4,
-			"auton_coral_scored_l3": event.auton_coral_scored_l3,
-			"auton_coral_missed_l3": event.auton_coral_missed_l3,
-			"auton_coral_scored_l2": event.auton_coral_scored_l2,
-			"auton_coral_missed_l2": event.auton_coral_missed_l2,
-			"auton_coral_scored_l1": event.auton_coral_scored_l1,
-			"auton_coral_missed_l1": event.auton_coral_missed_l1,
-			"auton_algae_scored_net": event.auton_algae_scored_net,
-			"auton_algae_missed_net": event.auton_algae_missed_net,
-			"auton_algae_scored_processor": event.auton_algae_scored_processor,
+			"auton_fuel_scored": auton_fuel_number,
+			"auton_shoot_location": event.auton_shoot_location.sort().join(","),
+			"auton_intake_location": event.auton_intake_location.sort().join(","),
+			"auton_climb_attempted": toTinyInt(event.auton_climb_attempted),
+			"auton_climb_successful": toTinyInt(event.auton_climb_successful),
 			// Teleop
-			"teleop_coral_scored_l4": event.teleop_coral_scored_l4,
-			"teleop_coral_missed_l4": event.teleop_coral_missed_l4,
-			"teleop_coral_scored_l3": event.teleop_coral_scored_l3,
-			"teleop_coral_missed_l3": event.teleop_coral_missed_l3,
-			"teleop_coral_scored_l2": event.teleop_coral_scored_l2,
-			"teleop_coral_missed_l2": event.teleop_coral_missed_l2,
-			"teleop_coral_scored_l1": event.teleop_coral_scored_l1,
-			"teleop_coral_missed_l1": event.teleop_coral_missed_l1,
-			"teleop_algae_scored_net": event.teleop_algae_scored_net,
-			"teleop_algae_missed_net": event.teleop_algae_missed_net,
-			"teleop_algae_scored_processor": event.teleop_algae_scored_processor,
+			"teleop_fuel_scored": teleop_fuel_number,
 			// Endgame
 			"endgame_coral_intake_capability": event.endgame_coral_intake_capability,
 			"endgame_algae_intake_capability": event.endgame_algae_intake_capability,
@@ -305,11 +262,6 @@ function MatchScout(props: Props): React.ReactElement {
 		}
 	}
 
-	function updateAutonValues(value: number): void {
-		if(value) {
-			accessor.setFieldValue("auton_leave_starting_line", true);
-		}
-	}
 	async function onSubmit(event: MatchScoutTypes.All): Promise<void> {
 		if(isLoading) {
 			return;
@@ -335,6 +287,8 @@ function MatchScout(props: Props): React.ReactElement {
 			setRobot_appeared(true);
 			setWasDefendedIsVisible(false);
 			setDefendedIsVisible(false);
+			setAutonFuelNumber(0);
+			setAutonClimbSuccessfulIsVisible(false);
 
 			await updateNumbers();
 		} catch (err) {
@@ -506,102 +460,109 @@ function MatchScout(props: Props): React.ReactElement {
 
 	function autonMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.AutonMatch;
+		const shootLocation = [
+			{ label: "Tower", value: "Tower" },
+			{ label: "Outpost", value: "Outpost" },
+			{ label: "Depot", value: "Depot" },
+			{ label: "Trench", value: "Trench" },
+		];
+		const intakeLocation = [
+			{ label: "Neutral", value: "Neutral" },
+			{ label: "Outpost", value: "Outpost" },
+			{ label: "Depot", value: "Depot" },
+		];
 
 		return (
 			<div style={{ alignContent: 'center' }}>
-				<Checkbox<FieldType>
-					name="auton_leave_starting_line"
-					title="Leave Starting Line?"
+				
+				<NumberInput<FieldType>
+					title={"Fuel Scored"}
+					name={"auton_fuel_scored"}
+					defaultValue={auton_fuel_number}
+					message={"Enter # fuel scored in Auton"}
+					buttons={false}
+					value={auton_fuel_number}
+					min={0}
+					disabled
 				/>
+
+				<button
+				className={"plusButton"}
+				onMouseDown={() => {
+					setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
+						}}
+				>+</button>
+
+				<button
+				className={"minusButton"}
+				onMouseDown={() => {
+					let new_fuel_number = auton_fuel_number - fuel_multiplier;
+					if(new_fuel_number < 0){
+						new_fuel_number = 0;
+					}
+					setAutonFuelNumber(new_fuel_number);
+						}}
+				>-</button>
+
+				<b>Fuel Score Multiplier</b>
+
 				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L4"}
-						name={"auton_coral_scored_l4"}
-						message={"Enter # coral scored for l4 in Auton"}
-						onChange={updateAutonValues}
+					<Radio<FieldType>
+						name={"auton_fuel_score_multiplier"}
+						title={"1x"}
+						value={"1x"}
+						onChange={() => {setFuelMultiplier(1);}}
 					/>
 
-					<NumberInput<FieldType>
-						title={"A Coral Missed L4"}
-						name={"auton_coral_missed_l4"}
-						message={"Enter # coral missed for l4 in Auton"}
-						onChange={updateAutonValues}
+					<Radio<FieldType>
+						name={"auton_fuel_score_multiplier"}
+						title={"2x"}
+						value={"2x"}
+						onChange={() => {setFuelMultiplier(2);}}
+					/>
+
+					<Radio<FieldType>
+						name={"auton_fuel_score_multiplier"}
+						title={"5x"}
+						value={"5x"}
+						onChange={() => {setFuelMultiplier(5);}}
 					/>
 				</div>
 
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L3"}
-						name={"auton_coral_scored_l3"}
-						message={"Enter # coral scored for l3 in Auton"}
-						onChange={updateAutonValues}
-					/>
+				<Select<FieldType>
+					title={"Shoot Location"}
+					name={"auton_shoot_location"}
+					options={shootLocation}
+					multiple
+				/>
 
-					<NumberInput<FieldType>
-						title={"A Coral Missed L3"}
-						name={"auton_coral_missed_l3"}
-						message={"Enter # coral missed for l3 in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
+				<Select<FieldType>
+					title={"Intake Location"}
+					name={"auton_intake_location"}
+					options={intakeLocation}
+					multiple
+				/>
 
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L2"}
-						name={"auton_coral_scored_l2"}
-						message={"Enter # coral scored for l2 in Auton"}
-						onChange={updateAutonValues}
-					/>
+				<Checkbox<FieldType>
+					name={"auton_climb_attempted"}
+					title={"Climb Attempted"}
+					onChange={() => {
+							setAutonClimbSuccessfulIsVisible(!autonClimbSuccessfulIsVisible);
+						}}
+				/>
 
-					<NumberInput<FieldType>
-						title={"A Coral Missed L2"}
-						name={"auton_coral_missed_l2"}
-						message={"Enter # coral missed for l2 in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L1"}
-						name={"auton_coral_scored_l1"}
-						message={"Enter # coral scored for l1 in Auton"}
-						onChange={updateAutonValues}
-					/>
-
-					<NumberInput<FieldType>
-						title={"A Coral Missed L1"}
-						name={"auton_coral_missed_l1"}
-						message={"Enter # coral missed for l1 in Auton"}
-						onChange={updateAutonValues}
+				<div
+					style={{
+						display: autonClimbSuccessfulIsVisible ? 'inherit' : 'none' ,
+					}}
+				>
+					<Checkbox<FieldType>
+						name={"auton_climb_successful"}
+						title={"Climb Successful"}
+						required={autonClimbSuccessfulIsVisible}
+						//onChange={}
 					/>
 				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Algae Scored Net"}
-						name={"auton_algae_scored_net"}
-						message={"Enter # of algae scored for net in Auton"}
-						onChange={updateAutonValues}
-					/>
-
-					<NumberInput<FieldType>
-						title={"A Algae Missed Net"}
-						name={"auton_algae_missed_net"}
-						message={"Enter # of algae missed for net in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Algae Processor"}
-						name={"auton_algae_scored_processor"}
-						message={"Enter # of algae scored for processor in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
-
 			</div>
 		);
 	}
@@ -611,81 +572,57 @@ function MatchScout(props: Props): React.ReactElement {
 
 		return (
 			<div>
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L4"}
-						name={"teleop_coral_scored_l4"}
-						message={"Enter # of coral scored for l4 in Teleop"}
-					/>
+				<NumberInput<FieldType>
+					title={"Fuel Scored"}
+					name={"teleop_fuel_scored"}
+					defaultValue={teleop_fuel_number}
+					message={"Enter # fuel scored in Teleop"}
+					buttons={false}
+					value={teleop_fuel_number}
+					min={0}
+					disabled
+				/>
 
-					<NumberInput<FieldType>
-						title={"T Coral Missed L4"}
-						name={"teleop_coral_missed_l4"}
-						message={"Enter # of coral missed for l4 in Teleop"}
-					/>
-				</div>
+				<button
+				className={"plusButton"}
+				onMouseDown={() => {
+					setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
+						}}
+				>+</button>
 
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L3"}
-						name={"teleop_coral_scored_l3"}
-						message={"Enter # of coral scored for l3 in Teleop"}
-					/>
+				<button
+				className={"minusButton"}
+				onMouseDown={() => {
+					let new_fuel_number = teleop_fuel_number - fuel_multiplier;
+					if(new_fuel_number < 0){
+						new_fuel_number = 0;
+					}
+					setTeleopFuelNumber(new_fuel_number);
+						}}
+				>-</button>
 
-					<NumberInput<FieldType>
-						title={"T Coral Missed L3"}
-						name={"teleop_coral_missed_l3"}
-						message={"Enter # of coral missed for l3 in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L2"}
-						name={"teleop_coral_scored_l2"}
-						message={"Enter # of coral scored for l2 in Teleop"}
-					/>
-
-					<NumberInput<FieldType>
-						title={"T Coral Missed L2"}
-						name={"teleop_coral_missed_l2"}
-						message={"Enter # of coral missed for l2 in Teleop"}
-					/>
-				</div>
+				<b>Fuel Score Multiplier</b>
 
 				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L1"}
-						name={"teleop_coral_scored_l1"}
-						message={"Enter # of coral scored for l1 in Teleop"}
+					<Radio<FieldType>
+						name={"teleop_fuel_score_multiplier"}
+						title={"1x"}
+						value={"1x"}
+						onChange={() => {setFuelMultiplier(1);}}
 					/>
 
-					<NumberInput<FieldType>
-						title={"T Coral Missed L1"}
-						name={"teleop_coral_missed_l1"}
-						message={"Enter # of coral missed for l1 in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Algae Scored Net"}
-						name={"teleop_algae_scored_net"}
-						message={"Enter # of algae scored for net in Teleop"}
+					<Radio<FieldType>
+						name={"teleop_fuel_score_multiplier"}
+						title={"2x"}
+						value={"2x"}
+						onChange={() => {setFuelMultiplier(2);}}
 					/>
 
-					<NumberInput<FieldType>
-						title={"T Algae Missed Net"}
-						name={"teleop_algae_missed_net"}
-						message={"Enter # of algae missed for net in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Algae Processor"}
-						name={"teleop_algae_scored_processor"}
-						message={"Enter # of algae scored for processor in Teleop"}
+					<Radio<FieldType>
+						name={"teleop_fuel_score_multiplier"}
+						title={"5x"}
+						value={"5x"}
+						onChange={() => {setFuelMultiplier(5);}}
 					/>
 				</div>
 			</div>
@@ -729,7 +666,7 @@ function MatchScout(props: Props): React.ReactElement {
 				/>
 				<Checkbox<FieldType>
 					name="endgame_climb_successful"
-					title="Climp Successful?"
+					title="Climb Successful?"
 					onChange={(event) => {
 						setClimbSuccessful(event);
 					}}
@@ -772,6 +709,7 @@ function MatchScout(props: Props): React.ReactElement {
 							setDefendedIsVisible(!defendedIsVisible);
 						}}
 					/>
+					
 					<Checkbox<FieldType>
 						title="Was Defended?"
 						name="overall_was_defended"

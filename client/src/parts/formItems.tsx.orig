@@ -232,7 +232,11 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const buttons = props.buttons ?? true;
 	const disabled = props.disabled;
 	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
+<<<<<<< Updated upstream
+	const disabled = props.disabled;
+=======
 	const value = props.value;
+>>>>>>> Stashed changes
 
 	const input = useRef<HTMLInputElement>(null);
 
@@ -307,8 +311,11 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						onChange={handleChange}
 						required={required}
 						defaultValue={defaultValue}
-						value={value}
+<<<<<<< Updated upstream
 						disabled={disabled}
+=======
+						value={value}
+>>>>>>> Stashed changes
 					/>
 					{ buttons &&
 						<button
@@ -418,7 +425,7 @@ function Checkbox<FieldType>(props: CheckboxType<NoInfer<FieldType>>): React.Rea
 	const shown = props.shown ?? true;
 	const disabled = props.disabled;
 	const defaultValue = props.defaultValue;
-	const required = (props.required ?? true) && shown;
+	const value = props.value;
 
 	const checkbox = useRef<HTMLInputElement>(null);
 
@@ -454,7 +461,6 @@ function Checkbox<FieldType>(props: CheckboxType<NoInfer<FieldType>>): React.Rea
 					onChange={handleChange}
 					checked={defaultValue}
 					disabled={disabled}
-					required={required}
 				/>
 			</div>
 		</>
