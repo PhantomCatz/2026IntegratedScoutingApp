@@ -23,7 +23,6 @@ export type Pit = {
 	team_safety: number;
 	team_workmanship: number;
 	gracious_professionalism: number;
-	robot_images: string;
 	comments: string;
 };
 
@@ -52,5 +51,4 @@ export type SubmitBody = {
 			"team_workmanship": number;
 			"gracious_professionalism": number;
 			"comments": string;
-			"robot_images": string;
 };

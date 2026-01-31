@@ -40,7 +40,7 @@ const formDefaultValues = {
 	"team_workmanship": 4,
 	"gracious_professionalism": 4,
 	"comments": "",
-	"robot_images":"",
+	
 } as const;
 
 const IMAGE_DELIMITER = "$";
@@ -115,7 +115,7 @@ function PitScout(props: Props): React.ReactElement {
 			"team_workmanship": event.team_workmanship,
 			"gracious_professionalism": event.gracious_professionalism,
 			"comments": event.comments,
-			"robot_images":event.robot_images,
+			
 		};
 		Object.entries(body)
 			.forEach((item) => {
@@ -361,8 +361,8 @@ function PitScout(props: Props): React.ReactElement {
 					name="L2"
 				/>
 				<Checkbox<FieldType>
-					title="L2"
-					name="L2"
+					title="L3"
+					name="L3"
 				/>
 
 
@@ -417,7 +417,7 @@ function PitScout(props: Props): React.ReactElement {
 				<label className="robotImageLabel" htmlFor="robotImageInput">Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}</label>
 				<input
 					ref={robotImageInput}
-					id="robotImageInput"
+					
 					type="file"
 					accept="image/*"
 					multiple

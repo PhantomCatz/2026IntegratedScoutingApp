@@ -523,6 +523,8 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 						case "text":
 							return element.value as ResultType;
 						case "submit":
+							case"file":
+						
 						default:
 							throw new Error(`Could not use submit type ${element.type}`);
 					}
