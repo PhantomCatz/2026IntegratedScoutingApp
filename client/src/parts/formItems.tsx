@@ -76,6 +76,18 @@ type TextAreaType<FieldType> = Disableable<{
 	shown?: boolean,
 	defaultValue?: string,
 }>;
+type RadioType<FieldType> = Disableable<{
+	title: string | React.ReactElement,
+	name: StringMap<FieldType>,
+	value: string,
+	required?: boolean,
+	message?: string,
+	disabled?: boolean
+	onChange?: (val: boolean) => void,
+	align?: AlignOptions,
+	shown?: boolean,
+	defaultValue?: string,
+}>;
 type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
 	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void,
@@ -282,9 +294,9 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						>-</button>
 					}
 					<input
+						ref={input}
 						id={name}
 						name={name}
-						ref={input}
 						type="number"
 						min={min}
 						max={max}
@@ -316,15 +328,20 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 	const title = props.title;
 	const name = props.name;
-	const required = props.required ?? true;
+	const shown = props.shown ?? true;
+	const required = (props.required ?? true) && shown;
+	if((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name)
+	}
 	// TODO: remove?
 	// const message = props.message ?? `Please input ${title}`;
 	const options = props.options ?? [];
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "left";
-	const shown = props.shown ?? true;
 	const multiple = props.multiple;
 	const defaultValue = props.defaultValue;
+
+	const select = useRef(null);
 
 	const optionElements = options.map(function(item: { label: string, value: string }, index) {
 		return (
@@ -373,6 +390,7 @@ function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 					>{title}</label>
 				}
 				<select
+					ref={select}
 					id={name}
 					name={name}
 					defaultValue={defaultValue}
@@ -440,6 +458,9 @@ function TextArea<FieldType>(props: TextAreaType<NoInfer<FieldType>>): React.Rea
 	const name = props.name;
 	const shown = props.shown ?? true;
 	const required = (props.required ?? true) && shown;
+	if((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name)
+	}
 	const disabled = props.required;
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "left";
@@ -472,14 +493,68 @@ function TextArea<FieldType>(props: TextAreaType<NoInfer<FieldType>>): React.Rea
 					>{title}</label>
 				}
 				<textarea
+					ref={textbox}
 					id={name}
 					name={name}
-					ref={textbox}
 					onChange={handleChange}
 					defaultValue={defaultValue}
 					required={required}
 					disabled={disabled}
 				/>
+			</div>
+		</>
+	);
+}
+function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElement {
+	const title = props.title;
+	const name = props.name;
+	const value = props.value;
+	const shown = props.shown ?? true;
+	const required = (props.required ?? true) && shown;
+	if((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name)
+	}
+	const disabled = props.required;
+	const onChange = props.onChange ?? (() => {});
+	const align = props.align ?? "center";
+	const defaultValue = props.defaultValue;
+
+	const radio = useRef(null);
+
+	function handleChange(event: React.ChangeEvent): void {
+		const target = event.target;
+
+		assertInstanceOf(target, HTMLInputElement);
+
+		onChange(target.checked);
+	}
+
+	return (
+		<>
+			<div
+				className="input input__radio"
+				style={{
+					display: shown ? 'inherit' : 'none',
+				}}
+			>
+				<label
+					style={{
+						textAlign: align,
+					}}
+					htmlFor={`${name}-${value}`}
+				>{title}
+					<input
+						ref={radio}
+						type="radio"
+						id={`${name}-${value}`}
+						name={name}
+						value={value}
+						onChange={handleChange}
+						defaultValue={defaultValue}
+						required={required}
+						disabled={disabled}
+					/>
+				</label>
 			</div>
 		</>
 	);
@@ -611,6 +686,6 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 	return accessor;
 }
 
-export { Input, NumberInput, Select, Checkbox, TextArea };
+export { Input, NumberInput, Select, Checkbox, TextArea, Radio };
 export { getFieldAccessor, };
 export default Form;
