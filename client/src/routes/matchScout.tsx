@@ -25,7 +25,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"scouter_initials": "",
 	"comp_level": "qm",
 	"match_number": 0,
-	"robot_position": "R1",
+	"robot_position": "B1",
 	// Auton
 	"auton_leave_starting_line": false,
 	"auton_coral_scored_l4": 0,
@@ -344,13 +344,25 @@ function MatchScout(props: Props): React.ReactElement {
 		}
 	}
 
-	async function updateTeamNumber(): Promise<void> {
+	async function updateNumbers(): Promise<void> {
+		const compLevel = accessor.getFieldValue('comp_level');
+
+		const inPlayoffs = isInPlayoffs(compLevel);
+
+		setInPlayoffs(inPlayoffs);
+
+		await updateTeamsInMatch();
+	}
+	async function updateTeamsInMatch(): Promise<void> {
 		try {
 			const compLevel = accessor.getFieldValue('comp_level');
 			const matchNumber = accessor.getFieldValue('match_number');
-			const robotPosition = accessor.getFieldValue('robot_position');
 			const blueAllianceNumber = Number(accessor.getFieldValue('blue_alliance'));
 			const redAllianceNumber = Number(accessor.getFieldValue('red_alliance'));
+
+			if(matchNumber <= 0) {
+				return;
+			}
 
 			const teamsInMatch = await getTeamsInMatch(eventKey, compLevel, matchNumber, blueAllianceNumber, redAllianceNumber);
 
@@ -361,26 +373,22 @@ function MatchScout(props: Props): React.ReactElement {
 
 			setTeamsInMatch(teamsInMatch);
 
-			const [color, index] = parseRobotPosition(robotPosition);
-			const teamNumber = teamsInMatch[color][index];
-
-			setTeamNumber(teamNumber);
+			updateTeamNumber(teamsInMatch);
 		} catch (err) {
 			console.error("Failed to request TBA data when updating team number", err);
 		}
 	}
-	function calculateMatchLevel(): void {
-		const compLevel = accessor.getFieldValue('comp_level');
+	function updateTeamNumber(teamsInMatch: ResultTypes.TeamsInMatch | null): void {
+		if(!teamsInMatch) {
+			return;
+		}
+		const robotPosition = accessor.getFieldValue('robot_position');
 
-		const inPlayoffs = isInPlayoffs(compLevel);
+		const [color, index] = parseRobotPosition(robotPosition);
+		const teamNumber = teamsInMatch[color][index];
 
-		setInPlayoffs(inPlayoffs);
+		setTeamNumber(teamNumber);
 	}
-	async function updateNumbers(): Promise<void> {
-		calculateMatchLevel();
-		await updateTeamNumber();
-	}
-
 	function updatePenalties(): void {
 		const major = accessor.getFieldValue("overall_major_penalties");
 		const minor = accessor.getFieldValue("overall_minor_penalties");
@@ -457,6 +465,7 @@ function MatchScout(props: Props): React.ReactElement {
 					name={"robot_position"}
 					message={"Enter robot position"}
 					options={robot_position}
+					onChange={() => { updateTeamNumber(teamsInMatch); }}
 				/>
 
 				<details className="overrideOptions">

@@ -16,15 +16,14 @@ import type * as StrategicScoutTypes from '../types/strategicScout';
 import type * as Database from '../types/database';
 import type * as ResultTypes from '../types/resultTypes';
 
-const formDefaultValues = {
+const formDefaultValues: StrategicScoutTypes.All = {
 	"scouter_initials": "",
 	"comp_level": "qm",
 	"match_number": 0,
-	"robot_position": undefined,
+	"robot_position": "B1",
 	"comments": "",
-	"red_alliance": undefined,
-	"blue_alliance": undefined,
-	"penalties": 0,
+	"red_alliance": 0,
+	"blue_alliance": 0,
 } as const;
 
 type Props = {
@@ -84,13 +83,16 @@ function StrategicScout(props: Props): React.ReactElement {
 		})();
 	}, [team_number]);
 
-	async function updateTeamNumber(): Promise<void> {
+	async function updateTeamsInMatch(): Promise<void> {
 		try {
 			const compLevel = accessor.getFieldValue('comp_level');
 			const matchNumber = accessor.getFieldValue('match_number');
-			const robotPosition = accessor.getFieldValue('robot_position');
 			const blueAllianceNumber = Number(accessor.getFieldValue('blue_alliance'));
 			const redAllianceNumber = Number(accessor.getFieldValue('red_alliance'));
+
+			if(matchNumber <= 0) {
+				return;
+			}
 
 			const teamsInMatch = await getTeamsInMatch(eventKey, compLevel, matchNumber, blueAllianceNumber, redAllianceNumber);
 
@@ -101,14 +103,23 @@ function StrategicScout(props: Props): React.ReactElement {
 
 			setTeamsInMatch(teamsInMatch);
 
-			const [color, index] = parseRobotPosition(robotPosition);
-			const teamNumber = teamsInMatch[color][index];
-
-			setTeamNumber(teamNumber);
+			updateTeamNumber(teamsInMatch);
 		} catch (err) {
 			console.error("Failed to request TBA data when updating team number", err);
 		}
 	}
+	function updateTeamNumber(teamsInMatch: ResultTypes.TeamsInMatch | null): void {
+		if(!teamsInMatch) {
+			return;
+		}
+		const robotPosition = accessor.getFieldValue('robot_position');
+
+		const [color, index] = parseRobotPosition(robotPosition);
+		const teamNumber = teamsInMatch[color][index];
+
+		setTeamNumber(teamNumber);
+	}
+
 	function setNewStrategicScout(event: StrategicScoutTypes.All): void {
 		const body: StrategicScoutTypes.SubmitBody = {
 			"match_event": eventKey,
@@ -119,7 +130,6 @@ function StrategicScout(props: Props): React.ReactElement {
 			"robot_position": event.robot_position,
 			"blue_alliance": event.blue_alliance,
 			"red_alliance": event.red_alliance,
-			// "team_rating": event.team_rating,
 			"comments": event.comments,
 		};
 		Object.entries(body)
@@ -200,7 +210,7 @@ function StrategicScout(props: Props): React.ReactElement {
 		accessor.setFieldValue('robot_position', robot_position);
 
 		calculateMatchLevel();
-		await updateTeamNumber();
+		await updateTeamsInMatch();
 	}
 	async function runFormFinish(event: StrategicScoutTypes.All): Promise<void> {
 		try {
@@ -212,7 +222,7 @@ function StrategicScout(props: Props): React.ReactElement {
 	}
 	async function updateNumbers(): Promise<void> {
 		calculateMatchLevel();
-		await updateTeamNumber();
+		await updateTeamsInMatch();
 	}
 
 	function preMatch(): React.ReactElement {
@@ -282,7 +292,7 @@ function StrategicScout(props: Props): React.ReactElement {
 					name={"robot_position"}
 					message={"Please input the robot position"}
 					options={robot_position}
-					onChange={updateNumbers}
+					onChange={() => { updateTeamNumber(teamsInMatch); }}
 				/>
 
 				<button type="button" onClick={() => { setTabNum("2"); }} className='tabButton'>Next</button>
