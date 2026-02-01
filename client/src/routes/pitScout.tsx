@@ -29,7 +29,7 @@ const formDefaultValues = {
 	"intake_width": "",
 	"max_fuel_capacity":"",
 	"max_shot_range":"",
-	"trench_capibility":false,
+	"trench_capability":false,
 	"climb_during_Auto":false,
     "any_electrical_issues":"",
 	"L1":false,
@@ -104,7 +104,7 @@ function PitScout(props: Props): React.ReactElement {
 			"intake_type": event.intake_type,
 			"max_fuel_capacity": event.max_fuel_capacity,
 			"max_shot_range":event.max_shot_range,
-			"trench_capibility":event.trench_capibility,
+			"trench_capability":event.trench_capability,
 			"climb_during_Auto":event.climb_during_Auto,
 			"any_electrical_issues":event.any_electrical_issues,
 			"L1":event.L1,
@@ -340,15 +340,15 @@ function PitScout(props: Props): React.ReactElement {
 					options={max_shot_range_options}
 				/>
 				<Checkbox<FieldType>
-                    name="trench_capibility"
-                    title="Trench Capibility"
+                    name="trench_capability"
+                    title="Trench Capability"
                 />
 				<Checkbox<FieldType>
                     name="climb_during_Auto"
                     title="CLimb during Auto?"
                 />
 
-				
+
 
 
 				<h1>Climbing Capability</h1>
@@ -417,7 +417,7 @@ function PitScout(props: Props): React.ReactElement {
 				<label className="robotImageLabel" htmlFor="robotImageInput">Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}</label>
 				<input
 					ref={robotImageInput}
-					
+
 					type="file"
 					accept="image/*"
 					multiple

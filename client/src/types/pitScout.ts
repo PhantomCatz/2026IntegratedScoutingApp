@@ -13,7 +13,7 @@ export type Pit = {
 	intake_type: string;
 	max_fuel_capacity:number;
 	max_shot_range: string;
-	trench_capibility:boolean;
+	trench_capability:boolean;
 	climb_during_Auto:boolean;
 	any_electrical_issues:string;
 	L1:boolean;
@@ -40,7 +40,7 @@ export type SubmitBody = {
 			"intake_type": string;
 			"max_fuel_capacity":number;
 			"max_shot_range": string;
-			"trench_capibility":boolean;
+			"trench_capability":boolean;
 			"climb_during_Auto":boolean;
 			"any_electrical_issues":string;
 			"L1":boolean;
