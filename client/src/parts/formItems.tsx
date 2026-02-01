@@ -66,7 +66,6 @@ type CheckboxType<FieldType> = Disableable<{
 	shown?: boolean,
 	defaultValue?: boolean,
 	value?: boolean,
-	required?: boolean,
 }>;
 type TextAreaType<FieldType> = Disableable<{
 	title: string | React.ReactElement,
@@ -418,7 +417,6 @@ function Checkbox<FieldType>(props: CheckboxType<NoInfer<FieldType>>): React.Rea
 	const shown = props.shown ?? true;
 	const disabled = props.disabled;
 	const defaultValue = props.defaultValue;
-	const required = (props.required ?? true) && shown;
 
 	const checkbox = useRef<HTMLInputElement>(null);
 
@@ -454,7 +452,6 @@ function Checkbox<FieldType>(props: CheckboxType<NoInfer<FieldType>>): React.Rea
 					onChange={handleChange}
 					checked={defaultValue}
 					disabled={disabled}
-					required={required}
 				/>
 			</div>
 		</>

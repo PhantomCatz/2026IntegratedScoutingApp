@@ -24,13 +24,14 @@ export type AutonMatch = {
 export type TeleopMatch = {
 	teleop_fuel_scored: number,
 	teleop_fuel_score_multiplier: string,
+	teleop_fuel_hoarded_amount: string,
+	teleop_primary_hoard_type: string,
+}
 
 export type EndgameMatch = {
-	endgame_coral_intake_capability: string,
-	endgame_algae_intake_capability: string,
+	endgame_climb_attempted: boolean,
+	endgame_climb_level: string,
 	endgame_climb_successful: boolean,
-	endgame_climb_type: string,
-	endgame_climb_time: number,
 };
 
 export type OverallMatch = {
@@ -39,13 +40,9 @@ export type OverallMatch = {
 	overall_defended: number[];
 	overall_was_defended: boolean;
 	overall_defended_by: number[];
-	overall_penalties_incurred: string;
-	overall_pushing: number;
-	overall_driver_skill: number;
-	overall_major_penalties: number;
-	overall_minor_penalties: number;
-	overall_counter_defense: number;
-	overall_defense_quality: number;
+	overall_path_to_neutral_zone: string;
+	overall_shoot_while_moving: boolean;
+	overall_shot_hoarded_pieces: boolean;
 	overall_comments: string;
 }
 
@@ -65,23 +62,19 @@ export type SubmitBody = {
 	auton_climb_attempted: Database.Tinyint,
 	auton_climb_successful: Database.Tinyint,
 	teleop_fuel_scored: number,
-	endgame_coral_intake_capability: string,
-	endgame_algae_intake_capability: string,
+	teleop_fuel_hoarded_amount: string,
+	teleop_primary_hoard_type: string,
+	endgame_climb_attempted: Database.Tinyint,
+	endgame_climb_level: string,
 	endgame_climb_successful: Database.Tinyint,
-	endgame_climb_type: string,
-	endgame_climb_time: number,
 	overall_robot_died: Database.Tinyint,
 	overall_defended_others: Database.Tinyint,
 	overall_was_defended: Database.Tinyint,
 	overall_defended: string,
 	overall_defended_by: string,
-	overall_pushing: number,
-	overall_defense_quality: number,
-	overall_counter_defense: number,
-	overall_driver_skill: number,
-	overall_major_penalties: number,
-	overall_minor_penalties: number,
-	overall_penalties_incurred: string,
+	overall_path_to_neutral_zone: string,
+	overall_shoot_while_moving: Database.Tinyint,
+	overall_shot_hoarded_pieces: Database.Tinyint,
 	overall_comments: string,
 	robot_appeared: Database.Tinyint,
 }
