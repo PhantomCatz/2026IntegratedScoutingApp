@@ -25,7 +25,7 @@ CREATE TABLE match_data(
     overall_defended                  VARCHAR(50) NOT NULL,
     overall_defended_by               VARCHAR(50) NOT NULL,
     overall_path_to_neutral_zone      VARCHAR(10) NOT NULL,
-    overall_shoot_while_moving        TINYINT NOT NULL,
+    overall_shot_while_moving         TINYINT NOT NULL,
     overall_shot_hoarded_pieces       TINYINT NOT NULL,
     overall_comments                  VARCHAR(500),
     robot_appeared                    TINYINT NOT NULL,

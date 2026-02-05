@@ -28,14 +28,14 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"robot_position": "B1",
 	// Auton
 	"auton_fuel_scored": 0,
-	"auton_fuel_score_multiplier": "1x",
+	//"auton_fuel_score_multiplier": "1x",
 	"auton_shoot_location": [],
 	"auton_intake_location": [],
 	"auton_climb_attempted": false,
 	"auton_climb_successful": false,
 	// Teleop
 	"teleop_fuel_scored": 0,
-	"teleop_fuel_score_multiplier": "1x",
+	//"teleop_fuel_score_multiplier": "1x",
 	"teleop_fuel_hoarded_amount": "",
 	"teleop_primary_hoard_type": "",
 	// Endgame
@@ -49,7 +49,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"overall_defended": [],
 	"overall_defended_by": [],
 	"overall_path_to_neutral_zone": "",
-	"overall_shoot_while_moving": false,
+	"overall_shot_while_moving": false,
 	"overall_shot_hoarded_pieces": false,
 	"overall_comments": "",
 
@@ -69,19 +69,19 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	//"robot_position": "",
 	// Auton
 	"auton_fuel_scored": 0,
-	"auton_fuel_score_multiplier": "1x",
+	//"auton_fuel_score_multiplier": "1x",
 	"auton_shoot_location": [],
 	"auton_intake_location": [],
 	"auton_climb_attempted": false,
 	"auton_climb_successful": false,
 	// Teleop
 	"teleop_fuel_scored": 0,
-	"teleop_fuel_score_multiplier": "1x",
+	//"teleop_fuel_score_multiplier": "1x",
 	"teleop_fuel_hoarded_amount": "None",
-	"teleop_primary_hoard_type": "None",
+	"teleop_primary_hoard_type": "",
 	// Endgame
 	"endgame_climb_attempted": false,
-	"endgame_climb_level": "None",
+	"endgame_climb_level": "",
 	"endgame_climb_successful": false,
 	// Overall
 	"overall_robot_died": false,
@@ -90,7 +90,7 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	"overall_defended": [],
 	"overall_defended_by": [],
 	"overall_path_to_neutral_zone": "None",
-	"overall_shoot_while_moving": false,
+	"overall_shot_while_moving": false,
 	"overall_shot_hoarded_pieces": false,
 	"overall_comments": "Robot did not appear",
 	// Playoffs
@@ -106,6 +106,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const [teleop_fuel_number, setTeleopFuelNumber] = useState(0);
 	const [auton_fuel_multiplier, setAutonFuelMultiplier] = useState(0);
 	const [teleop_fuel_multiplier, setTeleopFuelMultiplier] = useState(0);
+	const [primaryHoardTypeIsVisible, setPrimaryHoardTypeIsVisible] = useState(false);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
 	const [defendedIsVisible, setDefendedIsVisible] = useState(false);
@@ -190,7 +191,7 @@ function MatchScout(props: Props): React.ReactElement {
 			"overall_defended": event.overall_defended.sort().join(","),
 			"overall_defended_by": event.overall_defended_by.sort().join(","),
 			"overall_path_to_neutral_zone": event.overall_path_to_neutral_zone,
-			"overall_shoot_while_moving": toTinyInt(event.overall_shoot_while_moving),
+			"overall_shot_while_moving": toTinyInt(event.overall_shot_while_moving),
 			"overall_shot_hoarded_pieces": toTinyInt(event.overall_shot_hoarded_pieces),
 			"overall_comments": event.overall_comments,
 			"robot_appeared": toTinyInt(robot_appeared),
@@ -331,14 +332,6 @@ function MatchScout(props: Props): React.ReactElement {
 		const teamNumber = teamsInMatch[color][index];
 
 		setTeamNumber(teamNumber);
-	}
-	function updatePenalties(): void {
-		const major = accessor.getFieldValue("overall_major_penalties");
-		const minor = accessor.getFieldValue("overall_minor_penalties");
-
-		const shouldShow = major + minor > 0;
-
-		setPenaltiesIsVisible(shouldShow);
 	}
 
 	function preMatch(): React.ReactElement {
@@ -550,8 +543,6 @@ function MatchScout(props: Props): React.ReactElement {
 					<Checkbox<FieldType>
 						name={"auton_climb_successful"}
 						title={"Climb Successful"}
-						required={autonClimbAttempted}
-						//onChange={}
 					/>
 				</div>
 			</div>
@@ -570,7 +561,6 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Push Hoard", value: "Push_Hoard" },
 			{ label: "Shoot Hoard", value: "Shoot_Hoard" },
 			{ label: "Dump Hoard", value: "Dump_Hoard" },
-			{ label: "None", value: "None" },
 		];
 
 		return (
@@ -636,14 +626,24 @@ function MatchScout(props: Props): React.ReactElement {
 					name={"teleop_fuel_hoarded_amount"}
 					message={"Enter fuel hoarded amount"}
 					options={teleop_fuel_hoarded_amount}
+					onChange={(value) => {
+							setPrimaryHoardTypeIsVisible(value !== "None")
+						}}
 				/>
 
-				<Select<FieldType>
-					title={"Primary Hoard Type"}
-					name={"teleop_primary_hoard_type"}
-					message={"Enter primary hoard type"}
-					options={teleop_primary_hoard_type}
-				/>
+				<div
+					style={{
+						display: primaryHoardTypeIsVisible ? 'inherit' : 'none' ,
+					}}
+				>
+					<Select<FieldType>
+						title={"Primary Hoard Type"}
+						name={"teleop_primary_hoard_type"}
+						message={"Enter primary hoard type"}
+						options={teleop_primary_hoard_type}
+						required={primaryHoardTypeIsVisible}
+					/>
+				</div>
 			</div>
 		);
 	}
@@ -654,7 +654,6 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Level 1", value: "Level_1" },
 			{ label: "Level 2", value: "Level_2" },
 			{ label: "Level 3", value: "Level_3" },
-			{ label: "None", value: "None" },
 		];
 		return (
 			<>
@@ -676,6 +675,7 @@ function MatchScout(props: Props): React.ReactElement {
 					name={"endgame_climb_level"}
 					message={"Enter climb level"}
 					options={endgame_climb_level}
+					required={climb_attempted}
 				/>
 
 				<Checkbox<FieldType>
@@ -759,12 +759,12 @@ function MatchScout(props: Props): React.ReactElement {
 				/>
 
 				<Checkbox<FieldType>
-						title="Shoot While Moving"
-						name="overall_shoot_while_moving"
+						title="Shot While Moving"
+						name="overall_shot_while_moving"
 				/>
 
 				<Checkbox<FieldType>
-						title="Shoot While Moving"
+						title="Shot Hoarded Pieces"
 						name="overall_shot_hoarded_pieces"
 				/>
 

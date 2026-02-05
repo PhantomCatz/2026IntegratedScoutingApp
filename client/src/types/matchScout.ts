@@ -41,7 +41,7 @@ export type OverallMatch = {
 	overall_was_defended: boolean;
 	overall_defended_by: number[];
 	overall_path_to_neutral_zone: string;
-	overall_shoot_while_moving: boolean;
+	overall_shot_while_moving: boolean;
 	overall_shot_hoarded_pieces: boolean;
 	overall_comments: string;
 }
@@ -73,7 +73,7 @@ export type SubmitBody = {
 	overall_defended: string,
 	overall_defended_by: string,
 	overall_path_to_neutral_zone: string,
-	overall_shoot_while_moving: Database.Tinyint,
+	overall_shot_while_moving: Database.Tinyint,
 	overall_shot_hoarded_pieces: Database.Tinyint,
 	overall_comments: string,
 	robot_appeared: Database.Tinyint,
