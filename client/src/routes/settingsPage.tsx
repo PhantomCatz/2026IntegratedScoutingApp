@@ -79,7 +79,6 @@ function SettingsPage(props: Props): React.ReactElement {
 
 		for(const m of data) {
 			const id = m.key;
-			console.log(`id=`, id);
 			mapping[id] = m;
 		}
 
