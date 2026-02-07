@@ -27,9 +27,9 @@ CREATE TABLE pit_data (
     -- Capabilities (0 = No, 1 = Yes)
     trench_capability   TINYINT NOT NULL,
     climb_during_auto   TINYINT NOT NULL,
-    L1                  TINYINT NOT NULL,
-    L2                  TINYINT NOT NULL,
-    L3                  TINYINT NOT NULL,
+    can_climb_l1                  TINYINT NOT NULL,
+    can_climb_l2                  TINYINT NOT NULL,
+    can_climb_l3                  TINYINT NOT NULL,
 
     -- Team Evaluation
     pit_organization         SMALLINT NOT NULL,
@@ -45,4 +45,4 @@ CREATE TABLE pit_data (
     robotImageURI MEDIUMTEXT NOT NULL,
 
     PRIMARY KEY (id)
-) ENGINE=InnoDB;
+);

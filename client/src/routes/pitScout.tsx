@@ -24,23 +24,22 @@ const formDefaultValues = {
 	"propulsion_motor_type": "",
 	"number_of_propulsion_motors": 0,
 	"wheel_type": "",
-	"fuel_intake_location":"",
+	"fuel_intake_location": "",
 	"intake_type": "",
 	"intake_width": "",
-	"max_fuel_capacity":"",
-	"max_shot_range":"",
-	"trench_capability":false,
-	"climb_during_Auto":false,
-    "any_electrical_issues":"",
-	"L1":false,
-	"L2":false,
-	"L3":false,
+	"max_fuel_capacity": "",
+	"max_shot_range": "",
+	"trench_capability": false,
+	"climb_during_auto": false,
+    "any_electrical_issues": "",
+	"can_climb_l1": false,
+	"can_climb_l2": false,
+	"can_climb_l3": false,
 	"pit_organization": 4,
 	"team_safety": 4,
 	"team_workmanship": 4,
 	"gracious_professionalism": 4,
 	"comments": "",
-	
 } as const;
 
 const IMAGE_DELIMITER = "$";
@@ -99,23 +98,22 @@ function PitScout(props: Props): React.ReactElement {
 			"propulsion_motor_type": event.propulsion_motor_type,
 			"number_of_propulsion_motors": event.number_of_propulsion_motors,
 			"wheel_type": event.wheel_type,
-			"fuel_intake_location":event.fuel_intake_location,
+			"fuel_intake_location": event.fuel_intake_location,
 			"intake_width": event.intake_width,
 			"intake_type": event.intake_type,
 			"max_fuel_capacity": event.max_fuel_capacity,
-			"max_shot_range":event.max_shot_range,
-			"trench_capability":event.trench_capability,
-			"climb_during_Auto":event.climb_during_Auto,
-			"any_electrical_issues":event.any_electrical_issues,
-			"L1":event.L1,
-			"L2":event.L2,
-			"L3":event.L3,
+			"max_shot_range": event.max_shot_range,
+			"trench_capability": event.trench_capability,
+			"climb_during_auto": event.climb_during_auto,
+			"any_electrical_issues": event.any_electrical_issues,
+			"can_climb_l1": event.can_climb_l1,
+			"can_climb_l2": event.can_climb_l2,
+			"can_climb_l3": event.can_climb_l3,
 			"pit_organization": event.pit_organization,
 			"team_safety": event.team_safety,
 			"team_workmanship": event.team_workmanship,
 			"gracious_professionalism": event.gracious_professionalism,
 			"comments": event.comments,
-			
 		};
 		Object.entries(body)
 			.forEach((item) => {
@@ -344,30 +342,23 @@ function PitScout(props: Props): React.ReactElement {
                     title="Trench Capability"
                 />
 				<Checkbox<FieldType>
-                    name="climb_during_Auto"
-                    title="CLimb during Auto?"
+                    name="climb_during_auto"
+                    title="CLimb during auto?"
                 />
-
-
-
 
 				<h1>Climbing Capability</h1>
 				<Checkbox<FieldType>
 					title="L1"
-					name="L1"
+					name="can_climb_l1"
 				/>
 				<Checkbox<FieldType>
 					title="L2"
-					name="L2"
+					name="can_climb_l2"
 				/>
 				<Checkbox<FieldType>
 					title="L3"
-					name="L3"
+					name="can_climb_l3"
 				/>
-
-
-
-
 				<NumberInput<FieldType>
 					title={"Pit Organization(0-4)"}
 					name={"pit_organization"}
@@ -417,7 +408,6 @@ function PitScout(props: Props): React.ReactElement {
 				<label className="robotImageLabel" htmlFor="robotImageInput">Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}</label>
 				<input
 					ref={robotImageInput}
-
 					type="file"
 					accept="image/*"
 					multiple
