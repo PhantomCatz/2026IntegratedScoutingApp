@@ -214,6 +214,7 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "50", value: "50" },
 			{ label: "25", value: "25" },
 		];
+		//test
 		const algae_intake_capability_options = [
 			{ label: "Reef Zone", value: "Reef Zone" },
 			{ label: "Ground", value: "Ground" },
