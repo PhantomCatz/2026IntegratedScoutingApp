@@ -14,7 +14,9 @@ export type PreMatch = {
 
 export type AutonMatch = {
 	auton_fuel_scored: number,
-	auton_fuel_score_multiplier: string,
+	auton_1x_multiplier: boolean,
+	auton_2x_multiplier: boolean,
+	auton_5x_multiplier: boolean,
 	auton_shoot_location: string[]
 	auton_intake_location: string[]
 	auton_climb_attempted: boolean,
@@ -23,7 +25,9 @@ export type AutonMatch = {
 
 export type TeleopMatch = {
 	teleop_fuel_scored: number,
-	teleop_fuel_score_multiplier: string,
+	teleop_1x_multiplier: boolean,
+	teleop_2x_multiplier: boolean,
+	teleop_5x_multiplier: boolean,
 	teleop_fuel_hoarded_amount: string,
 	teleop_primary_hoard_type: string,
 }

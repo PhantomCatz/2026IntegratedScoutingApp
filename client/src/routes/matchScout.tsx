@@ -28,14 +28,18 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"robot_position": "B1",
 	// Auton
 	"auton_fuel_scored": 0,
-	//"auton_fuel_score_multiplier": "1x",
+	"auton_1x_multiplier": true,
+	"auton_2x_multiplier": false,
+	"auton_5x_multiplier": false,
 	"auton_shoot_location": [],
 	"auton_intake_location": [],
 	"auton_climb_attempted": false,
 	"auton_climb_successful": false,
 	// Teleop
 	"teleop_fuel_scored": 0,
-	//"teleop_fuel_score_multiplier": "1x",
+	"teleop_1x_multiplier": true,
+	"teleop_2x_multiplier": false,
+	"teleop_5x_multiplier": false,
 	"teleop_fuel_hoarded_amount": "",
 	"teleop_primary_hoard_type": "",
 	// Endgame
@@ -112,7 +116,6 @@ function MatchScout(props: Props): React.ReactElement {
 	const [defendedIsVisible, setDefendedIsVisible] = useState(false);
 	const [wasDefendedIsVisible, setWasDefendedIsVisible] = useState(false);
 	const [autonClimbAttempted, setAutonClimbAttempted] = useState(false);
-	const [penaltiesIsVisible, setPenaltiesIsVisible] = useState(false);
 	const [opposingTeamNum, setOpposingTeamNum] = useState<number[]>([]);
 	const [inPlayoffs, setInPlayoffs] = useState(false);
 	const [robot_appeared, setRobot_appeared] = useState(true);
@@ -144,7 +147,6 @@ function MatchScout(props: Props): React.ReactElement {
 
 		if(!currentRobotPosition) {
 			return;
-
 		}
 
 		const [currentColor, _] = parseRobotPosition(currentRobotPosition);
@@ -491,24 +493,21 @@ function MatchScout(props: Props): React.ReactElement {
 				<b>Fuel Score Multiplier</b>
 
 				<div className="inputRow">
-					<Radio<FieldType>
-						name={"auton_fuel_score_multiplier"}
+					<Checkbox<FieldType>
+						name={"auton_1x_multiplier"}
 						title={"1x"}
-						value={"1x"}
 						onChange={() => {setAutonFuelMultiplier(1);}}
 					/>
 
-					<Radio<FieldType>
-						name={"auton_fuel_score_multiplier"}
+					<Checkbox<FieldType>
+						name={"auton_2x_multiplier"}
 						title={"2x"}
-						value={"2x"}
 						onChange={() => {setAutonFuelMultiplier(2);}}
 					/>
 
-					<Radio<FieldType>
-						name={"auton_fuel_score_multiplier"}
+					<Checkbox<FieldType>
+						name={"auton_5x_multiplier"}
 						title={"5x"}
-						value={"5x"}
 						onChange={() => {setAutonFuelMultiplier(5);}}
 					/>
 				</div>
@@ -599,24 +598,21 @@ function MatchScout(props: Props): React.ReactElement {
 				<b>Fuel Score Multiplier</b>
 
 				<div className="inputRow">
-					<Radio<FieldType>
-						name={"teleop_fuel_score_multiplier"}
+					<Checkbox<FieldType>
+						name={"teleop_1x_multiplier"}
 						title={"1x"}
-						value={"1x"}
 						onChange={() => {setTeleopFuelMultiplier(1);}}
 					/>
 
-					<Radio<FieldType>
-						name={"teleop_fuel_score_multiplier"}
+					<Checkbox<FieldType>
+						name={"teleop_2x_multiplier"}
 						title={"2x"}
-						value={"2x"}
 						onChange={() => {setTeleopFuelMultiplier(2);}}
 					/>
 
-					<Radio<FieldType>
-						name={"teleop_fuel_score_multiplier"}
+					<Checkbox<FieldType>
+						name={"teleop_5x_multiplier"}
 						title={"5x"}
-						value={"5x"}
 						onChange={() => {setTeleopFuelMultiplier(5);}}
 					/>
 				</div>
