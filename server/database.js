@@ -2,23 +2,23 @@ import mysql from 'mysql2/promise';
 
 const defaultValue = { "err" : "Failed to resolve request." };
 const connectionData = {
-	"user": process.env.USERNAME,
-	"password": process.env.PASSWORD,
-	"host": process.env.HOST,
-	"port": process.env.PORT,
-	"database": process.env.DATABASE,
+	"user": process.env.DB_USERNAME,
+	"password": process.env.DB_PASSWORD,
+	"host": process.env.DB_HOST,
+	"port": process.env.DB_PORT,
+	"database": process.env.DB_DATABASE,
 	"connectionLimit": 15,
 };
 
 const NUM_ALLIANCES = 2;
 const TEAMS_PER_ALLIANCE = 3;
 
-if(!process.env.DATABASE || !connectionData?.database) {
+if(!process.env.DB_DATABASE || !connectionData?.database) {
 	console.error("connectionData=", connectionData);
 	console.error("[91mWARNING:[0m Check .env");
 }
 
-console.log("Using Database " + process.env.DATABASE);
+console.log("Using Database " + process.env.DB_DATABASE);
 
 let connPool = {
 	errorConnection: {
