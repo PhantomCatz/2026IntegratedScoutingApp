@@ -276,10 +276,13 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("robot_position", robot_position);
 
 			setRobot_appeared(true);
-			setWasDefendedIsVisible(false);
-			setDefendedIsVisible(false);
 			setAutonFuelNumber(0);
 			setAutonClimbAttempted(false);
+			setTeleopFuelNumber(0);
+			setFuelMultiplier(1);
+			setPrimaryHoardTypeIsVisible(false);
+			setDefendedIsVisible(false);
+			setWasDefendedIsVisible(false);
 
 			await updateNumbers();
 		} catch (err) {
