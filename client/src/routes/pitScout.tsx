@@ -27,7 +27,7 @@ const formDefaultValues = {
 	"fuel_intake_location": "",
 	"intake_type": "",
 	"intake_width": "",
-	"max_fuel_capacity": "",
+	"max_fuel_capacity": 0,
 	"max_shot_range": "",
 	"trench_capability": false,
 	"climb_during_auto": false,
