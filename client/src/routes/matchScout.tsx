@@ -108,8 +108,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const [team_number, setTeamNumber] = useState(0);
 	const [auton_fuel_number, setAutonFuelNumber] = useState(0);
 	const [teleop_fuel_number, setTeleopFuelNumber] = useState(0);
-	const [auton_fuel_multiplier, setAutonFuelMultiplier] = useState(0);
-	const [teleop_fuel_multiplier, setTeleopFuelMultiplier] = useState(0);
+	const [fuel_multiplier, setFuelMultiplier] = useState(1);
 	const [primaryHoardTypeIsVisible, setPrimaryHoardTypeIsVisible] = useState(false);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
@@ -119,7 +118,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const [opposingTeamNum, setOpposingTeamNum] = useState<number[]>([]);
 	const [inPlayoffs, setInPlayoffs] = useState(false);
 	const [robot_appeared, setRobot_appeared] = useState(true);
-	const [climb_attempted, setClimbAttempted] = useState(false);
+	const [endgameClimbAttempted, setEndgameClimbAttempted] = useState(false);
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 
 	if(!_eventKey) {
@@ -336,6 +335,39 @@ function MatchScout(props: Props): React.ReactElement {
 		setTeamNumber(teamNumber);
 	}
 
+	function OneXMultiplier (): void {
+		accessor.setFieldValue('auton_1x_multiplier', true);
+		accessor.setFieldValue('auton_2x_multiplier', false);
+		accessor.setFieldValue('auton_5x_multiplier', false);
+		accessor.setFieldValue('teleop_1x_multiplier', true);
+		accessor.setFieldValue('teleop_2x_multiplier', false);
+		accessor.setFieldValue('teleop_5x_multiplier', false);
+
+		setFuelMultiplier(1);
+	}
+
+	function TwoXMultiplier (): void {
+		accessor.setFieldValue('auton_1x_multiplier', false);
+		accessor.setFieldValue('auton_2x_multiplier', true);
+		accessor.setFieldValue('auton_5x_multiplier', false);
+		accessor.setFieldValue('teleop_1x_multiplier', false);
+		accessor.setFieldValue('teleop_2x_multiplier', true);
+		accessor.setFieldValue('teleop_5x_multiplier', false);
+
+		setFuelMultiplier(2);
+	}
+
+	function FiveXMultiplier (): void {
+		accessor.setFieldValue('auton_1x_multiplier', false);
+		accessor.setFieldValue('auton_2x_multiplier', false);
+		accessor.setFieldValue('auton_5x_multiplier', true);
+		accessor.setFieldValue('teleop_1x_multiplier', false);
+		accessor.setFieldValue('teleop_2x_multiplier', false);
+		accessor.setFieldValue('teleop_5x_multiplier', true);
+
+		setFuelMultiplier(5);
+	}
+
 	function preMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.PreMatch;
 
@@ -474,7 +506,7 @@ function MatchScout(props: Props): React.ReactElement {
 				className={"plusButton"}
 				type="button"
 				onMouseDown={() => {
-					setAutonFuelNumber(auton_fuel_number + auton_fuel_multiplier);
+					setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
 						}}
 				>+</button>
 
@@ -482,7 +514,7 @@ function MatchScout(props: Props): React.ReactElement {
 				className={"minusButton"}
 				type="button"
 				onMouseDown={() => {
-					let new_fuel_number = auton_fuel_number - auton_fuel_multiplier;
+					let new_fuel_number = auton_fuel_number - fuel_multiplier;
 					if(new_fuel_number < 0){
 						new_fuel_number = 0;
 					}
@@ -492,23 +524,24 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<b>Fuel Score Multiplier</b>
 
-				<div className="inputRow">
+				<div className="inputRow multiplierButtons">
 					<Checkbox<FieldType>
+						
 						name={"auton_1x_multiplier"}
-						title={"1x"}
-						onChange={() => {setAutonFuelMultiplier(1);}}
+						title={""}
+						onChange={OneXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
 						name={"auton_2x_multiplier"}
-						title={"2x"}
-						onChange={() => {setAutonFuelMultiplier(2);}}
+						title={""}
+						onChange={TwoXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
 						name={"auton_5x_multiplier"}
-						title={"5x"}
-						onChange={() => {setAutonFuelMultiplier(5);}}
+						title={""}
+						onChange={FiveXMultiplier}
 					/>
 				</div>
 
@@ -579,7 +612,7 @@ function MatchScout(props: Props): React.ReactElement {
 				className={"plusButton"}
 				type="button"
 				onMouseDown={() => {
-					setTeleopFuelNumber(teleop_fuel_number + teleop_fuel_multiplier);
+					setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
 						}}
 				>+</button>
 
@@ -587,7 +620,7 @@ function MatchScout(props: Props): React.ReactElement {
 				className={"minusButton"}
 				type="button"
 				onMouseDown={() => {
-					let new_fuel_number = teleop_fuel_number - teleop_fuel_multiplier;
+					let new_fuel_number = teleop_fuel_number - fuel_multiplier;
 					if(new_fuel_number < 0){
 						new_fuel_number = 0;
 					}
@@ -597,23 +630,23 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<b>Fuel Score Multiplier</b>
 
-				<div className="inputRow">
+				<div className="inputRow multiplierButtons">
 					<Checkbox<FieldType>
 						name={"teleop_1x_multiplier"}
-						title={"1x"}
-						onChange={() => {setTeleopFuelMultiplier(1);}}
+						title={""}
+						onChange={OneXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
 						name={"teleop_2x_multiplier"}
-						title={"2x"}
-						onChange={() => {setTeleopFuelMultiplier(2);}}
+						title={""}
+						onChange={TwoXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
 						name={"teleop_5x_multiplier"}
-						title={"5x"}
-						onChange={() => {setTeleopFuelMultiplier(5);}}
+						title={""}
+						onChange={FiveXMultiplier}
 					/>
 				</div>
 
@@ -657,13 +690,13 @@ function MatchScout(props: Props): React.ReactElement {
 					name="endgame_climb_attempted"
 					title="Climb Attempted?"
 					onChange={(event) => {
-						setClimbAttempted(event);
+						setEndgameClimbAttempted(event);
 					}}
 				/>
 
 				<div
 					style={{
-						display: climb_attempted ? 'inherit' : 'none' ,
+						display: endgameClimbAttempted ? 'inherit' : 'none' ,
 					}}
 				>
 					<Select<FieldType>
@@ -671,7 +704,7 @@ function MatchScout(props: Props): React.ReactElement {
 					name={"endgame_climb_level"}
 					message={"Enter climb level"}
 					options={endgame_climb_level}
-					required={climb_attempted}
+					required={endgameClimbAttempted}
 				/>
 
 				<Checkbox<FieldType>

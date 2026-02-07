@@ -60,4 +60,49 @@ match-scout {
 			cursor: pointer;
 		}
 	}
+	.multiplierButtons > :nth-child(1) input{
+		&::after {
+			text-align: center;
+			vertical-align: bottom;
+			display: inline;
+			font-size: 2.5rem;
+			content: '1x' !important;
+		}
+		&:checked {
+			background-color: var(--color-success);
+		}
+		&:not(:checked) {
+			background-color: var(--color-failure);
+		}
+	}
+	.multiplierButtons > :nth-child(2) input{
+		&::after {
+			text-align: center;
+			vertical-align: bottom;
+			display: inline;
+			font-size: 2.5rem;
+			content: '2x' !important;
+		}
+		&:checked {
+			background-color: var(--color-success);
+		}
+		&:not(:checked) {
+			background-color: var(--color-failure);
+		}
+	}
+	.multiplierButtons > :nth-child(3) input{
+		&::after {
+			text-align: center;
+			vertical-align: bottom;
+			display: inline;
+			font-size: 2.5rem;
+			content: '5x' !important;
+		}
+		&:checked {
+			background-color: var(--color-success);
+		}
+		&:not(:checked) {
+			background-color: var(--color-failure);
+		}
+	}
 }
