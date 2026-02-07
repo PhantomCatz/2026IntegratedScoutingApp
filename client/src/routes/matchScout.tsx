@@ -27,7 +27,6 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"match_number": 0,
 	"robot_position": "B1",
 	// Auton
-	"auton_fuel_scored": 0,
 	"auton_1x_multiplier": true,
 	"auton_2x_multiplier": false,
 	"auton_5x_multiplier": false,
@@ -36,7 +35,6 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"auton_climb_attempted": false,
 	"auton_climb_successful": false,
 	// Teleop
-	"teleop_fuel_scored": 0,
 	"teleop_1x_multiplier": true,
 	"teleop_2x_multiplier": false,
 	"teleop_5x_multiplier": false,
@@ -274,6 +272,8 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("comp_level", comp_level);
 			accessor.setFieldValue("match_number", match_number + 1);
 			accessor.setFieldValue("robot_position", robot_position);
+			accessor.setFieldValue("auton_1x_multiplier", true);
+			accessor.setFieldValue("teleop_1x_multiplier", true);
 
 			setRobot_appeared(true);
 			setAutonFuelNumber(0);
@@ -496,19 +496,15 @@ function MatchScout(props: Props): React.ReactElement {
 				
 				<NumberInput<FieldType>
 					title={"Fuel Scored"}
-					name={"auton_fuel_scored"}
-					defaultValue={auton_fuel_number}
-					message={"Enter # fuel scored in Auton"}
 					buttons={false}
 					value={auton_fuel_number}
-					min={0}
 					disabled
 				/>
 
 				<button
 				className={"plusButton"}
 				type="button"
-				onMouseDown={() => {
+				onClick={() => {
 					setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
 						}}
 				>+</button>
@@ -516,7 +512,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<button
 				className={"minusButton"}
 				type="button"
-				onMouseDown={() => {
+				onClick={() => {
 					let new_fuel_number = auton_fuel_number - fuel_multiplier;
 					if(new_fuel_number < 0){
 						new_fuel_number = 0;
@@ -602,19 +598,15 @@ function MatchScout(props: Props): React.ReactElement {
 			<div>
 				<NumberInput<FieldType>
 					title={"Fuel Scored"}
-					name={"teleop_fuel_scored"}
-					defaultValue={teleop_fuel_number}
-					message={"Enter # fuel scored in Teleop"}
 					buttons={false}
 					value={teleop_fuel_number}
-					min={0}
 					disabled
 				/>
 
 				<button
 				className={"plusButton"}
 				type="button"
-				onMouseDown={() => {
+				onClick={() => {
 					setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
 						}}
 				>+</button>
@@ -622,7 +614,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<button
 				className={"minusButton"}
 				type="button"
-				onMouseDown={() => {
+				onClick={() => {
 					let new_fuel_number = teleop_fuel_number - fuel_multiplier;
 					if(new_fuel_number < 0){
 						new_fuel_number = 0;

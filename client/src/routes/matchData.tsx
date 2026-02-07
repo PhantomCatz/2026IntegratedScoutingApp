@@ -182,7 +182,7 @@ function MatchData(props: Props): React.ReactElement {
 		}
 
 		switch(field) {
-			case "auton_fuel_scored":
+			case "auton_coral_scored_l4":
 			case "auton_coral_scored_l3":
 			case "auton_coral_scored_l2":
 			case "auton_coral_scored_l1":

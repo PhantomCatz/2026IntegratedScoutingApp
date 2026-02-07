@@ -13,7 +13,6 @@ export type PreMatch = {
 };
 
 export type AutonMatch = {
-	auton_fuel_scored: number,
 	auton_1x_multiplier: boolean,
 	auton_2x_multiplier: boolean,
 	auton_5x_multiplier: boolean,
@@ -24,7 +23,6 @@ export type AutonMatch = {
 };
 
 export type TeleopMatch = {
-	teleop_fuel_scored: number,
 	teleop_1x_multiplier: boolean,
 	teleop_2x_multiplier: boolean,
 	teleop_5x_multiplier: boolean,
