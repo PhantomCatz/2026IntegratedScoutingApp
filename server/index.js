@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { getTeamInfo, getTeamsScouted, getTeamPitInfo, getTeamStrategicInfo, submitPitData, submitMatchData, submitStrategicData,} from "./database.js";
 import express from 'express';
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.DB_PORT || 3001;
 
 const app = express();
 
