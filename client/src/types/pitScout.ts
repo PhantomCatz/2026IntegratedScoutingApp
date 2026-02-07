@@ -10,7 +10,7 @@ export type Pit = {
 	wheel_type: string;
 	fuel_intake_location: string;
 	intake_width: string;
-	intake_type: string;
+	intake_type: string[];
 	max_fuel_capacity: number;
 	max_shot_range: string;
 	trench_capability: boolean;

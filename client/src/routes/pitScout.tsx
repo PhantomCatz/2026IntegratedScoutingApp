@@ -100,7 +100,7 @@ function PitScout(props: Props): React.ReactElement {
 			"wheel_type": event.wheel_type,
 			"fuel_intake_location": event.fuel_intake_location,
 			"intake_width": event.intake_width,
-			"intake_type": event.intake_type,
+			"intake_type": event.intake_type.join(','),
 			"max_fuel_capacity": event.max_fuel_capacity,
 			"max_shot_range": event.max_shot_range,
 			"trench_capability": event.trench_capability,
