@@ -343,7 +343,7 @@ function PitScout(props: Props): React.ReactElement {
                 />
 				<Checkbox<FieldType>
                     name="climb_during_auto"
-                    title="CLimb during auto?"
+                    title="Climb during auto?"
                 />
 
 				<h1>Climbing Capability</h1>
