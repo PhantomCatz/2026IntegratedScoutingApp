@@ -5,7 +5,7 @@ import Header from '../parts/header';
 import QrCode from '../parts/qrCodeViewer';
 import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getOpposingAllianceColor, parseRobotPosition, getRobotPositionOptions } from '../utils/tbaRequest.ts';
 import { escapeUnicode, toTinyInt } from "../utils/utils";
-import Form, { NumberInput, Select, Checkbox, Input, TextArea } from '../parts/formItems';
+import Form, { NumberInput, Select, Checkbox, Input, TextArea, Radio } from '../parts/formItems';
 import { getFieldAccessor, } from '../parts/formItems';
 import { Tabs, } from "../parts/tabs";
 import Constants from '../utils/constants';
@@ -27,49 +27,32 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"match_number": 0,
 	"robot_position": "B1",
 	// Auton
-	"auton_leave_starting_line": false,
-	"auton_coral_scored_l4": 0,
-	"auton_coral_missed_l4": 0,
-	"auton_coral_scored_l3": 0,
-	"auton_coral_missed_l3": 0,
-	"auton_coral_scored_l2": 0,
-	"auton_coral_missed_l2": 0,
-	"auton_coral_scored_l1": 0,
-	"auton_coral_missed_l1": 0,
-	"auton_algae_scored_net": 0,
-	"auton_algae_missed_net": 0,
-	"auton_algae_scored_processor": 0,
+	"auton_1x_multiplier": true,
+	"auton_2x_multiplier": false,
+	"auton_5x_multiplier": false,
+	"auton_shoot_location": [],
+	"auton_intake_location": [],
+	"auton_climb_attempted": false,
+	"auton_climb_successful": false,
 	// Teleop
-	"teleop_coral_scored_l4": 0,
-	"teleop_coral_missed_l4": 0,
-	"teleop_coral_scored_l3": 0,
-	"teleop_coral_missed_l3": 0,
-	"teleop_coral_scored_l2": 0,
-	"teleop_coral_missed_l2": 0,
-	"teleop_coral_scored_l1": 0,
-	"teleop_coral_missed_l1": 0,
-	"teleop_algae_scored_net": 0,
-	"teleop_algae_missed_net": 0,
-	"teleop_algae_scored_processor": 0,
+	"teleop_1x_multiplier": true,
+	"teleop_2x_multiplier": false,
+	"teleop_5x_multiplier": false,
+	"teleop_fuel_hoarded_amount": "",
+	"teleop_primary_hoard_type": "",
 	// Endgame
-	"endgame_coral_intake_capability": "",
-	"endgame_algae_intake_capability": "",
+	"endgame_climb_attempted": false,
+	"endgame_climb_level": "",
 	"endgame_climb_successful": false,
-	"endgame_climb_type": "",
-	"endgame_climb_time": 0,
 	// Overall
 	"overall_robot_died": false,
 	"overall_defended_others": false,
 	"overall_was_defended": false,
 	"overall_defended": [],
 	"overall_defended_by": [],
-	"overall_pushing": 0,
-	"overall_defense_quality": 0,
-	"overall_counter_defense": 0,
-	"overall_driver_skill": 0,
-	"overall_major_penalties": 0,
-	"overall_minor_penalties": 0,
-	"overall_penalties_incurred": "",
+	"overall_path_to_neutral_zone": "",
+	"overall_shot_while_moving": false,
+	"overall_shot_hoarded_pieces": false,
 	"overall_comments": "",
 
 	// Playoffs
@@ -87,49 +70,30 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	//"match_number": 0,
 	//"robot_position": "",
 	// Auton
-	"auton_leave_starting_line": false,
-	"auton_coral_scored_l4": 0,
-	"auton_coral_missed_l4": 0,
-	"auton_coral_scored_l3": 0,
-	"auton_coral_missed_l3": 0,
-	"auton_coral_scored_l2": 0,
-	"auton_coral_missed_l2": 0,
-	"auton_coral_scored_l1": 0,
-	"auton_coral_missed_l1": 0,
-	"auton_algae_scored_net": 0,
-	"auton_algae_missed_net": 0,
-	"auton_algae_scored_processor": 0,
+	"auton_fuel_scored": 0,
+	//"auton_fuel_score_multiplier": "1x",
+	"auton_shoot_location": [],
+	"auton_intake_location": [],
+	"auton_climb_attempted": false,
+	"auton_climb_successful": false,
 	// Teleop
-	"teleop_coral_scored_l4": 0,
-	"teleop_coral_missed_l4": 0,
-	"teleop_coral_scored_l3": 0,
-	"teleop_coral_missed_l3": 0,
-	"teleop_coral_scored_l2": 0,
-	"teleop_coral_missed_l2": 0,
-	"teleop_coral_scored_l1": 0,
-	"teleop_coral_missed_l1": 0,
-	"teleop_algae_scored_net": 0,
-	"teleop_algae_missed_net": 0,
-	"teleop_algae_scored_processor": 0,
+	"teleop_fuel_scored": 0,
+	//"teleop_fuel_score_multiplier": "1x",
+	"teleop_fuel_hoarded_amount": "None",
+	"teleop_primary_hoard_type": "",
 	// Endgame
-	"endgame_coral_intake_capability": "Neither",
-	"endgame_algae_intake_capability": "Neither",
+	"endgame_climb_attempted": false,
+	"endgame_climb_level": "",
 	"endgame_climb_successful": false,
-	"endgame_climb_type": "Neither",
-	"endgame_climb_time": 0,
 	// Overall
 	"overall_robot_died": false,
 	"overall_defended_others": false,
 	"overall_was_defended": false,
 	"overall_defended": [],
 	"overall_defended_by": [],
-	"overall_pushing": 0,
-	"overall_defense_quality": 0,
-	"overall_counter_defense": 0,
-	"overall_driver_skill": 0,
-	"overall_major_penalties": 0,
-	"overall_minor_penalties": 0,
-	"overall_penalties_incurred": "",
+	"overall_path_to_neutral_zone": "None",
+	"overall_shot_while_moving": false,
+	"overall_shot_hoarded_pieces": false,
 	"overall_comments": "Robot did not appear",
 	// Playoffs
 	//"red_alliance": "",
@@ -140,15 +104,19 @@ function MatchScout(props: Props): React.ReactElement {
 	const [isLoading, setLoading] = useState(false);
 	const [tabNum, setTabNum] = useState("1");
 	const [team_number, setTeamNumber] = useState(0);
+	const [auton_fuel_number, setAutonFuelNumber] = useState(0);
+	const [teleop_fuel_number, setTeleopFuelNumber] = useState(0);
+	const [fuel_multiplier, setFuelMultiplier] = useState(1);
+	const [primaryHoardTypeIsVisible, setPrimaryHoardTypeIsVisible] = useState(false);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
 	const [defendedIsVisible, setDefendedIsVisible] = useState(false);
 	const [wasDefendedIsVisible, setWasDefendedIsVisible] = useState(false);
-	const [penaltiesIsVisible, setPenaltiesIsVisible] = useState(false);
+	const [autonClimbAttempted, setAutonClimbAttempted] = useState(false);
 	const [opposingTeamNum, setOpposingTeamNum] = useState<number[]>([]);
 	const [inPlayoffs, setInPlayoffs] = useState(false);
 	const [robot_appeared, setRobot_appeared] = useState(true);
-	const [climb_successful, setClimbSuccessful] = useState(false);
+	const [endgameClimbAttempted, setEndgameClimbAttempted] = useState(false);
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 
 	if(!_eventKey) {
@@ -176,7 +144,6 @@ function MatchScout(props: Props): React.ReactElement {
 
 		if(!currentRobotPosition) {
 			return;
-
 		}
 
 		const [currentColor, _] = parseRobotPosition(currentRobotPosition);
@@ -203,49 +170,28 @@ function MatchScout(props: Props): React.ReactElement {
 			"match_number": event.match_number,
 			"robot_position": event.robot_position,
 			// Auton
-			"auton_leave_starting_line": toTinyInt(event.auton_leave_starting_line),
-			"auton_coral_scored_l4": event.auton_coral_scored_l4,
-			"auton_coral_missed_l4": event.auton_coral_missed_l4,
-			"auton_coral_scored_l3": event.auton_coral_scored_l3,
-			"auton_coral_missed_l3": event.auton_coral_missed_l3,
-			"auton_coral_scored_l2": event.auton_coral_scored_l2,
-			"auton_coral_missed_l2": event.auton_coral_missed_l2,
-			"auton_coral_scored_l1": event.auton_coral_scored_l1,
-			"auton_coral_missed_l1": event.auton_coral_missed_l1,
-			"auton_algae_scored_net": event.auton_algae_scored_net,
-			"auton_algae_missed_net": event.auton_algae_missed_net,
-			"auton_algae_scored_processor": event.auton_algae_scored_processor,
+			"auton_fuel_scored": auton_fuel_number,
+			"auton_shoot_location": event.auton_shoot_location.sort().join(","),
+			"auton_intake_location": event.auton_intake_location.sort().join(","),
+			"auton_climb_attempted": toTinyInt(event.auton_climb_attempted),
+			"auton_climb_successful": toTinyInt(event.auton_climb_successful),
 			// Teleop
-			"teleop_coral_scored_l4": event.teleop_coral_scored_l4,
-			"teleop_coral_missed_l4": event.teleop_coral_missed_l4,
-			"teleop_coral_scored_l3": event.teleop_coral_scored_l3,
-			"teleop_coral_missed_l3": event.teleop_coral_missed_l3,
-			"teleop_coral_scored_l2": event.teleop_coral_scored_l2,
-			"teleop_coral_missed_l2": event.teleop_coral_missed_l2,
-			"teleop_coral_scored_l1": event.teleop_coral_scored_l1,
-			"teleop_coral_missed_l1": event.teleop_coral_missed_l1,
-			"teleop_algae_scored_net": event.teleop_algae_scored_net,
-			"teleop_algae_missed_net": event.teleop_algae_missed_net,
-			"teleop_algae_scored_processor": event.teleop_algae_scored_processor,
+			"teleop_fuel_scored": teleop_fuel_number,
+			"teleop_fuel_hoarded_amount": event.teleop_fuel_hoarded_amount,
+			"teleop_primary_hoard_type": event.teleop_primary_hoard_type,
 			// Endgame
-			"endgame_coral_intake_capability": event.endgame_coral_intake_capability,
-			"endgame_algae_intake_capability": event.endgame_algae_intake_capability,
+			"endgame_climb_attempted": toTinyInt(event.endgame_climb_attempted),
+			"endgame_climb_level": event.endgame_climb_level,
 			"endgame_climb_successful": toTinyInt(event.endgame_climb_successful),
-			"endgame_climb_type": event.endgame_climb_type,
-			"endgame_climb_time": event.endgame_climb_time,
 			// Overall
 			"overall_robot_died": toTinyInt(event.overall_robot_died),
 			"overall_defended_others": toTinyInt(event.overall_defended_others),
 			"overall_was_defended": toTinyInt(event.overall_was_defended),
 			"overall_defended": event.overall_defended.sort().join(","),
 			"overall_defended_by": event.overall_defended_by.sort().join(","),
-			"overall_pushing": event.overall_pushing,
-			"overall_defense_quality": event.overall_defense_quality,
-			"overall_counter_defense": event.overall_counter_defense,
-			"overall_driver_skill": event.overall_driver_skill,
-			"overall_major_penalties": event.overall_major_penalties,
-			"overall_minor_penalties": event.overall_minor_penalties,
-			"overall_penalties_incurred": event.overall_penalties_incurred,
+			"overall_path_to_neutral_zone": event.overall_path_to_neutral_zone,
+			"overall_shot_while_moving": toTinyInt(event.overall_shot_while_moving),
+			"overall_shot_hoarded_pieces": toTinyInt(event.overall_shot_hoarded_pieces),
 			"overall_comments": event.overall_comments,
 			"robot_appeared": toTinyInt(robot_appeared),
 		};
@@ -305,11 +251,6 @@ function MatchScout(props: Props): React.ReactElement {
 		}
 	}
 
-	function updateAutonValues(value: number): void {
-		if(value) {
-			accessor.setFieldValue("auton_leave_starting_line", true);
-		}
-	}
 	async function onSubmit(event: MatchScoutTypes.All): Promise<void> {
 		if(isLoading) {
 			return;
@@ -331,10 +272,17 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("comp_level", comp_level);
 			accessor.setFieldValue("match_number", match_number + 1);
 			accessor.setFieldValue("robot_position", robot_position);
+			accessor.setFieldValue("auton_1x_multiplier", true);
+			accessor.setFieldValue("teleop_1x_multiplier", true);
 
 			setRobot_appeared(true);
-			setWasDefendedIsVisible(false);
+			setAutonFuelNumber(0);
+			setAutonClimbAttempted(false);
+			setTeleopFuelNumber(0);
+			setFuelMultiplier(1);
+			setPrimaryHoardTypeIsVisible(false);
 			setDefendedIsVisible(false);
+			setWasDefendedIsVisible(false);
 
 			await updateNumbers();
 		} catch (err) {
@@ -389,13 +337,38 @@ function MatchScout(props: Props): React.ReactElement {
 
 		setTeamNumber(teamNumber);
 	}
-	function updatePenalties(): void {
-		const major = accessor.getFieldValue("overall_major_penalties");
-		const minor = accessor.getFieldValue("overall_minor_penalties");
 
-		const shouldShow = major + minor > 0;
+	function OneXMultiplier (): void {
+		accessor.setFieldValue('auton_1x_multiplier', true);
+		accessor.setFieldValue('auton_2x_multiplier', false);
+		accessor.setFieldValue('auton_5x_multiplier', false);
+		accessor.setFieldValue('teleop_1x_multiplier', true);
+		accessor.setFieldValue('teleop_2x_multiplier', false);
+		accessor.setFieldValue('teleop_5x_multiplier', false);
 
-		setPenaltiesIsVisible(shouldShow);
+		setFuelMultiplier(1);
+	}
+
+	function TwoXMultiplier (): void {
+		accessor.setFieldValue('auton_1x_multiplier', false);
+		accessor.setFieldValue('auton_2x_multiplier', true);
+		accessor.setFieldValue('auton_5x_multiplier', false);
+		accessor.setFieldValue('teleop_1x_multiplier', false);
+		accessor.setFieldValue('teleop_2x_multiplier', true);
+		accessor.setFieldValue('teleop_5x_multiplier', false);
+
+		setFuelMultiplier(2);
+	}
+
+	function FiveXMultiplier (): void {
+		accessor.setFieldValue('auton_1x_multiplier', false);
+		accessor.setFieldValue('auton_2x_multiplier', false);
+		accessor.setFieldValue('auton_5x_multiplier', true);
+		accessor.setFieldValue('teleop_1x_multiplier', false);
+		accessor.setFieldValue('teleop_2x_multiplier', false);
+		accessor.setFieldValue('teleop_5x_multiplier', true);
+
+		setFuelMultiplier(5);
 	}
 
 	function preMatch(): React.ReactElement {
@@ -506,186 +479,193 @@ function MatchScout(props: Props): React.ReactElement {
 
 	function autonMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.AutonMatch;
+		const shootLocation = [
+			{ label: "Tower", value: "Tower" },
+			{ label: "Outpost", value: "Outpost" },
+			{ label: "Depot", value: "Depot" },
+			{ label: "Trench", value: "Trench" },
+		];
+		const intakeLocation = [
+			{ label: "Neutral", value: "Neutral" },
+			{ label: "Outpost", value: "Outpost" },
+			{ label: "Depot", value: "Depot" },
+		];
 
 		return (
 			<div style={{ alignContent: 'center' }}>
-				<Checkbox<FieldType>
-					name="auton_leave_starting_line"
-					title="Leave Starting Line?"
+				
+				<NumberInput<FieldType>
+					title={"Fuel Scored"}
+					buttons={false}
+					value={auton_fuel_number}
+					disabled
 				/>
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L4"}
-						name={"auton_coral_scored_l4"}
-						message={"Enter # coral scored for l4 in Auton"}
-						onChange={updateAutonValues}
+
+				<button
+				className={"plusButton"}
+				type="button"
+				onClick={() => {
+					setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
+						}}
+				>+</button>
+
+				<button
+				className={"minusButton"}
+				type="button"
+				onClick={() => {
+					let new_fuel_number = auton_fuel_number - fuel_multiplier;
+					if(new_fuel_number < 0){
+						new_fuel_number = 0;
+					}
+					setAutonFuelNumber(new_fuel_number);
+						}}
+				>-</button>
+
+				<b>Fuel Score Multiplier</b>
+
+				<div className="inputRow multiplierButtons">
+					<Checkbox<FieldType>
+						
+						name={"auton_1x_multiplier"}
+						title={""}
+						onChange={OneXMultiplier}
 					/>
 
-					<NumberInput<FieldType>
-						title={"A Coral Missed L4"}
-						name={"auton_coral_missed_l4"}
-						message={"Enter # coral missed for l4 in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L3"}
-						name={"auton_coral_scored_l3"}
-						message={"Enter # coral scored for l3 in Auton"}
-						onChange={updateAutonValues}
+					<Checkbox<FieldType>
+						name={"auton_2x_multiplier"}
+						title={""}
+						onChange={TwoXMultiplier}
 					/>
 
-					<NumberInput<FieldType>
-						title={"A Coral Missed L3"}
-						name={"auton_coral_missed_l3"}
-						message={"Enter # coral missed for l3 in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L2"}
-						name={"auton_coral_scored_l2"}
-						message={"Enter # coral scored for l2 in Auton"}
-						onChange={updateAutonValues}
-					/>
-
-					<NumberInput<FieldType>
-						title={"A Coral Missed L2"}
-						name={"auton_coral_missed_l2"}
-						message={"Enter # coral missed for l2 in Auton"}
-						onChange={updateAutonValues}
+					<Checkbox<FieldType>
+						name={"auton_5x_multiplier"}
+						title={""}
+						onChange={FiveXMultiplier}
 					/>
 				</div>
 
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Coral Scored L1"}
-						name={"auton_coral_scored_l1"}
-						message={"Enter # coral scored for l1 in Auton"}
-						onChange={updateAutonValues}
-					/>
+				<Select<FieldType>
+					title={"Shoot Location"}
+					name={"auton_shoot_location"}
+					options={shootLocation}
+					multiple
+				/>
 
-					<NumberInput<FieldType>
-						title={"A Coral Missed L1"}
-						name={"auton_coral_missed_l1"}
-						message={"Enter # coral missed for l1 in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
+				<Select<FieldType>
+					title={"Intake Location"}
+					name={"auton_intake_location"}
+					options={intakeLocation}
+					multiple
+				/>
 
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Algae Scored Net"}
-						name={"auton_algae_scored_net"}
-						message={"Enter # of algae scored for net in Auton"}
-						onChange={updateAutonValues}
-					/>
+				<Checkbox<FieldType>
+					name={"auton_climb_attempted"}
+					title={"Climb Attempted"}
+					onChange={() => {
+							setAutonClimbAttempted(!autonClimbAttempted);
+						}}
+				/>
 
-					<NumberInput<FieldType>
-						title={"A Algae Missed Net"}
-						name={"auton_algae_missed_net"}
-						message={"Enter # of algae missed for net in Auton"}
-						onChange={updateAutonValues}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"A Algae Processor"}
-						name={"auton_algae_scored_processor"}
-						message={"Enter # of algae scored for processor in Auton"}
-						onChange={updateAutonValues}
+				<div
+					style={{
+						display: autonClimbAttempted ? 'inherit' : 'none' ,
+					}}
+				>
+					<Checkbox<FieldType>
+						name={"auton_climb_successful"}
+						title={"Climb Successful"}
 					/>
 				</div>
-
 			</div>
 		);
 	}
 
 	function teleopMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.TeleopMatch;
+		const teleop_fuel_hoarded_amount = [
+			{ label: "High", value: "High" },
+			{ label: "Medium", value: "Medium" },
+			{ label: "Low", value: "Low" },
+			{ label: "None", value: "None" },
+		];
+		const teleop_primary_hoard_type= [
+			{ label: "Push Hoard", value: "Push_Hoard" },
+			{ label: "Shoot Hoard", value: "Shoot_Hoard" },
+			{ label: "Dump Hoard", value: "Dump_Hoard" },
+		];
 
 		return (
 			<div>
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L4"}
-						name={"teleop_coral_scored_l4"}
-						message={"Enter # of coral scored for l4 in Teleop"}
+				<NumberInput<FieldType>
+					title={"Fuel Scored"}
+					buttons={false}
+					value={teleop_fuel_number}
+					disabled
+				/>
+
+				<button
+				className={"plusButton"}
+				type="button"
+				onClick={() => {
+					setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
+						}}
+				>+</button>
+
+				<button
+				className={"minusButton"}
+				type="button"
+				onClick={() => {
+					let new_fuel_number = teleop_fuel_number - fuel_multiplier;
+					if(new_fuel_number < 0){
+						new_fuel_number = 0;
+					}
+					setTeleopFuelNumber(new_fuel_number);
+						}}
+				>-</button>
+
+				<b>Fuel Score Multiplier</b>
+
+				<div className="inputRow multiplierButtons">
+					<Checkbox<FieldType>
+						name={"teleop_1x_multiplier"}
+						title={""}
+						onChange={OneXMultiplier}
 					/>
 
-					<NumberInput<FieldType>
-						title={"T Coral Missed L4"}
-						name={"teleop_coral_missed_l4"}
-						message={"Enter # of coral missed for l4 in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L3"}
-						name={"teleop_coral_scored_l3"}
-						message={"Enter # of coral scored for l3 in Teleop"}
+					<Checkbox<FieldType>
+						name={"teleop_2x_multiplier"}
+						title={""}
+						onChange={TwoXMultiplier}
 					/>
 
-					<NumberInput<FieldType>
-						title={"T Coral Missed L3"}
-						name={"teleop_coral_missed_l3"}
-						message={"Enter # of coral missed for l3 in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L2"}
-						name={"teleop_coral_scored_l2"}
-						message={"Enter # of coral scored for l2 in Teleop"}
-					/>
-
-					<NumberInput<FieldType>
-						title={"T Coral Missed L2"}
-						name={"teleop_coral_missed_l2"}
-						message={"Enter # of coral missed for l2 in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Coral Scored L1"}
-						name={"teleop_coral_scored_l1"}
-						message={"Enter # of coral scored for l1 in Teleop"}
-					/>
-
-					<NumberInput<FieldType>
-						title={"T Coral Missed L1"}
-						name={"teleop_coral_missed_l1"}
-						message={"Enter # of coral missed for l1 in Teleop"}
+					<Checkbox<FieldType>
+						name={"teleop_5x_multiplier"}
+						title={""}
+						onChange={FiveXMultiplier}
 					/>
 				</div>
 
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Algae Scored Net"}
-						name={"teleop_algae_scored_net"}
-						message={"Enter # of algae scored for net in Teleop"}
-					/>
+				<Select<FieldType>
+					title={"Fuel Hoarded Amount"}
+					name={"teleop_fuel_hoarded_amount"}
+					message={"Enter fuel hoarded amount"}
+					options={teleop_fuel_hoarded_amount}
+					onChange={(value) => {
+							setPrimaryHoardTypeIsVisible(value !== "None")
+						}}
+				/>
 
-					<NumberInput<FieldType>
-						title={"T Algae Missed Net"}
-						name={"teleop_algae_missed_net"}
-						message={"Enter # of algae missed for net in Teleop"}
-					/>
-				</div>
-
-				<div className="inputRow">
-					<NumberInput<FieldType>
-						title={"T Algae Processor"}
-						name={"teleop_algae_scored_processor"}
-						message={"Enter # of algae scored for processor in Teleop"}
+				<div
+					style={{
+						display: primaryHoardTypeIsVisible ? 'inherit' : 'none' ,
+					}}
+				>
+					<Select<FieldType>
+						title={"Primary Hoard Type"}
+						name={"teleop_primary_hoard_type"}
+						message={"Enter primary hoard type"}
+						options={teleop_primary_hoard_type}
+						required={primaryHoardTypeIsVisible}
 					/>
 				</div>
 			</div>
@@ -694,62 +674,39 @@ function MatchScout(props: Props): React.ReactElement {
 
 	function endgameMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.EndgameMatch;
-		const endgame_coral_intake_capability = [
-			{ label: "Station", value: "Station" },
-			{ label: "Ground", value: "Ground" },
-			{ label: "Both", value: "Both" },
-			{ label: "Neither", value: "Neither" },
-		];
-		const endgame_algae_intake_capability = [
-			{ label: "Reef Zone", value: "Reef Zone" },
-			{ label: "Ground", value: "Ground" },
-			{ label: "Both", value: "Both" },
-			{ label: "Neither", value: "Neither" },
-		];
-		const endgame_climb_type = [
-			{ label: "Deep Hang", value: "Deep Hang" },
-			{ label: "Shallow Hang", value: "Shallow Hang" },
-			{ label: "Park", value: "Park" },
-			{ label: "Neither", value: "Neither" },
+		const endgame_climb_level = [
+			{ label: "Level 1", value: "Level_1" },
+			{ label: "Level 2", value: "Level_2" },
+			{ label: "Level 3", value: "Level_3" },
 		];
 		return (
 			<>
-				<Select<FieldType>
-					title={"Coral Intake Capability"}
-					name={"endgame_coral_intake_capability"}
-					message={"Enter coral intake capability"}
-					options={endgame_coral_intake_capability}
-				/>
-
-				<Select<FieldType>
-					title={"Algae Intake Capability"}
-					name={"endgame_algae_intake_capability"}
-					message={"Enter algae intake capability"}
-					options={endgame_algae_intake_capability}
-				/>
 				<Checkbox<FieldType>
-					name="endgame_climb_successful"
-					title="Climp Successful?"
+					name="endgame_climb_attempted"
+					title="Climb Attempted?"
 					onChange={(event) => {
-						setClimbSuccessful(event);
+						setEndgameClimbAttempted(event);
 					}}
 				/>
 
-				<Select<FieldType>
-					title={"Climb Type"}
-					name={"endgame_climb_type"}
-					message={"Enter climb type"}
-					options={endgame_climb_type}
+				<div
+					style={{
+						display: endgameClimbAttempted ? 'inherit' : 'none' ,
+					}}
+				>
+					<Select<FieldType>
+					title={"Climb Level"}
+					name={"endgame_climb_level"}
+					message={"Enter climb level"}
+					options={endgame_climb_level}
+					required={endgameClimbAttempted}
 				/>
 
-				<NumberInput<FieldType>
-					title={"Climb Time (Seconds)"}
-					name={"endgame_climb_time"}
-					message={"Enter climb time (seconds)"}
-					min={climb_successful
-						? 1 : 0}
-					align={"left"}
+				<Checkbox<FieldType>
+					name="endgame_climb_successful"
+					title="Climb Successful?"
 				/>
+				</div>
 			</>
 		)}
 
@@ -757,6 +714,12 @@ function MatchScout(props: Props): React.ReactElement {
 		type FieldType = MatchScoutTypes.OverallMatch;
 
 		const opposingTeams = opposingTeamNum.map((team) => ({ label: team.toString(), value: team.toString() }));
+		const overall_path_to_neutral_zone = [
+			{ label: "Bump", value: "Bump" },
+			{ label: "Trench", value: "Trench" },
+			{ label: "Both", value: "Both" },
+			{ label: "None", value: "None" },
+		];
 
 		return (
 			<div className='matchbody'>
@@ -772,6 +735,7 @@ function MatchScout(props: Props): React.ReactElement {
 							setDefendedIsVisible(!defendedIsVisible);
 						}}
 					/>
+					
 					<Checkbox<FieldType>
 						title="Was Defended?"
 						name="overall_was_defended"
@@ -794,15 +758,6 @@ function MatchScout(props: Props): React.ReactElement {
 						options={opposingTeams}
 						multiple
 					/>
-
-					<NumberInput<FieldType>
-						title={"Defense Quality (1 - 4)"}
-						name={"overall_defense_quality"}
-						required={defendedIsVisible}
-						message={"Please input defense quality"}
-						min={0}
-						max={4}
-					/>
 				</div>
 
 				<div
@@ -818,53 +773,23 @@ function MatchScout(props: Props): React.ReactElement {
 						options={opposingTeams}
 						multiple
 					/>
-					<NumberInput<FieldType>
-						title={<>Counter Defense<br />(1 - 4)</>}
-						name={"overall_counter_defense"}
-						required={wasDefendedIsVisible}
-						message={"Please input the counter-defense rating"}
-						min={0}
-						max={4}
-					/>
 				</div>
 
-				<div className='inputRow'>
-					<NumberInput<FieldType>
-						title={"Pushing (1 - 4)"}
-						name={"overall_pushing"}
-						message={"Please input the pushing rating"}
-						min={0}
-						max={4}
-					/>
-					<NumberInput<FieldType>
-						title={"Driver Skill (1 - 4)"}
-						name={"overall_driver_skill"}
-						message={"Please input the driver skill rating"}
-						min={0}
-						max={4}
-					/>
-				</div>
-				<div className='inputRow'>
-					<NumberInput<FieldType>
-						title={"Major Penalties"}
-						name={"overall_major_penalties"}
-						message={"Enter # of major penalties"}
-						min={0}
-						onChange={updatePenalties}
-					/>
-					<NumberInput<FieldType>
-						title={"Minor Penalties"}
-						name={"overall_minor_penalties"}
-						message={"Enter # of minor penalties"}
-						min={0}
-						onChange={updatePenalties}
-					/>
-				</div>
-				<TextArea<FieldType>
-					title="Penalties Incurred"
-					name="overall_penalties_incurred"
-					message="Please enter the penalties"
-					shown={penaltiesIsVisible}
+				<Select<FieldType>
+					title={"Path to Neutral Zone"}
+					name={"overall_path_to_neutral_zone"}
+					message={"Enter path to neutral zone"}
+					options={overall_path_to_neutral_zone}
+				/>
+
+				<Checkbox<FieldType>
+						title="Shot While Moving"
+						name="overall_shot_while_moving"
+				/>
+
+				<Checkbox<FieldType>
+						title="Shot Hoarded Pieces"
+						name="overall_shot_hoarded_pieces"
 				/>
 
 				<TextArea<FieldType>

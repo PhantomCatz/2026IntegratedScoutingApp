@@ -44,6 +44,7 @@ type NumberInputType<FieldType> = Disableable<{
 	shown?: boolean,
 	buttons?: boolean,
 	defaultValue?: number,
+	value?: number,
 }>;
 type SelectType<FieldType> = Disableable<{
 	title: string | React.ReactElement,
@@ -55,7 +56,7 @@ type SelectType<FieldType> = Disableable<{
 	align?: AlignOptions,
 	shown?: boolean,
 	multiple?: boolean,
-	defaultValue?: string | string[],
+	defaultValue?: string,
 }>;
 type CheckboxType<FieldType> = Disableable<{
 	title: string | React.ReactElement,
@@ -64,6 +65,7 @@ type CheckboxType<FieldType> = Disableable<{
 	align?: AlignOptions,
 	shown?: boolean,
 	defaultValue?: boolean,
+	value?: boolean,
 }>;
 type TextAreaType<FieldType> = Disableable<{
 	title: string | React.ReactElement,
@@ -87,6 +89,7 @@ type RadioType<FieldType> = Disableable<{
 	align?: AlignOptions,
 	shown?: boolean,
 	defaultValue?: string,
+	checked?: boolean,
 }>;
 type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
@@ -227,8 +230,9 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "center";
 	const buttons = props.buttons ?? true;
-	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
 	const disabled = props.disabled;
+	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
+	const value = props.value;
 
 	const input = useRef<HTMLInputElement>(null);
 
@@ -303,6 +307,7 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						onChange={handleChange}
 						required={required}
 						defaultValue={defaultValue}
+						value={value}
 						disabled={disabled}
 					/>
 					{ buttons &&
@@ -339,20 +344,30 @@ function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "left";
 	const multiple = props.multiple;
-	const defaultValue = props.defaultValue ?? multiple ? [] : "";
+	const defaultValue = props.defaultValue;
 
 	const select = useRef(null);
 
-	const optionElements = options.map(function(item: { label: string, value: string }) {
+	const optionElements = options.map(function(item: { label: string, value: string }, index) {
 		return (
 			<option
 				value={item.value}
-				key={item.value}
+				key={
+					index + 1}
 			>
 				{item.label}
 			</option>
 		);
 	});
+	optionElements.unshift(
+		<option
+			value=""
+			key={0}
+			disabled
+			hidden
+		>
+		</option>
+	);
 
 	function handleChange(event: React.ChangeEvent): void {
 		const target = event.target;
@@ -508,6 +523,7 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "center";
 	const defaultValue = props.defaultValue;
+	const checked = props.checked;
 
 	const radio = useRef(null);
 
@@ -541,6 +557,7 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 						value={value}
 						onChange={handleChange}
 						defaultValue={defaultValue}
+						checked={checked}
 						required={required}
 						disabled={disabled}
 					/>
@@ -554,46 +571,104 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 	const accessor =  {
 		getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K] {
-			const elements = document.querySelectorAll(`[name=${id}]`);
+			type ResultType = FieldType[K];
 
-			if(!elements.length) {
+			const element = document.getElementById(id);
+
+			if(!element) {
 				throw new Error(`Could not find element ${id}`);
 			}
 
-			if(elements.length === 1) {
-				return getFieldValueSingleElement<K, FieldType>(elements[0]);
-			} else {
-				try {
-					return getFieldValueMultipleElements<K, FieldType>(elements, id);
-				} catch (err) {
-					console.error(`err=`, err);
-					console.error(`id=`, id);
-					console.error(`elements[0]=`, elements[0]);
+			const tag = element.nodeName;
 
-					throw err;
-				}
+			switch(tag) {
+				case "SELECT":
+					assertInstanceOf(element, HTMLSelectElement);
+					if(element.multiple) {
+						const options: string[] = [];
+						for(const option of element.selectedOptions) {
+							options.push(option.value);
+						}
+						return options as ResultType;
+					} else {
+						return element.value as ResultType;
+					}
+				case "TEXTAREA":
+					assertInstanceOf(element, HTMLTextAreaElement);
+					return element.value as ResultType;
+				case "INPUT":
+					assertInstanceOf(element, HTMLInputElement);
+					switch(element.type) {
+						case "checkbox":
+							return element.checked as ResultType;
+						case "number":
+							return Number(element.value) as ResultType;
+						case "text":
+							return element.value as ResultType;
+						case "submit":
+						default:
+							throw new Error(`Could not use submit type ${element.type}`);
+					}
+				default:
+					throw new Error(`Could not use element tag ${tag}`);
 			}
 		},
 		setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void {
-			const elements = document.querySelectorAll(`[name=${id}]`);
+			const element = document.getElementById(id);
 
-			if(!elements.length) {
+			if(!element) {
 				throw new Error(`Could not find element ${id}`);
 			}
 
-			if(elements.length === 1) {
-				try {
-					setFieldValueSingleElement(elements[0], newValue);
-				} catch (err) {
-					console.error(`err=`, err);
-					console.error(`id=`, id);
-					console.error(`newValue=`, newValue);
-					console.error(`elements[0]=`, elements[0]);
+			const tag = element.nodeName;
 
-					throw err;
+			// TODO: remove debugging statement
+			try {
+				switch(tag) {
+					case "SELECT":
+						assertInstanceOf(element, HTMLSelectElement);
+						if(element.multiple) {
+							for (let i = 0; i < element.options.length; i++) {
+
+								element.options[i].selected = (newValue as unknown[]).indexOf(element.options[i].value) >= 0;
+							}
+						} else {
+							assertString(newValue);
+							element.value = newValue;
+						}
+						break;
+					case "TEXTAREA":
+						assertInstanceOf(element, HTMLTextAreaElement);
+						assertString(newValue);
+						element.value = newValue;
+						break;
+					case "INPUT":
+						assertInstanceOf(element, HTMLInputElement);
+						switch(element.type) {
+							case "checkbox":
+								assertBoolean(newValue);
+								element.checked = newValue;
+								break;
+							case "number":
+								assertNumber(newValue);
+								element.value = newValue.toString();
+								break;
+							case "text":
+								assertString(newValue);
+								element.value = newValue;
+								break;
+							default:
+								throw new Error(`Could not use submit type ${element.type}`);
+						}
+						break;
+					default:
+						throw new Error(`Could not use element tag ${tag}`);
 				}
-			} else {
-				setFieldValueMultipleElements<K, FieldType>(elements, newValue, id);
+			} catch (err) {
+				console.error(`err=`, err);
+				console.error(`id=`, id);
+				console.error(`newValue=`, newValue);
+				console.error(`tag=`, tag);
 			}
 		},
 		setFormValues(values: Partial<FieldType>): void {
@@ -616,147 +691,6 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 	}
 
 	return accessor;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
-	const tag = element.nodeName;
-
-	switch(tag) {
-		case "SELECT":
-			assertInstanceOf(element, HTMLSelectElement);
-			if(element.multiple) {
-				for (let i = 0; i < element.options.length; i++) {
-
-					element.options[i].selected = (newValue as unknown[]).indexOf(element.options[i].value) >= 0;
-				}
-			} else {
-				assertString(newValue);
-				element.value = newValue;
-			}
-			break;
-		case "TEXTAREA":
-			assertInstanceOf(element, HTMLTextAreaElement);
-			assertString(newValue);
-			element.value = newValue;
-			break;
-		case "INPUT":
-			assertInstanceOf(element, HTMLInputElement);
-			switch(element.type) {
-				case "checkbox":
-					assertBoolean(newValue);
-					element.checked = newValue;
-					break;
-				case "number":
-					assertNumber(newValue);
-					element.value = newValue.toString();
-					break;
-				case "text":
-					assertString(newValue);
-					element.value = newValue;
-					break;
-				default:
-					throw new Error(`Could not use submit type ${element.type}`);
-			}
-			break;
-		default:
-			throw new Error(`Could not use element tag ${tag}`);
-	}
-}
-function setFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(elementList: NodeListOf<Element>, newValue: FieldType[K], id: K): void {
-	for(const element of elementList) {
-		const tag = element.nodeName;
-
-		switch(tag) {
-			case "INPUT":
-				assertInstanceOf(element, HTMLInputElement);
-				switch(element.type) {
-					case "radio":
-						assertString(newValue);
-						if(newValue === element.value) {
-							element.checked = true;
-						} else {
-							element.checked = false;
-						}
-						break;
-					default:
-						throw new Error(`Could not use submit type ${element.type}`);
-				}
-				break;
-			default:
-				throw new Error(`Could not use element tag ${tag}`);
-		}
-	}
-
-	throw new Error(`Could not set value of ${id}`);
-}
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-function getFieldValueSingleElement<K extends string & keyof FieldType, FieldType>(element: Element): FieldType[K] {
-	type ResultType = FieldType[K];
-
-	const tag = element.nodeName;
-
-	switch(tag) {
-		case "SELECT":
-			assertInstanceOf(element, HTMLSelectElement);
-			if(element.multiple) {
-				const options: string[] = [];
-				for(const option of element.selectedOptions) {
-					options.push(option.value);
-				}
-				return options as ResultType;
-			} else {
-				return element.value as ResultType;
-			}
-		case "TEXTAREA":
-			assertInstanceOf(element, HTMLTextAreaElement);
-			return element.value as ResultType;
-		case "INPUT":
-			assertInstanceOf(element, HTMLInputElement);
-			switch(element.type) {
-				case "checkbox":
-					return element.checked as ResultType;
-				case "number":
-					return Number(element.value) as ResultType;
-				case "text":
-					return element.value as ResultType;
-				case "submit":
-				default:
-					throw new Error(`Could not use submit type ${element.type}`);
-			}
-		default:
-			throw new Error(`Could not use element tag ${tag}`);
-	}
-}
-function getFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(elementList: NodeListOf<Element>, id: K): FieldType[K] {
-	type ResultType = FieldType[K];
-
-	for(const element of elementList) {
-		const tag = element.nodeName;
-
-		switch(tag) {
-			case "INPUT":
-				assertInstanceOf(element, HTMLInputElement);
-				switch(element.type) {
-					case "radio": {
-						if(element.checked) {
-							const value = element.value;
-							return value as ResultType;
-						}
-						break;
-					}
-					default:
-						throw new Error(`Could not use submit type ${element.type}`);
-				}
-				break;
-			default:
-				throw new Error(`Could not use element tag ${tag}`);
-		}
-
-		throw new Error(`Could not find value of element`);
-	}
-
-	throw new Error(`Could not get value of ${id}`);
 }
 
 export { Input, NumberInput, Select, Checkbox, TextArea, Radio };
