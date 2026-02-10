@@ -2,9 +2,9 @@ import '../public/stylesheets/dtfHome.css';
 import Header from '../parts/header';
 import { useEffect } from 'react';
 import Form, { NumberInput, } from '../parts/formItems';
-import { getFieldAccessor } from '../parts/formItems';
+import { getFieldAccessor} from '../parts/formItems';
 import Constants from '../utils/constants';
-
+import {useState} from 'react';
 import type { All, Props, } from '../types/dtfHome';
 
 function DTFHome(props: Props): React.ReactElement {
@@ -13,7 +13,7 @@ function DTFHome(props: Props): React.ReactElement {
 	}, [props.title]);
 
 	const accessor = getFieldAccessor<All>();
-
+    
 	const teamInput: React.ReactElement[] = [];
 
 	for(let allianceNumber = 1; allianceNumber <= Constants.NUM_ALLIANCES; allianceNumber++) {
@@ -49,6 +49,7 @@ function DTFHome(props: Props): React.ReactElement {
 			<Header name={"Drive Team Feeder"} back={"#"} />
 
 			<dtf-home>
+				
 				<Form<All>
 					onFinish={(event: All) => {
 						const teamNumbers: (number | undefined)[] = [];
@@ -62,8 +63,55 @@ function DTFHome(props: Props): React.ReactElement {
 					}}
 					accessor={accessor}
 				>
+					<div>
+					
+					<div className="container">
+					<label htmlFor="team1">Qual 1 Number</label>
+					<input type="number" id="team1" className="rounded-box"></input>
+					</div>
 					{teamInput}
-					<button type="submit" className="submitButton" >Submit</button>
+					<div className = "inputRow">
+                      <div className="input input__select"  > 
+
+						<label  className="text-align: left;">Elims Alliance 1</label> 
+						<select id="comp_level" name="comp_level" > 
+					 	<option value="1">Alliance 1</option> 
+						<option value="2">Alliance 2</option> 
+						<option value="3">Alliance 3</option> 
+						<option value="4">Alliance 4</option> 
+						<option value="5">Alliance 5</option> 
+						<option value="6">Alliance 6</option> 
+						<option value="7">Alliance 7</option> 
+						<option value="8">Alliance 8</option> 
+						 </select>
+						
+						</div>
+						
+					  <div className="input input__select" > 
+
+						<label  className="text-align: left;">Elims Alliance 2</label> 
+						<select id="comp_level" name="comp_level" > 
+					 	<option value="1">Alliance 1</option> 
+						<option value="2">Alliance 2</option> 
+						<option value="3">Alliance 3</option> 
+						<option value="4">Alliance 4</option> 
+						<option value="5">Alliance 5</option> 
+						<option value="6">Alliance 6</option>
+						<option value="7">Alliance 7</option>
+						<option value="8">Alliance 8</option>
+						</select> 
+
+						</div> 
+					</div>
+					
+					<footer>
+					<div className = "input_rows">
+		  			<button type="button" onMouseDown={() => {accessor.resetFields()}} className = "tabButton" >Clear</button>
+					<button type="button" className="tabButton"  >Submit</button>
+				 	</div>
+					</footer>
+					
+					</div>
 				</Form>
 			</dtf-home>
 		</>
