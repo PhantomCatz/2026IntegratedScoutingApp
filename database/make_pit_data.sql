@@ -1,4 +1,4 @@
-USE testdb;
+USE frcdb;
 
 DROP TABLE IF EXISTS pit_data;
 
