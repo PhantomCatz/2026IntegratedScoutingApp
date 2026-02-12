@@ -59,7 +59,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"red_alliance": "0",
 	"blue_alliance": "0",
 
-	"team_override": null,
+	"team_override": 0,
 } as const;
 const noShowValues: Partial<MatchScoutTypes.All> = {
 	// Pre-match
