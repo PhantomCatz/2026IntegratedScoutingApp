@@ -507,7 +507,7 @@ function MatchScout(props: Props): React.ReactElement {
 				onClick={() => {
 					setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
 						}}
-				>+</button>
+				>+{fuel_multiplier}</button>
 
 				<button
 				className={"minusButton"}
@@ -519,7 +519,7 @@ function MatchScout(props: Props): React.ReactElement {
 					}
 					setAutonFuelNumber(new_fuel_number);
 						}}
-				>-</button>
+				>-{fuel_multiplier}</button>
 
 				<b>Fuel Score Multiplier</b>
 
@@ -609,7 +609,7 @@ function MatchScout(props: Props): React.ReactElement {
 				onClick={() => {
 					setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
 						}}
-				>+</button>
+				>+{fuel_multiplier}</button>
 
 				<button
 				className={"minusButton"}
@@ -621,7 +621,7 @@ function MatchScout(props: Props): React.ReactElement {
 					}
 					setTeleopFuelNumber(new_fuel_number);
 						}}
-				>-</button>
+				>-{fuel_multiplier}</button>
 
 				<b>Fuel Score Multiplier</b>
 

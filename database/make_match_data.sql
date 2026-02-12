@@ -1,4 +1,4 @@
-USE testdb_jack;
+USE frcdb;
 
 CREATE TABLE match_data(
     id                                INT NOT NULL AUTO_INCREMENT,
