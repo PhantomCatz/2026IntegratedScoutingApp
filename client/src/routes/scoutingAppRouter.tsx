@@ -20,7 +20,7 @@ function ScoutingAppRouter(props: Props): React.ReactElement {
 				<a className='mainButton' href='#scoutingapp/strategic'>Strategic</a>
 				<a className='mainButton' href='#scoutingapp/pit'>Pit</a>
 				<a className='mainButton' href='#scoutingapp/lookup'>Data Lookup</a>
-				{/* <a className='mainButton' href='#scoutingapp/alliance'>Alliance Zone</a> */}
+				<a className='mainButton' href='#scoutingapp/alliance'>Alliance Zone</a>
 			</scouting-app-router>
 		</>
 	);
