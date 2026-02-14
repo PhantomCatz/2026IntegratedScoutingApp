@@ -90,7 +90,7 @@ function PitScout(props: Props): React.ReactElement {
 
 	function submitData(event: PitScoutTypes.Pit): void {
 		const body: PitScoutTypes.SubmitBody = {
-			"match_event": eventKey,
+			"event_key": eventKey,
 			"team_number": event.team_number,
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"robot_weight": event.robot_weight,

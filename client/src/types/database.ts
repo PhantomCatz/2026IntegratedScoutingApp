@@ -5,7 +5,7 @@ export type Tinyint = 0 | 1;
 
 export type MatchEntry = {
     id:                              number;
-    match_event:                     TbaApi.EventKey;
+    event_key:                       TbaApi.EventKey;
     team_number:                     number;
     scouter_initials:                string;
     comp_level:                      TbaApi.Comp_Level;
@@ -56,7 +56,7 @@ export type MatchEntry = {
 };
 export type StrategicEntry = {
     id:               number;
-    match_event:      TbaApi.EventKey;
+    event_key:        TbaApi.EventKey;
     team_number:      number;
     scouter_initials: string;
     comp_level:       TbaApi.Comp_Level;
@@ -66,7 +66,7 @@ export type StrategicEntry = {
 };
 export type PitEntry = {
     id:                        number;
-    match_event:               TbaApi.EventKey;
+    event_key:                 TbaApi.EventKey;
     team_number:               number;
     scouter_initials:          string;
     robot_weight:              number;

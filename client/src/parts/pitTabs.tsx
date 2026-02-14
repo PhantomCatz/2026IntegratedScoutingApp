@@ -53,7 +53,7 @@ function PitTabs(props: Props): TabItems {
 			children: (
 				<div className="pitTabs">
 					<h2>Match Event</h2>
-					<Input disabled defaultValue={pitInfo.match_event} />
+					<Input disabled defaultValue={pitInfo.event_key} />
 					<h2>Scouter Initials</h2>
 					<Input disabled defaultValue={pitInfo.scouter_initials} />
 					<h2>Robot Weight</h2>
