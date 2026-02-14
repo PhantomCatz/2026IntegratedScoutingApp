@@ -13,40 +13,27 @@ export type PreMatch = {
 };
 
 export type AutonMatch = {
-	auton_coral_scored_l4: number,
-	auton_coral_scored_l3: number,
-	auton_coral_scored_l2: number,
-	auton_coral_scored_l1: number,
-	auton_coral_missed_l4: number,
-	auton_coral_missed_l3: number,
-	auton_coral_missed_l2: number,
-	auton_coral_missed_l1: number,
-	auton_algae_scored_net: number,
-	auton_algae_missed_net: number,
-	auton_algae_scored_processor: number,
-	auton_leave_starting_line: boolean,
+	auton_1x_multiplier: boolean,
+	auton_2x_multiplier: boolean,
+	auton_5x_multiplier: boolean,
+	auton_shoot_location: string[]
+	auton_intake_location: string[]
+	auton_climb_attempted: boolean,
+	auton_climb_successful: boolean,
 };
 
 export type TeleopMatch = {
-	teleop_coral_scored_l4: number,
-	teleop_coral_missed_l4: number,
-	teleop_coral_scored_l3: number,
-	teleop_coral_missed_l3: number,
-	teleop_coral_scored_l2: number,
-	teleop_coral_missed_l2: number,
-	teleop_coral_scored_l1: number,
-	teleop_coral_missed_l1: number,
-	teleop_algae_scored_net: number,
-	teleop_algae_missed_net: number,
-	teleop_algae_scored_processor: number,
-};
+	teleop_1x_multiplier: boolean,
+	teleop_2x_multiplier: boolean,
+	teleop_5x_multiplier: boolean,
+	teleop_fuel_hoarded_amount: string,
+	teleop_primary_hoard_type: string,
+}
 
 export type EndgameMatch = {
-	endgame_coral_intake_capability: string,
-	endgame_algae_intake_capability: string,
+	endgame_climb_attempted: boolean,
+	endgame_climb_level: string,
 	endgame_climb_successful: boolean,
-	endgame_climb_type: string,
-	endgame_climb_time: number,
 };
 
 export type OverallMatch = {
@@ -55,13 +42,9 @@ export type OverallMatch = {
 	overall_defended: number[];
 	overall_was_defended: boolean;
 	overall_defended_by: number[];
-	overall_penalties_incurred: string;
-	overall_pushing: number;
-	overall_driver_skill: number;
-	overall_major_penalties: number;
-	overall_minor_penalties: number;
-	overall_counter_defense: number;
-	overall_defense_quality: number;
+	overall_path_to_neutral_zone: string;
+	overall_shot_while_moving: boolean;
+	overall_shot_hoarded_pieces: boolean;
 	overall_comments: string;
 }
 
@@ -75,46 +58,25 @@ export type SubmitBody = {
 	comp_level: string,
 	match_number: number,
 	robot_position: string,
-	auton_leave_starting_line: Database.Tinyint,
-	auton_coral_scored_l4: number,
-	auton_coral_missed_l4: number,
-	auton_coral_scored_l3: number,
-	auton_coral_missed_l3: number,
-	auton_coral_scored_l2: number,
-	auton_coral_missed_l2: number,
-	auton_coral_scored_l1: number,
-	auton_coral_missed_l1: number,
-	auton_algae_scored_net: number,
-	auton_algae_missed_net: number,
-	auton_algae_scored_processor: number,
-	teleop_coral_scored_l4: number,
-	teleop_coral_missed_l4: number,
-	teleop_coral_scored_l3: number,
-	teleop_coral_missed_l3: number,
-	teleop_coral_scored_l2: number,
-	teleop_coral_missed_l2: number,
-	teleop_coral_scored_l1: number,
-	teleop_coral_missed_l1: number,
-	teleop_algae_missed_net: number,
-	teleop_algae_scored_net: number,
-	teleop_algae_scored_processor: number,
-	endgame_coral_intake_capability: string,
-	endgame_algae_intake_capability: string,
+	auton_fuel_scored: number,
+	auton_shoot_location: string,
+	auton_intake_location: string,
+	auton_climb_attempted: Database.Tinyint,
+	auton_climb_successful: Database.Tinyint,
+	teleop_fuel_scored: number,
+	teleop_fuel_hoarded_amount: string,
+	teleop_primary_hoard_type: string,
+	endgame_climb_attempted: Database.Tinyint,
+	endgame_climb_level: string,
 	endgame_climb_successful: Database.Tinyint,
-	endgame_climb_type: string,
-	endgame_climb_time: number,
 	overall_robot_died: Database.Tinyint,
 	overall_defended_others: Database.Tinyint,
 	overall_was_defended: Database.Tinyint,
 	overall_defended: string,
 	overall_defended_by: string,
-	overall_pushing: number,
-	overall_defense_quality: number,
-	overall_counter_defense: number,
-	overall_driver_skill: number,
-	overall_major_penalties: number,
-	overall_minor_penalties: number,
-	overall_penalties_incurred: string,
+	overall_path_to_neutral_zone: string,
+	overall_shot_while_moving: Database.Tinyint,
+	overall_shot_hoarded_pieces: Database.Tinyint,
 	overall_comments: string,
 	robot_appeared: Database.Tinyint,
 }

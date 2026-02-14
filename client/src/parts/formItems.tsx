@@ -44,6 +44,7 @@ type NumberInputType<FieldType> = Disableable<{
 	shown?: boolean,
 	buttons?: boolean,
 	defaultValue?: number,
+	value?: number,
 }>;
 type SelectType<FieldType> = Disableable<{
 	title: string | React.ReactElement,
@@ -64,6 +65,7 @@ type CheckboxType<FieldType> = Disableable<{
 	align?: AlignOptions,
 	shown?: boolean,
 	defaultValue?: boolean,
+	value?: boolean,
 }>;
 type TextAreaType<FieldType> = Disableable<{
 	title: string | React.ReactElement,
@@ -87,6 +89,7 @@ type RadioType<FieldType> = Disableable<{
 	align?: AlignOptions,
 	shown?: boolean,
 	defaultValue?: string,
+	checked?: boolean,
 }>;
 type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
@@ -227,8 +230,9 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "center";
 	const buttons = props.buttons ?? true;
-	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
 	const disabled = props.disabled;
+	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
+	const value = props.value;
 
 	const input = useRef<HTMLInputElement>(null);
 
@@ -303,6 +307,7 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						onChange={handleChange}
 						required={required}
 						defaultValue={defaultValue}
+						value={value}
 						disabled={disabled}
 					/>
 					{ buttons &&
@@ -339,11 +344,11 @@ function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "left";
 	const multiple = props.multiple;
-	const defaultValue = props.defaultValue ?? multiple ? [] : "";
+	const defaultValue = props.defaultValue;
 
 	const select = useRef(null);
 
-	const optionElements = options.map(function(item: { label: string, value: string }) {
+	const optionElements = options.map(function(item: { label: string, value: string }, index) {
 		return (
 			<option
 				value={item.value}
@@ -508,6 +513,7 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "center";
 	const defaultValue = props.defaultValue;
+	const checked = props.checked;
 
 	const radio = useRef(null);
 
@@ -541,6 +547,7 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 						value={value}
 						onChange={handleChange}
 						defaultValue={defaultValue}
+						checked={checked}
 						required={required}
 						disabled={disabled}
 					/>
