@@ -465,7 +465,7 @@ function PitScout(props: Props): React.ReactElement {
 						window.alert(errorMessage);
 					}}
 				>
-					<Pit />
+					{Pit()}
 				</Form>
 				<QrCode value={qrValue} />
 			</pit-scout>
