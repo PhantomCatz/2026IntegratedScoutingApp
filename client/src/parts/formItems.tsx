@@ -560,18 +560,18 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 				throw new Error(`Could not find element ${id}`);
 			}
 
-			if(elements.length === 1) {
-				return getFieldValueSingleElement<K, FieldType>(elements[0]);
-			} else {
-				try {
+			try {
+				if(elements.length === 1) {
+					return getFieldValueSingleElement<K, FieldType>(elements[0]);
+				} else {
 					return getFieldValueMultipleElements<K, FieldType>(elements, id);
-				} catch (err) {
-					console.error(`err=`, err);
-					console.error(`id=`, id);
-					console.error(`elements[0]=`, elements[0]);
-
-					throw err;
 				}
+			} catch (err) {
+				console.error(`err=`, err);
+				console.error(`id=`, id);
+				console.error(`elements=`, elements);
+
+				throw err;
 			}
 		},
 		setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void {
@@ -581,19 +581,19 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 				throw new Error(`Could not find element ${id}`);
 			}
 
-			if(elements.length === 1) {
-				try {
+			try {
+				if(elements.length === 1) {
 					setFieldValueSingleElement(elements[0], newValue);
-				} catch (err) {
-					console.error(`err=`, err);
-					console.error(`id=`, id);
-					console.error(`newValue=`, newValue);
-					console.error(`elements[0]=`, elements[0]);
-
-					throw err;
+				} else {
+					setFieldValueMultipleElements<K, FieldType>(elements, newValue, id);
 				}
-			} else {
-				setFieldValueMultipleElements<K, FieldType>(elements, newValue, id);
+			} catch (err) {
+				console.error(`err=`, err);
+				console.error(`id=`, id);
+				console.error(`newValue=`, newValue);
+				console.error(`elements[0]=`, elements[0]);
+
+				throw err;
 			}
 		},
 		setFormValues(values: Partial<FieldType>): void {
