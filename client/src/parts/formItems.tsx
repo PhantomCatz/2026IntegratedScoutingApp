@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react';
 import * as Utils from '../utils/utils';
 
 import type { StringMap } from '../types/utilityTypes';
-import { assertInstanceOf, assertBoolean, assertNumber, assertString  } from '../types/assertions';
+import { assertInstanceOf, assertBoolean, assertNumber, assertString, assertEquals } from '../types/assertions';
 
 type AlignOptions = "left" | "center" | "right";
 
@@ -99,7 +99,7 @@ type FormAccessorType<FieldType> = {
 };
 
 // TODO: implement onFinishFailed
-function Form<FieldType>(props: FormType<NoInfer<FieldType>>): React.ReactElement {
+function Form<FieldType extends Object>(props: FormType<NoInfer<FieldType>>): React.ReactElement {
 	const onFinish = props.onFinish ?? (() => {});
 	const accessor = props.accessor;
 	const initialValues = props.initialValues;
@@ -114,12 +114,18 @@ function Form<FieldType>(props: FormType<NoInfer<FieldType>>): React.ReactElemen
 		assertInstanceOf(target, HTMLFormElement);
 
 		for(const input of target) {
-			const id = input.id;
-			if(!id) {
+			// :eyes:
+			const name = (input as {name?: string}).name;
+			if(!name) {
 				continue;
 			}
 
-			const key = id as string & keyof FieldType;
+			const key = name as string & keyof FieldType;
+
+			if(Object.hasOwn(formValues, key)) {
+				assertEquals(formValues[key], accessor.getFieldValue(key));
+				continue;
+			}
 
 			formValues[key] = accessor.getFieldValue(key);
 		}

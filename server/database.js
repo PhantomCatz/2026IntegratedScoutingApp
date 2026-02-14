@@ -24,7 +24,7 @@ let connPool = {
 	errorConnection: {
 		query: async function(sqlQuery) {
 			console.error(`Did not run query '${sqlQuery}'`)
-			return {};
+			return { ...defaultValue };
 		},
 		release: function() {},
 	},
@@ -84,14 +84,13 @@ async function requestDatabase(query, substitution, config) {
 	return result;
 }
 async function getTeamsScouted(table) {
-	let result = {};
 	const sqlQuery = `SELECT DISTINCT team_number FROM ${table}`;
 
 	const res = await requestDatabase(sqlQuery);
 
 	const teams = res.map((x) => x.team_number);
 
-	result = teams;
+	const result = teams;
 
 	return result;
 }
@@ -140,7 +139,7 @@ async function getTeamInfoSpecific(databaseName, queries) {
 
 	return result;
 }
-async function getTeamPitInfo(queries) {
+async function getTeamPitDataInfo(queries) {
 	return await getTeamInfoSpecific("pit_data", queries)
 }
 async function getTeamStrategicInfo(queries) {
@@ -169,10 +168,24 @@ async function submitData(data, table) {
 		console.error(`Failed to resolve request to ${table}:`);
 		console.dir(err);
 	}
+
+	console.log(`result=`, result);
+
 	return result;
 }
 async function submitPitData(data) {
-	return await submitData(data, "pit_data");
+	const pitPictureData = {
+    event_key: data.event_key,
+    team_number: data.team_number,
+    scouter_initials: data.scouter_initials,
+    robot_image_uri: data.robot_image_uri,
+	};
+	delete data.robot_image_uri;
+
+	return Promise.all([
+		submitData(data, "pit_data"),
+		submitData(pitPictureData, "pit_picture_data")
+	]);
 }
 async function submitMatchData(data) {
 	return await submitData(data, "match_data");
@@ -194,7 +207,7 @@ export {
 	requestDatabase,
 	getTeamInfo,
 	getTeamsScouted,
-	getTeamPitInfo,
+	getTeamPitDataInfo,
 	getTeamStrategicInfo,
 	getTeamWatchlistInfo,
 	submitPitData,

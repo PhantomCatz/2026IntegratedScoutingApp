@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { getTeamInfo, getTeamsScouted, getTeamPitInfo, getTeamStrategicInfo, submitPitData, submitMatchData, submitStrategicData,} from "./database.js";
+import { getTeamInfo, getTeamsScouted, getTeamPitDataInfo, getTeamStrategicInfo, submitPitData, submitMatchData, submitStrategicData,} from "./database.js";
 import express from 'express';
 
 const PORT = process.env.DB_PORT || 3001;
@@ -26,7 +26,7 @@ app.get("/api", async function(req, res) {
 	const queryString = req.url.split("?")[1];
 	const queries = Object.fromEntries(new URLSearchParams(queryString));
 
-	let result = undefined;
+	let result;
 
 	try {
 		switch(queries.reqType) {
@@ -36,8 +36,8 @@ app.get("/api", async function(req, res) {
 			case "getTeam":
 				result = await getTeamInfo(queries);
 				break;
-			case "getTeamPit":
-				result = await getTeamPitInfo(queries);
+			case "getTeamPitData":
+				result = await getTeamPitDataInfo(queries);
 				break;
 			case "getTeamStrategic":
 				result = await getTeamStrategicInfo(queries);
