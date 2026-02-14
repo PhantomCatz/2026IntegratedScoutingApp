@@ -1,0 +1,23 @@
+.table {
+	border-collapse: collapse;
+
+	tbody {
+		tr:nth-child(2n) {
+			background-color: var(--color-hover);
+		}
+	}
+	td {
+		border: 1px solid black;
+	}
+	td:has(.input__checkbox) {
+		text-align: center;
+	}
+	.input__checkbox input {
+		height: 1.5rem;
+		width: 3rem;
+
+		&::after {
+			font-size: 1.25rem;
+		}
+	}
+}
