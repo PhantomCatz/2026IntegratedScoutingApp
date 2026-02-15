@@ -72,7 +72,7 @@ function QrCode(props: Props): React.ReactElement {
 			"display": "Scouter Initials:",
 		},
 		{
-			"key": "match_event",
+			"key": "event_key",
 			"display": "Match Event:",
 		},
 		{

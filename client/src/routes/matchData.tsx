@@ -1,9 +1,7 @@
 import '../public/stylesheets/matchData.css';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Table } from 'antd';
-import Column from 'antd/es/table/Column';
-import ColumnGroup from 'antd/es/table/ColumnGroup';
+import Table from '../parts/table';
 import { Checkbox } from '../parts/formItems';
 import Header from '../parts/header';
 
@@ -15,7 +13,7 @@ import type * as Database from '../types/database';
 const DATA_COLUMNS = {
 	"Match Identifier": {
 		"Team Number": "team_number",
-		"Match Event": "match_event",
+		"Match Event": "event_key",
 		"Scouter Initials": "scouter_initials",
 		"Match Level": "comp_level",
 		"Match #": "match_number",
@@ -63,34 +61,6 @@ const DATA_COLUMNS = {
 	},
 } as const;
 
-const HIDABLE_FIELDS: { readonly [key: string]: false | undefined } = {
-	"robot_appeared": false,
-
-	//"teleop_coral_scored_l4": false,
-	//"teleop_coral_missed_l4": false,
-	//"teleop_coral_scored_l3": false,
-	//"teleop_coral_missed_l3": false,
-	//"teleop_coral_scored_l2": false,
-	//"teleop_coral_missed_l2": false,
-	//"teleop_coral_scored_l1": false,
-	//"teleop_coral_missed_l1": false,
-	//"teleop_algae_scored_net": false,
-	//"teleop_algae_missed_net": false,
-	"teleop_algae_scored_processor": false,
-
-	//"auton_coral_scored_l4": false,
-	//"auton_coral_missed_l4": false,
-	//"auton_coral_scored_l3": false,
-	//"auton_coral_missed_l3": false,
-	//"auton_coral_scored_l2": false,
-	//"auton_coral_missed_l2": false,
-	//"auton_coral_scored_l1": false,
-	//"auton_coral_missed_l1": false,
-	//"auton_algae_scored_net": false,
-	//"auton_algae_missed_net": false,
-	"auton_algae_scored_processor": false,
-} as const;
-
 const FIXED_FIELDS: { readonly [key: string]: true | undefined } = {
 	"match_number": true,
 } as const;
@@ -102,7 +72,7 @@ type Props = {
 function MatchData(props: Props): React.ReactElement {
 	const { teamNumber } = useParams();
 	const [loading, setLoading] = useState(true);
-	const [matchData, setMatchData] = useState<Database.MatchEntry[]>([]);
+	const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode}[] | null>(null);
 
 	useEffect(() => {
 		document.title = props.title;
@@ -139,10 +109,6 @@ function MatchData(props: Props): React.ReactElement {
 							continue;
 						}
 						row[location] = result;
-
-						if(HIDABLE_FIELDS[location] === false && hasValue === true) {
-							HIDABLE_FIELDS[location] = true;
-						}
 					}
 					const key = `${match.id}`;
 					row["key"] = key;
@@ -169,14 +135,12 @@ function MatchData(props: Props): React.ReactElement {
 
 	const fixedFields: number[] = [];
 
-	let titleCount = 0;
-
 	function getCellValue(field: string, value: unknown, data) {
 		let result: unknown = null;
 		let location = "";
 		let hasValue = false;
 
-		if(value === null || value === undefined || value === "") {
+		if(value === null || value === undefined) {
 			console.error(`field=`, field);
 			console.error(`value=`, value);
 		}
@@ -233,7 +197,7 @@ function MatchData(props: Props): React.ReactElement {
 				break;
 			}
 			case "team_number":
-			case "match_event":
+			case "event_key":
 			case "scouter_initials":
 			case "comp_level":
 			case "match_number":
@@ -278,33 +242,6 @@ function MatchData(props: Props): React.ReactElement {
 
 		return [result, location, hasValue];
 	}
-	function makeColumns(): React.ReactElement[] {
-		const groups = [];
-		for(const [section, fields] of Object.entries(DATA_COLUMNS)) {
-			const group = [];
-			for(const [title, field] of Object.entries(fields)) {
-				if(HIDABLE_FIELDS[field] === false) {
-					continue;
-				}
-
-				if(FIXED_FIELDS[field] === true) {
-					fixedFields.push(titleCount);
-				}
-				group.push(
-					<Column title={title} dataIndex={field} key={field} />
-				);
-				titleCount++;
-			}
-			groups.push(
-				<ColumnGroup title={section} key={section}>
-					{group}
-				</ColumnGroup>
-			);
-		}
-
-		fixFields();
-		return groups;
-	}
 
 	function fixFields(): void {
 		for(const num of fixedFields) {
@@ -321,16 +258,16 @@ function MatchData(props: Props): React.ReactElement {
 
 			<match-data>
 				<h2 style={{ whiteSpace: 'pre-line' }}>{loading ? "Loading..." : ""}</h2>
-				<Table
-					dataSource={matchData}
-					className={"matchDataTable"}
-					pagination={false}
-				>
-					{
-						makeColumns()
-					}
 
-				</Table>
+				{matchData ?
+					<Table
+						data={matchData}
+						columns={DATA_COLUMNS}
+						getKey={(row) => (row.id as unknown as number).toString()}
+					/>
+					:
+					<h1>No Data QAQ</h1>
+				}
 			</match-data>
 		</>
 	);

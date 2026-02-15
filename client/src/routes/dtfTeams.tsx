@@ -573,7 +573,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			teamTabs.push({ key: "Pit", label: "Pit", children:
 			<>
 			{ pitData &&
-			<Tabs items={pitData} centered className="tabs" />
+			<Tabs items={pitData} className="tabs" />
 			|| <p className={"errorLabel"}>No Pit Data</p>
 			}
 			</>
