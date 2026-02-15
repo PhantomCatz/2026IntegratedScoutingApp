@@ -142,6 +142,9 @@ async function getTeamInfoSpecific(databaseName, queries) {
 async function getTeamPitDataInfo(queries) {
 	return await getTeamInfoSpecific("pit_data", queries)
 }
+async function getTeamPitPictureDataInfo(queries) {
+	return await getTeamInfoSpecific("pit_picture_data", queries)
+}
 async function getTeamStrategicInfo(queries) {
 	return await getTeamInfoSpecific("strategic_data", queries)
 }
@@ -169,8 +172,6 @@ async function submitData(data, table) {
 		console.dir(err);
 	}
 
-	console.log(`result=`, result);
-
 	return result;
 }
 async function submitPitData(data) {
@@ -182,10 +183,11 @@ async function submitPitData(data) {
 	};
 	delete data.robot_image_uri;
 
-	return Promise.all([
-		submitData(data, "pit_data"),
-		submitData(pitPictureData, "pit_picture_data")
-	]);
+	const res = await submitData(data, "pit_data");
+
+	pitPictureData.id = res.insertId;
+
+	return await submitData(pitPictureData, "pit_picture_data")
 }
 async function submitMatchData(data) {
 	return await submitData(data, "match_data");
@@ -208,6 +210,7 @@ export {
 	getTeamInfo,
 	getTeamsScouted,
 	getTeamPitDataInfo,
+	getTeamPitPictureDataInfo,
 	getTeamStrategicInfo,
 	getTeamWatchlistInfo,
 	submitPitData,
