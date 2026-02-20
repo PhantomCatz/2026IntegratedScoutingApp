@@ -1,10 +1,11 @@
 import '../public/stylesheets/dtfTeams.css';
+import '../public/stylesheets/style.css';
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Input, TextArea } from '../parts/formItems';
 import { Tabs } from '../parts/tabs';
 import Header from '../parts/header';
-import ChartComponent from '../parts/dtfChart';
+import { DTFChartComponent, DTFAutonChartComponent, DTFTeleopChartComponent } from '../parts/dtfChart';
 import PitTabs from '../parts/pitTabs';
 import StrategicTabs from '../parts/strategicTabs';
 import Constants from '../utils/constants';
@@ -22,6 +23,36 @@ type MatchData = {
 	[team_index: number]: Database.MatchEntry[]
 };
 type AggregateData = {
+	/*
+	// Auton
+	"auton_fuel_scored": number,
+	"auton_shoot_location": string,
+	"auton_intake_location": string,
+	"auton_climb_attempted": boolean,
+	"auton_climb_successful": boolean,
+
+	//Teleop & Endgame
+	"teleop_fuel_scored": number,
+	"teleop_fuel_hoarded_amount": string,
+	"teleop_primary_hoard_type": string,
+	"endgame_climb_attempted": boolean,
+	"endgame_climb_level": string,
+	"endgame_climb_successful": boolean,
+	
+	//Overall
+	"overall_robot_died": boolean,
+	"overall_defended_others": boolean,
+	"overall_was_defended": boolean,
+	"overall_defended": string,
+	"overall_defended_by": string,
+	"overall_path_to_neutral_zone": string,
+	"overall_shot_while_moving": boolean,
+	"overall_shot_hoarded_pieces": boolean,
+	"overall_comments": string,
+	"robot_appeared": boolean,
+	*/
+
+
 	// Auton
 	"auton_leave_starting_line": boolean,
 	"auton_coral_scored_l4": number,
@@ -480,37 +511,21 @@ function DTFTeams(props: Props): React.ReactElement {
 
 				teamTabs.push({ key: "Charts", label: "Charts", children:
 						<>
-							<ChartComponent teamMatches={teamMatches} teamStrategic={strategicData}/>
+							<DTFChartComponent teamMatches={teamMatches} teamStrategic={strategicData}/>
 						</>
 				});
 
 				teamTabs.push({ key: "Auton", label: "Auton", children:
 						<>
-							<div style={{display: 'flex',}}>
-								<div style={{flexGrow: 1, }}>
-									<h2>L1 avg</h2>
-									<Input disabled defaultValue={`${data.auton_coral_scored_l1}/${data.auton_coral_l1_total}`} />
-								</div>
-								<div style={{flexGrow: 1, }}>
-									<h2>L2 avg</h2>
-									<Input disabled defaultValue={`${data.auton_coral_scored_l2}/${data.auton_coral_l2_total}`} />
-								</div>
+							<div style={{flexGrow: 1, }}>
+								<h2>Avg Fuel Scored</h2>
+								<Input disabled defaultValue={`${data.auton_coral_scored_l1}/${data.auton_coral_l1_total}`} />
 							</div>
-							<div style={{display: 'flex',}}>
-								<div style={{flexGrow: 1, }}>
-									<h2>L3 avg</h2>
-									<Input disabled defaultValue={`${data.auton_coral_scored_l3}/${data.auton_coral_l3_total}`} />
-								</div>
-								<div style={{flexGrow: 1, }}>
-									<h2>L4 avg</h2>
-									<Input disabled defaultValue={`${data.auton_coral_scored_l4}/${data.auton_coral_l4_total}`} />
-								</div>
+							<div style={{flexGrow: 1, }}>
+								<h2>Climb Percentage</h2>
+								<Input disabled defaultValue={`${data.auton_coral_scored_l3}/${data.auton_coral_l3_total}`} />
 							</div>
-
-							<h2>Avg Algae Processed</h2>
-							<Input disabled defaultValue={data.auton_algae_scored_processor.toString()} />
-							<h2>Avg Algae Net</h2>
-							<Input disabled defaultValue={`${data.auton_algae_scored_net}/${data.auton_algae_net_total}`} />
+							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData}/>
 						</>
 				});
 
@@ -518,47 +533,58 @@ function DTFTeams(props: Props): React.ReactElement {
 						<>
 							<div style={{display: 'flex',}}>
 								<div style={{flexGrow: 1, }}>
-									<h2>L1 avg</h2>
+									<h2>Fuel Scored</h2>
 									<Input disabled defaultValue={`${data.teleop_coral_scored_l1}/${data.teleop_coral_l1_total}`} />
 								</div>
 								<div style={{flexGrow: 1, }}>
-									<h2>L2 avg</h2>
+									<h2>Fuel Hoard</h2>
 									<Input disabled defaultValue={`${data.teleop_coral_scored_l2}/${data.teleop_coral_l2_total}`} />
 								</div>
 							</div>
+							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData}/>
 							<div style={{display: 'flex',}}>
 								<div style={{flexGrow: 1, }}>
-									<h2>L3 avg</h2>
-									<Input disabled defaultValue={`${data.teleop_coral_scored_l3}/${data.teleop_coral_l3_total}`} />
+									<h2>Climb L1</h2>
+									<Input disabled defaultValue={`${data.teleop_coral_scored_l1}/${data.teleop_coral_l1_total}`} />
 								</div>
 								<div style={{flexGrow: 1, }}>
-									<h2>L4 avg</h2>
-									<Input disabled defaultValue={`${data.teleop_coral_scored_l4}/${data.teleop_coral_l4_total}`} />
+									<h2>Climb L2</h2>
+									<Input disabled defaultValue={`${data.teleop_coral_scored_l2}/${data.teleop_coral_l2_total}`} />
+								</div>
+								<div style={{flexGrow: 1, }}>
+									<h2>Climb L3</h2>
+									<Input disabled defaultValue={`${data.teleop_coral_scored_l2}/${data.teleop_coral_l2_total}`} />
 								</div>
 							</div>
-							<h2>Avg Algae Processed</h2>
-							<Input disabled defaultValue={data.teleop_algae_scored_processor.toString()} />
-							<h2>Avg Algae Net</h2>
-							<Input disabled defaultValue={`${data.teleop_algae_scored_net}/${data.teleop_algae_net_total}`} />
-							<h2>Climb Type</h2>
-							<Input disabled defaultValue={data.endgame_climb_type} />
-							<h2>Avg Climb Success</h2>
-							<Input disabled defaultValue={data.endgame_climb_successful_total.toString()} />
-							<h2>Avg Climb Time</h2>
-							<Input disabled defaultValue={data.endgame_climb_time.toString()} />
 						</>
 				});
 
 				teamTabs.push({ key: "OA", label: "OA", children:
 						<>
-							<h2>Matches Played</h2>
-							<Input disabled defaultValue={`${data.match_count}/${teamMatches.length}`} />
 							<h2>Robot Died (counter: matches)</h2>
 							<Input disabled defaultValue={data.overall_robot_died.toString()} />
-							<h2>Intake Algae Type</h2>
+							<h2>Intake Fuel Type</h2>
 							<Input disabled defaultValue={data.endgame_algae_intake_capability} />
-							<h2>Intake Coral Type</h2>
-							<Input disabled defaultValue={data.endgame_coral_intake_capability} />
+							<div style={{display: 'flex',}}>
+								<div style={{flexGrow: 1, }}>
+									<h2>Trench</h2>
+									<Input disabled defaultValue={data.endgame_algae_intake_capability} />
+								</div>
+								<div style={{flexGrow: 1, }}>
+									<h2>Fuel Capacity</h2>
+									<Input disabled defaultValue={data.endgame_algae_intake_capability} />
+								</div>
+							</div>
+							<div style={{display: 'flex',}}>
+								<div style={{flexGrow: 1, }}>
+									<h2>Shoot While Moving</h2>
+									<Input disabled defaultValue={data.endgame_algae_intake_capability} />
+								</div>
+								<div style={{flexGrow: 1, }}>
+									<h2>Hoard Type</h2>
+									<Input disabled defaultValue={data.endgame_algae_intake_capability} />
+								</div>
+							</div>
 							<h2>Robot Comments</h2>
 							<TextArea disabled defaultValue={data.overall_comments} />
 						</>
@@ -627,12 +653,17 @@ function DTFTeams(props: Props): React.ReactElement {
 
 		tabs.push({ key: "Summary", label: "Summary", children:
 				<>
-					<h2>Average Alliance Score</h2>
-					<Input disabled defaultValue={totalAverage.toString()} />
-					{averageScores}
-					<h2>Driver Skill</h2>
-					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						{driverSkills}
+					<div style={{flexGrow: 1, }}>
+						<h2>Alliance Avg Fuel Count</h2>
+						<Input disabled defaultValue={totalAverage.toString()} />
+					</div>
+					<div style={{flexGrow: 1, }}>
+						<h2>Alliance Avg Climb Score</h2>
+						<Input disabled defaultValue={totalAverage.toString()} />
+					</div>
+					<div style={{flexGrow: 1, }}>
+						<h2>Alliance Avg Auton Fuel Count</h2>
+						<Input disabled defaultValue={totalAverage.toString()} />
 					</div>
 				</>
 		});
@@ -685,24 +716,26 @@ function DTFTeams(props: Props): React.ReactElement {
 
 					averageScoresGroup.push(
 						<div key={`${i}|${j}`}>
-							<h2>Team {teamNumber} Average Score</h2>
-							<Input disabled defaultValue={data.average_score.toString()} />
+							<h2>Team {teamNumber}</h2>
+							<div className='inputRow'>
+								<Input disabled title={<h2>Average Score</h2>} defaultValue={data.average_score.toString()} />
+								<Input disabled title={<h2>Climb Score</h2>} defaultValue={data.average_score.toString()} />
+								<Input disabled title={<h2>Fuel Score</h2>} defaultValue={data.average_score.toString()} />
+							</div>
 						</div>
 					);
 
 					allianceTotalAverage += data.average_score;
 				}
 
-				averageScores.push(
-					<div key={`allianceRobotAverages${i + 1}`}>
+				allianceAverageScores.push(
+					<div key={`allianceAverage${i + 1}`}>
+						<h2>Alliance {i + 1} Total Score</h2>
+						<Input disabled defaultValue={allianceTotalAverage.toString()} />
+						<div key={`allianceRobotAverages${i + 1}`}>
 						<h2>Alliance {i + 1} Robots</h2>
 						{averageScoresGroup}
 					</div>
-				);
-				allianceAverageScores.push(
-					<div key={`allianceAverage${i + 1}`}>
-						<h2>Alliance {i + 1} Average Score</h2>
-						<Input disabled defaultValue={allianceTotalAverage.toString()} />
 					</div>
 				);
 
@@ -711,7 +744,6 @@ function DTFTeams(props: Props): React.ReactElement {
 			allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children:
 					<>
 						{allianceAverageScores}
-						{averageScores}
 					</>
 			});
 

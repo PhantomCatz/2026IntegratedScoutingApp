@@ -140,6 +140,142 @@ function DTFChartComponent(props: Props): React.ReactElement {
 	);
 }
 
+function DTFAutonChartComponent(props: Props): React.ReactElement {
+	const autonCoralCanvas = useRef<HTMLCanvasElement>(null);
+
+	const teamMatches = props.teamMatches;
+	const teamStrategic = props.teamStrategic;
+
+	useEffect(() => {
+		if(!(autonCoralCanvas.current
+		)) {
+			return;
+		}
+		const matchNumbers = teamMatches.map(function(row) {
+			const comp_level = row.comp_level;
+			const match_number = row.match_number;
+
+			return comp_level[0].toUpperCase() + match_number.toString();
+		});
+
+		function commentCallback(message: string[], items: TooltipItem<'line'>[]): void {
+			const dataPoint = items[0];
+			const match = teamMatches[dataPoint.dataIndex];
+			const match_number = match.match_number;
+			const comp_level = match.comp_level;
+
+			const currentTeamMatches = teamMatches.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+			const currentStrategicMatches = teamStrategic.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+
+			for(const match of currentTeamMatches) {
+				message.push("MS: " + match.overall_comments);
+			}
+			for(const match of currentStrategicMatches) {
+				message.push("SS: " + match.comments);
+			}
+		}
+
+		createChart(autonCoralCanvas.current, teamMatches, matchNumbers, {
+			"Scored": {
+				values: {
+					"L1": "auton_coral_scored_l1",
+					"L2": "auton_coral_scored_l2",
+					"L3": "auton_coral_scored_l3",
+					"L4": "auton_coral_scored_l4",
+				},
+				calculateAverage: true,
+			},
+			"Missed": {
+				values: {
+					"L1": "auton_coral_missed_l1",
+					"L2": "auton_coral_missed_l2",
+					"L3": "auton_coral_missed_l3",
+					"L4": "auton_coral_missed_l4",
+				},
+				calculateAverage: true,
+			},
+		}, commentCallback);
+
+	}, [autonCoralCanvas.current]);
+
+
+	return (
+		<div className="dtfChart">
+			<h2>Auton Fuel Score Graph</h2>
+			{<canvas ref={autonCoralCanvas}></canvas>}
+		</div>
+	);
+}
+
+function DTFTeleopChartComponent(props: Props): React.ReactElement {
+	const teleopCoralCanvas = useRef<HTMLCanvasElement>(null);
+
+	const teamMatches = props.teamMatches;
+	const teamStrategic = props.teamStrategic;
+
+	useEffect(() => {
+		if(!(teleopCoralCanvas.current
+		)) {
+			return;
+		}
+		const matchNumbers = teamMatches.map(function(row) {
+			const comp_level = row.comp_level;
+			const match_number = row.match_number;
+
+			return comp_level[0].toUpperCase() + match_number.toString();
+		});
+
+		function commentCallback(message: string[], items: TooltipItem<'line'>[]): void {
+			const dataPoint = items[0];
+			const match = teamMatches[dataPoint.dataIndex];
+			const match_number = match.match_number;
+			const comp_level = match.comp_level;
+
+			const currentTeamMatches = teamMatches.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+			const currentStrategicMatches = teamStrategic.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+
+			for(const match of currentTeamMatches) {
+				message.push("MS: " + match.overall_comments);
+			}
+			for(const match of currentStrategicMatches) {
+				message.push("SS: " + match.comments);
+			}
+		}
+
+		createChart(teleopCoralCanvas.current, teamMatches, matchNumbers, {
+			"Scored": {
+				values: {
+					"L1": "teleop_coral_scored_l1",
+					"L2": "teleop_coral_scored_l2",
+					"L3": "teleop_coral_scored_l3",
+					"L4": "teleop_coral_scored_l4",
+				},
+				calculateAverage: true,
+			},
+			"Missed": {
+				values: {
+					"L1": "teleop_coral_missed_l1",
+					"L2": "teleop_coral_missed_l2",
+					"L3": "teleop_coral_missed_l3",
+					"L4": "teleop_coral_missed_l4",
+				},
+				calculateAverage: true,
+			},
+		}, commentCallback);
+
+	}, [teleopCoralCanvas.current]);
+
+
+	return (
+		<div className="dtfChart">
+			<h2>Teleop Fuel Score Graph</h2>
+			{<canvas ref={teleopCoralCanvas}></canvas>}
+		</div>
+	);
+}
+
+
+
 type ChartConfig = {
 	[name: string]: {
 		values: {
@@ -241,4 +377,4 @@ function createChart(canvas: HTMLCanvasElement,
 	});
 }
 
-export default DTFChartComponent;
+export { DTFChartComponent, DTFAutonChartComponent, DTFTeleopChartComponent };
