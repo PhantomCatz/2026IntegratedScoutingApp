@@ -5,7 +5,7 @@ export type Tinyint = 0 | 1;
 
 export type MatchEntry = {
     id:                              number;
-    match_event:                     TbaApi.EventKey;
+    event_key:                       TbaApi.EventKey;
     team_number:                     number;
     scouter_initials:                string;
     comp_level:                      TbaApi.Comp_Level;
@@ -56,7 +56,7 @@ export type MatchEntry = {
 };
 export type StrategicEntry = {
     id:               number;
-    match_event:      TbaApi.EventKey;
+    event_key:        TbaApi.EventKey;
     team_number:      number;
     scouter_initials: string;
     comp_level:       TbaApi.Comp_Level;
@@ -64,33 +64,40 @@ export type StrategicEntry = {
     robot_position:   TbaRequest.RobotPosition;
     comments:         string;
 };
-export type PitEntry = {
+export type PitDataEntry = {
+    id:                          number;
+    event_key:                   string;
+    team_number:                 number;
+    scouter_initials:            string;
+    robot_weight:                number;
+    drive_train_type:            string;
+    propulsion_motor_type:       string;
+    number_of_propulsion_motors: number;
+    wheel_type:                  string;
+    fuel_intake_location:        string;
+    intake_type:                 string;
+    intake_width:                string;
+    max_fuel_capacity:           number;
+    max_shot_range:              string;
+    trench_capability:           Tinyint;
+    climb_during_auto:           Tinyint;
+    can_climb_l1:                Tinyint;
+    can_climb_l2:                Tinyint;
+    can_climb_l3:                Tinyint;
+    pit_organization:            number;
+    team_safety:                 number;
+    team_workmanship:            number;
+    gracious_professionalism:    number;
+    any_electrical_issues:       string;
+    comments:                    string;
+};
+
+export type PitPictureEntry = {
     id:                        number;
-    match_event:               TbaApi.EventKey;
+    event_key:                 TbaApi.EventKey;
     team_number:               number;
     scouter_initials:          string;
-    robot_weight:              number;
-    drive_train_type:          string;
-    motor_type:                string;
-    number_of_motors:          number;
-    wheel_type:                string;
-    coral_intake_capability:   string;
-    intake_width:              string;
-    coral_scoring_l1:          Tinyint;
-    coral_scoring_l2:          Tinyint;
-    coral_scoring_l3:          Tinyint;
-    coral_scoring_l4:          Tinyint;
-    can_remove_algae:          Tinyint;
-    algae_intake_capability:   string;
-    algae_scoring_capability:  string;
-    score_aiming_coral:        string;
-    score_aiming_algae:        string;
-    aiming_description:        string;
-    climbing_capability:       string;
-    pit_organization:          number;
-    team_safety:               number;
-    team_workmanship:          number;
-    gracious_professionalism:  number;
-    comments:                  string;
-    robotImageURI:             string;
-};
+    robot_image_uri:           string;
+}
+
+export type PitDataFullEntry = PitDataEntry & { robot_image_uri: string };

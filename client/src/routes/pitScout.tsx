@@ -16,7 +16,7 @@ type Props = {
 	title: string,
 };
 
-const formDefaultValues = {
+const formDefaultValues: Partial<PitScoutTypes.Pit> = {
 	"team_number": 0,
 	"scouter_initials": "",
 	"robot_weight": 0,
@@ -25,7 +25,7 @@ const formDefaultValues = {
 	"number_of_driving_motors": 0,
 	"wheel_type": "",
 	"fuel_intake_location": "",
-	"intake_type": "",
+	"intake_type": [],
 	"intake_width": "",
 	"max_fuel_capacity": 0,
 	"max_shot_range": "",
@@ -88,9 +88,9 @@ function PitScout(props: Props): React.ReactElement {
 			}})();
 	}, [eventKey]);
 
-	function submitData(event: PitScoutTypes.Pit): void {
+	function submitData(event: PitScoutTypes.Pit, robot_image_uri: string[]): void {
 		const body: PitScoutTypes.SubmitBody = {
-			"match_event": eventKey,
+			"event_key": eventKey,
 			"team_number": event.team_number,
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"robot_weight": event.robot_weight,
@@ -114,6 +114,7 @@ function PitScout(props: Props): React.ReactElement {
 			"team_workmanship": event.team_workmanship,
 			"gracious_professionalism": event.gracious_professionalism,
 			"comments": event.comments,
+			"robot_image_uri": "",
 		};
 		Object.entries(body)
 			.forEach((item) => {
@@ -129,7 +130,7 @@ function PitScout(props: Props): React.ReactElement {
 				body[access] = newVal as unknown as never;
 			});
 
-		void tryFetch(body)
+		void tryOnlineSubmission(body, robot_image_uri)
 			.then((successful) => {
 				if(successful) {
 					window.alert("Submit successful.");
@@ -140,7 +141,7 @@ function PitScout(props: Props): React.ReactElement {
 
 		setQrValue(body);
 	}
-	async function tryFetch(body: PitScoutTypes.SubmitBody): Promise<boolean> {
+	async function tryOnlineSubmission(body: PitScoutTypes.SubmitBody, robot_image_uri: string[]): Promise<boolean> {
 		let fetchLink = Constants.SERVER_ADDRESS;
 
 		if(!fetchLink) {
@@ -150,11 +151,11 @@ function PitScout(props: Props): React.ReactElement {
 
 		fetchLink += "reqType=submitPitData";
 
-		const imageData = robotImageURI.join(IMAGE_DELIMITER);
+		const imageData = robot_image_uri.join(IMAGE_DELIMITER);
 
-		const submitBody = {
+		const submitBody: PitScoutTypes.SubmitBody = {
 			...body,
-			robotImageURI: imageData,
+			robot_image_uri: imageData,
 		};
 
 		try {
@@ -343,13 +344,13 @@ function PitScout(props: Props): React.ReactElement {
                     title="Auto Aim"
                 />
 				<Checkbox<FieldType>
-                    name="trench_capability"
-                    title="Trench Capability"
-                />
+					name="trench_capability"
+					title="Trench Capability"
+				/>
 				<Checkbox<FieldType>
-                    name="climb_during_auto"
-                    title="Climb during auto?"
-                />
+					name="climb_during_auto"
+					title="Climb during auto?"
+				/>
 
 				<h1>Climbing Capability</h1>
 				<Checkbox<FieldType>
@@ -409,6 +410,7 @@ function PitScout(props: Props): React.ReactElement {
 				<label className="robotImageLabel" htmlFor="robotImageInput">Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}</label>
 				<input
 					ref={robotImageInput}
+					id="robotImageInput"
 					type="file"
 					accept="image/*"
 					multiple
@@ -416,7 +418,7 @@ function PitScout(props: Props): React.ReactElement {
 						setRefresh(!refresh);
 					}}
 				/>
-				<input type="submit" value="Submit" className='submit' />
+				<input type="submit" value="Submit" className="submitButton" />
 			</>
 		);
 	}
@@ -435,20 +437,21 @@ function PitScout(props: Props): React.ReactElement {
 						try {
 							setLoading(true);
 
-							submitData(event);
-
-							const initials = accessor.getFieldValue("scouter_initials");
-
-							accessor.resetFields();
+							let parsedFiles: string[] = [];
 
 							if(robotImageInput.current && robotImageInput.current.files) {
 								const fileList: FileList = robotImageInput.current.files;
 
-								const parsedFiles: string[] = await Promise.all(fileList[Symbol.iterator]().map(readImage));
+								parsedFiles = await Promise.all(fileList[Symbol.iterator]().map(readImage));
 
-								setRobotImageURI(parsedFiles)
 								robotImageInput.current.value = "";
 							}
+
+							submitData(event, parsedFiles);
+
+							const initials = accessor.getFieldValue("scouter_initials");
+
+							accessor.resetFields();
 
 							accessor.setFormValues({...formDefaultValues, "scouter_initials": initials});
 						}
@@ -466,7 +469,7 @@ function PitScout(props: Props): React.ReactElement {
 						window.alert(errorMessage);
 					}}
 				>
-					<Pit />
+					{Pit()}
 				</Form>
 				<QrCode value={qrValue} />
 			</pit-scout>

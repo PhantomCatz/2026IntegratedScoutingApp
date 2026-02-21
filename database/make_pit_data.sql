@@ -6,9 +6,9 @@ CREATE TABLE pit_data (
     id INT NOT NULL AUTO_INCREMENT,
 
     -- Match / Team Info
-    match_event                   VARCHAR(10) NOT NULL,
-    team_number                   INT NOT NULL,
-    scouter_initials              VARCHAR(4) NOT NULL,
+    event_key      VARCHAR(10) NOT NULL,
+    team_number      INT NOT NULL,
+    scouter_initials VARCHAR(4) NOT NULL,
 
     -- Robot Specs
     robot_weight                  FLOAT NOT NULL,
@@ -39,10 +39,7 @@ CREATE TABLE pit_data (
     gracious_professionalism      SMALLINT NOT NULL,
 
     -- Notes
-    comments                      VARCHAR(1000) NOT NULL,
-
-    -- Media
-    robotImageURI MEDIUMTEXT      NOT NULL,
+    comments              VARCHAR(1000) NOT NULL,
 
     PRIMARY KEY (id)
 );

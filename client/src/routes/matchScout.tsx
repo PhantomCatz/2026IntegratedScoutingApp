@@ -63,7 +63,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 } as const;
 const noShowValues: Partial<MatchScoutTypes.All> = {
 	// Pre-match
-	//"match_event": "",
+	//"event_key": "",
 	//"team_number": 0,
 	//"scouter_initials": "",
 	//"comp_level": "",

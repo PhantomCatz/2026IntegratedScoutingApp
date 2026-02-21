@@ -27,7 +27,7 @@ export type Pit = {
 };
 
 export type SubmitBody = {
-			"match_event": TbaApi.EventKey;
+			"event_key": TbaApi.EventKey;
 			"team_number": number;
 			"scouter_initials": string;
 			"robot_weight": number;
@@ -51,4 +51,5 @@ export type SubmitBody = {
 			"team_workmanship": number;
 			"gracious_professionalism": number;
 			"comments": string;
+			"robot_image_uri": string;
 };
