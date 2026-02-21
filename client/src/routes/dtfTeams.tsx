@@ -23,72 +23,58 @@ type MatchData = {
 };
 type AggregateData = {
 	// Auton
-	"auton_leave_starting_line": boolean,
-	"auton_coral_scored_l4": number,
-	"auton_coral_l4_total": number,
-	//"auton_coral_missed_l4": number,
-	"auton_coral_scored_l3": number,
-	"auton_coral_l3_total": number,
-	//"auton_coral_missed_l3": number,
-	"auton_coral_scored_l2": number,
-	"auton_coral_l2_total": number,
-	//"auton_coral_missed_l2": number,
-	"auton_coral_scored_l1": number,
-	"auton_coral_l1_total": number,
-	//"auton_coral_missed_l1": number,
-	"auton_algae_scored_net": number,
-	"auton_algae_missed_net": number,
-	"auton_algae_net_total": number,
-	"auton_algae_scored_processor": number,
+	"avg_fuel_scored": number,
+	"climb_percentage": number,
+	
 
 	// Teleop
-	"teleop_coral_scored_l4": number,
-	"teleop_coral_l4_total": number,
-	//"teleop_coral_missed_l4": number,
-	"teleop_coral_scored_l3": number,
-	"teleop_coral_l3_total": number,
-	//"teleop_coral_missed_l3": number,
-	"teleop_coral_scored_l2": number,
-	"teleop_coral_l2_total": number,
-	//"teleop_coral_missed_l2": number,
-	"teleop_coral_scored_l1": number,
-	"teleop_coral_l1_total": number,
-	//"teleop_coral_missed_l1": number,
-	"teleop_algae_scored_net": number,
-	"teleop_algae_missed_net": number,
-	"teleop_algae_net_total": number,
-	"teleop_algae_scored_processor": number,
-
-	// Endgame
-	"endgame_coral_intake_capability": string,
-	//"endgame_coral_station": event.endgame_coral_station
-	"endgame_algae_intake_capability": string,
-
-	// "endgame_climb_successful": event.endgame_climb_successful,
-	"endgame_climb_type": string,
-
-	"endgame_climb_time": number,
+	"team_fuel_scored": number,
+	"team_fuel_hoard": string,
+	"team_climb_level_1_percentage": number,
+	"team_climb_level_2_percentage": number,
+	"team_climb_level_3_percentage": number,
+	
 	// Overall
-	"overall_robot_died": number,
-	"overall_defended_others": number,
-	"overall_was_defended": number,
-	// "overall_defended": [],
-	// "overall_defended_by": [],
-	"overall_pushing": number,
-	"overall_counter_defense": number,
-	"overall_driver_skill": number,
-	"overall_major_penalties": number,
-	"overall_minor_penalties": number,
-	// "overall_penalties_incurred": string,
-	"overall_comments": string,
+	"team_robot_died_percentage": number,
+	"team_intake_fuel_type": string,
+	//does it passes the trench
+	"team_pass_trench": boolean,
+	"team_fuel_capacity": number,
+	"team_shoot_while_moving": boolean,
+	"team_hoard_type": string,
+	"team_robot_comments": string,
+	
+	//Summary
+	"alliance_avg_fuel_score": number,
+	"alliance_avg_climb_score": number,
+	"alliance_avg_auton_fuel_count": number
+	"alliance_1_total_score": number,
+	
+	"team_1_avg_score": number,
+	"team_1_climb_score": number,
+	"team_1_fuel_score": number,
+	
+	"team_2_avg_score": number,
+	"team_2_climb_score": number,
+	"team_2_fuel_score": number,
 
-	"robot_played": boolean,
+	"team_3_avg_score": number,
+	"team_3_climb_score": number,
+	"team_3_fuel_score": number,
 
-	"endgame_climb_successful_total": number,
+	"alliance_2_total_score": number,
+	
+	"team_4_avg_score": number,
+	"team_4_climb_score": number,
+	"team_4_fuel_score": number,
 
-	"total_score": number,
-	"average_score": number,
-	"match_count": number,
+	"team_5_avg_score": number,
+	"team_5_climb_score": number,
+	"team_5_fuel_score": number,
+
+	"team_6_avg_score": number,
+	"team_6_climb_score": number,
+	"team_6_fuel_score": number,
 };
 
 function DTFTeams(props: Props): React.ReactElement {
@@ -208,20 +194,48 @@ function DTFTeams(props: Props): React.ReactElement {
 		}
 		switch(k) {
 			// Average values
-			case "auton_coral_scored_l4":
-			case "auton_coral_scored_l3":
-			case "auton_coral_scored_l2":
-			case "auton_coral_scored_l1":
-			case "auton_algae_scored_net":
-			case "auton_algae_scored_processor":
-			case "teleop_coral_scored_l4":
-			case "teleop_coral_scored_l3":
-			case "teleop_coral_scored_l2":
-			case "teleop_coral_scored_l1":
-			case "teleop_algae_scored_net":
-			case "teleop_algae_scored_processor":
-			case "endgame_climb_time":
-			case "overall_driver_skill":
+			case "avg_fuel_scored":
+			case "climb_percentage":
+				//auton
+			case "team_fuel_scored":
+			case "team_fuel_hoard":
+			case "team_climb_level_1_percentage":
+			case "team_climb_level_2_percentage":
+			case "team_climb_level_3_percentage":
+				//teleop
+			case "team_robot_died_percentage":
+			case "team_fuel_capacity":
+				//overall
+			case "alliance_avg_fuel_score":
+			case "alliance_avg_climb_score":
+			case "alliance_avg_auton_fuel_count":
+				//alliance summary
+			case "alliance_1_total_score":
+			case "team_1_avg_score":
+			case "team_1_climb_score":
+			case "team_1_fuel_score":
+			
+			case "team_2_avg_score":
+			case "team_2_climb_score":
+			case "team_2_fuel_score":
+
+			case "team_3_avg_score":
+			case "team_3_climb_score":
+			case "team_3_fuel_score":
+
+			case "alliance_2_total_score":
+			case "team_4_avg_score":
+			case "team_4_climb_score":
+			case "team_4_fuel_score":
+			
+			case "team_5_avg_score":
+			case "team_5_climb_score":
+			case "team_5_fuel_score":
+
+			case "team_6_avg_score":
+			case "team_6_climb_score":
+			case "team_6_fuel_score":
+				//entire summary
 				assertNumber(data[k])
 				assertNumber(v);
 				if(l) {
@@ -229,7 +243,8 @@ function DTFTeams(props: Props): React.ReactElement {
 				}
 				break;
 			// Summative values
-			case "overall_robot_died":
+			case "team_pass_trench":
+			case "team_shoot_while_moving":
 				assertNumber(data[k])
 				assertNumber(v);
 				data[k] += v;
@@ -240,18 +255,17 @@ function DTFTeams(props: Props): React.ReactElement {
 				data[k] += v.replace("\\n", "\n") + "\n";
 				break;
 			// Special Values
-			case "endgame_coral_intake_capability":
-			case "endgame_algae_intake_capability":
-			case "endgame_climb_type": {
+			case "team_intake_fuel_type":
+			{
 				// TODO: refactor/remove?
 				let change = 0;
 				if(!data[k]) {
 					change = 1;
-				} else if(data[k] === "Neither") {
+				} else if(data[k] === "No Intake") {
 					change = 1;
 				} else if(data[k] === "Both") {
 					change = -1;
-				} else if(v === "Neither") {
+				} else if(v === "No Intake") {
 					change = -1;
 				} else if(v === "Both") {
 					change = 1;
@@ -278,45 +292,9 @@ function DTFTeams(props: Props): React.ReactElement {
 				//console.error("did nothing for", k);
 				break;
 		}
-		switch(k) {
-			// Average values
-			case "auton_coral_scored_l4":
-			case "auton_coral_missed_l4":
-			case "auton_coral_scored_l3":
-			case "auton_coral_missed_l3":
-			case "auton_coral_scored_l2":
-			case "auton_coral_missed_l2":
-			case "auton_coral_scored_l1":
-			case "auton_coral_missed_l1":
-			case "auton_algae_scored_net":
-			case "auton_algae_missed_net":
-
-			case "teleop_coral_scored_l4":
-			case "teleop_coral_missed_l4":
-			case "teleop_coral_scored_l3":
-			case "teleop_coral_missed_l3":
-			case "teleop_coral_scored_l2":
-			case "teleop_coral_missed_l2":
-			case "teleop_coral_scored_l1":
-			case "teleop_coral_missed_l1":
-			case "teleop_algae_scored_net":
-			case "teleop_algae_missed_net":
-			case "endgame_climb_successful": {
-				// :eyes:
-				const total_field = k.replace("_missed","").replace("_scored","") + ("_total") as keyof AggregateData;
-
-				assertNumber(data[total_field]);
-				assertNumber(v);
-
-				if(l) {
-					data[total_field] += v/l;
-				}
-				break;
-			}
-			default: //skip
-				break;
-		}
+		
 	}
+	//function getScore calculates the score by doing the calculation (the score the robot gets by doing something) * (how many times the robot did that)
 	function getScore(k: string, v: AggregateData[keyof AggregateData]): number {
 		const map = {
 			"auton_coral_scored_l4": 7,
