@@ -4,7 +4,7 @@ export type AllianceColor = "blue" | "red";
 export type EventKey = `${number}${string}`;
 // export type MatchKey = `${EventKey}_${Comp_Level}m${number}`;
 export type MatchKey = `${EventKey}_${Comp_Level}${number}${`m${number}` | ""}`;
-
+export type ElimsAlliance = `${number}`;
 /******* /match/{match_key} **********/
 export type Match = {
 	key: MatchKey,

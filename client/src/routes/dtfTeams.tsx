@@ -294,6 +294,7 @@ function DTFTeams(props: Props): React.ReactElement {
 		}
 		
 	}
+	//function getScore calculates the score by doing the calculation (the score the robot gets by doing something) * (how many times the robot did that)
 	function getScore(k: string, v: AggregateData[keyof AggregateData]): number {
 		const map = {
 			"auton_coral_scored_l4": 7,

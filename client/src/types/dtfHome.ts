@@ -5,6 +5,9 @@ export type All = {
 	teamNumber4: number;
 	teamNumber5: number;
 	teamNumber6: number;
+	qualMatch: number;
+	elimsAlliance1: string;
+	elimsAlliance2: string;
 };
 
 export type Props = {
