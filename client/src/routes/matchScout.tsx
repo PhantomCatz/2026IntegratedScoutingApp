@@ -589,9 +589,9 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "None", value: "None" },
 		];
 		const teleop_primary_hoard_type= [
-			{ label: "Push Hoard", value: "Push_Hoard" },
-			{ label: "Shoot Hoard", value: "Shoot_Hoard" },
-			{ label: "Dump Hoard", value: "Dump_Hoard" },
+			{ label: "Push Hoard", value: "Push Hoard" },
+			{ label: "Shoot Hoard", value: "Shoot Hoard" },
+			{ label: "Dump Hoard", value: "Dump Hoard" },
 		];
 
 		return (
@@ -675,9 +675,9 @@ function MatchScout(props: Props): React.ReactElement {
 	function endgameMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.EndgameMatch;
 		const endgame_climb_level = [
-			{ label: "Level 1", value: "Level_1" },
-			{ label: "Level 2", value: "Level_2" },
-			{ label: "Level 3", value: "Level_3" },
+			{ label: "Level 1", value: "Level 1" },
+			{ label: "Level 2", value: "Level 2" },
+			{ label: "Level 3", value: "Level 3" },
 		];
 		return (
 			<>
