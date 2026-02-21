@@ -179,3 +179,27 @@
 		}
 	}
 }
+.input__radio {
+	input {
+		display: none;
+	}
+	label {
+		display: inline-block;
+		background-color: var(--background-color);
+		border: 2px solid var(--font-color);
+		box-sizing: border-box;
+		border-radius: 1rem;
+		padding: 0.5rem;
+		text-align: center;
+		font-weight: bold;
+		width: auto;
+	}
+	&:has(input:checked) label {
+		/* color: green; */
+		background-color: var(--color-active);
+		box-shadow: grey -2px 2px;
+	}
+	&:has(input:not(:checked)) label {
+		/* color: red; */
+	}
+}

@@ -5,12 +5,14 @@ import Header from '../parts/header';
 import { getAllTeams, } from '../utils/tbaRequest.ts';
 import PitTabs from '../parts/pitTabs';
 import { NumberInput } from '../parts/formItems';
+import {getFieldAccessor } from '../parts/formItems';
 import { Tabs, } from '../parts/tabs';
 import Constants from '../utils/constants';
 
 import type * as TbaApi from '../types/tbaApi';
 import type { TabItem, TabItems } from '../parts/tabs';
 import type * as Database from '../types/database';
+import type * as PitLookupTypes from '../types/pitLookup';
 
 type Props = {
 	title: string;
@@ -30,6 +32,8 @@ function PitLookup(props: Props): React.ReactElement {
 	}
 
 	const eventKey = _eventKey;
+
+	const accessor = getFieldAccessor<PitLookupTypes.All>();
 
 	useEffect(() => {
 		document.title = props.title;
@@ -79,10 +83,31 @@ function PitLookup(props: Props): React.ReactElement {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			fetchLink += "reqType=getTeamPit";
+			fetchLink += "reqType=getTeamPitData";
 
-			const res = await fetch(fetchLink + `&team=${teamNumber}`);
-			const data = await res.json() as Database.PitEntry[];
+			const res1 = await fetch(fetchLink + `&team=${teamNumber}`);
+			const pitData = await res1.json() as Database.PitDataEntry[];
+
+			fetchLink = Constants.SERVER_ADDRESS;
+			fetchLink += "reqType=getTeamPitPictureData";
+
+			const res2 = await fetch(fetchLink + `&team=${teamNumber}`);
+			const pitPictureData = await res2.json() as Database.PitPictureEntry[];
+
+			const pitPictureMap: { [id: number]: Database.PitPictureEntry | undefined } = {};
+
+			for(const pitPictureEntry of pitPictureData) {
+				pitPictureMap[pitPictureEntry.id] = pitPictureEntry;
+			}
+
+			const data: Database.PitDataFullEntry[] = pitData.map(pitDataEntry => {
+				const pitDataFullEntry: Database.PitDataFullEntry = {
+					...pitDataEntry,
+					robot_image_uri: pitPictureMap[pitDataEntry.id]?.robot_image_uri ?? "",
+				};
+
+				return pitDataFullEntry;
+			});
 
 			createTabs(teamNumber, data);
 		})();
@@ -103,24 +128,24 @@ function PitLookup(props: Props): React.ReactElement {
 		return (
 			<>
 				<NumberInput
-					name="teamNumber"
+					name="team_number"
 					title="Team Number"
 					min={0}
 					max={99999}
 				/>
-				<div className={"centered"}>
-					<button className={"submitButton"} onMouseDown={function(_) {
-						const input = document.querySelector("#teamNumber") as HTMLInputElement;
-						createTabs(Number(input.value), null);
-					}}>Submit</button>
-				</div>
+				<button className={"submitButton"} onClick={function(_) {
+					const team_number = accessor.getFieldValue("team_number");
+					setTeamNumber(team_number);
+					// createTabs(team_number, null);
+				}}>Submit</button>
 				<h2>List of Teams</h2>
 				{teamNumberElements}
 			</>
 		);
 	}
 
-	function createTabs(teamNumber: number, data: Database.PitEntry[] | null): void {
+	function createTabs(teamNumber: number, data: Database.PitDataEntry[] | null): void {
+		console.log(`teamNumber=`, teamNumber);
 		try {
 			const tabs = PitTabs({teamNumber: teamNumber, data: data});
 

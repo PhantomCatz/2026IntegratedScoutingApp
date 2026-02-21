@@ -54,25 +54,25 @@ function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null):
 		return blueTeams.concat(redTeams);
 	} else {
 		return [
-			{ label: "R1", value: "R1" },
-			{ label: "R2", value: "R2" },
-			{ label: "R3", value: 'R3' },
 			{ label: "B1", value: "B1" },
 			{ label: "B2", value: "B2" },
 			{ label: "B3", value: 'B3' },
+			{ label: "R1", value: "R1" },
+			{ label: "R2", value: "R2" },
+			{ label: "R3", value: 'R3' },
 		];
 	}
 }
 function parseRobotPosition(robotPosition: TbaRequest.RobotPosition): [TbaApi.AllianceColor, number] {
 	const allianceColors: { [colorString: string]: TbaApi.AllianceColor } = {
-		"R": "red",
 		"B": "blue",
+		"R": "red",
 	} as const;
 
 	const colorString = robotPosition[0];
 	const allianceColor = allianceColors[colorString];
 
-	const positionNumber = Number(robotPosition.substring(1));
+	const positionNumber = Number(robotPosition.substring(1)) - 1;
 
 	return [allianceColor, positionNumber];
 }

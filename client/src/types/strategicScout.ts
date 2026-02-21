@@ -2,14 +2,12 @@ import * as TbaApi from './tbaApi';
 import * as TbaRequest from './tbaRequest';
 
 export type PreMatch = {
-	match_event: TbaApi.EventKey;
 	scouter_initials: string;
 	comp_level: TbaApi.Comp_Level;
 	match_number: number;
 	robot_position: TbaRequest.RobotPosition;
-	// TODO: fix
-	red_alliance: TbaApi.AllianceColor;
-	blue_alliance: TbaApi.AllianceColor;
+	red_alliance: string;
+	blue_alliance: string;
 };
 
 export type Comment = {
@@ -19,13 +17,12 @@ export type Comment = {
 export type All = PreMatch & Comment;
 
 export type SubmitBody = {
-	match_event: TbaApi.EventKey;
+	event_key: TbaApi.EventKey;
 	team_number: number;
 	scouter_initials: string;
 	comp_level: TbaApi.Comp_Level;
 	match_number: number;
 	robot_position: TbaRequest.RobotPosition;
-	// TODO: fix
 	red_alliance: TbaApi.AllianceColor;
 	blue_alliance: TbaApi.AllianceColor;
 	comments: string;
