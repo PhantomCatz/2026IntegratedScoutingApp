@@ -158,11 +158,16 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		const result: ResultTypes.TeamsInMatch = { blue: [], red: []};
 		for(const color of ["red", "blue"] as TbaApi.AllianceColor[]) {
 			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-			match.alliances[color].team_keys.forEach((team) => result[color].push(Number(team.substring(3))));
+			result[color] = match.alliances[color].team_keys.map((team) => Number(team.substring(3)));
 		}
+
 		const tbaData = localStorage.getItem("tbaData") ?? "null";
 
-		const data = (JSON.parse(tbaData) as LocalStorage.TbaData | null) ?? { [eventKey]: {}};
+		const data = (JSON.parse(tbaData) as LocalStorage.TbaData | null) ?? {};
+
+		if(!data[eventKey]) {
+			data[eventKey] = {};
+		}
 
 		data[eventKey][matchId] = match;
 
@@ -178,12 +183,16 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		}
 		const data = JSON.parse(tbaData) as LocalStorage.TbaData | null;
 
-		if(!data) {
+		if(!data || !data[eventKey]) {
 			return null;
 		}
 		const matchId = getMatchId(eventKey, compLevel, matchNumber);
 
-		const alliances = data[eventKey][matchId].alliances;
+		const alliances = data[eventKey][matchId]?.alliances;
+
+		if(!alliances) {
+			return null;
+		}
 
 		const result = {
 			blue: teamKeysToNumbers(alliances.blue.team_keys),
