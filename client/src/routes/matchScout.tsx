@@ -520,13 +520,14 @@ function MatchScout(props: Props): React.ReactElement {
 
 		return (
 			<div style={{ alignContent: 'center' }}>
-
+				<div className="fuel-button">
 				<NumberInput<FieldType>
 					title={"Fuel Scored"}
 					buttons={false}
 					value={auton_fuel_number}
 					disabled
 				/>
+			 </div>
 
 				<button
 				className={"plusButton"}
