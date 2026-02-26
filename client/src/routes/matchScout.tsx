@@ -168,7 +168,7 @@ function MatchScout(props: Props): React.ReactElement {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			fetchLink += "reqType=getTeamPit";
+			fetchLink += "reqType=getTeamPitData";
 
 			const res = await fetch(fetchLink + `&team=${team_number}`);
 			const data = await res.json() as Database.PitDataEntry[];
