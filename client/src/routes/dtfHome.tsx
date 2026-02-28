@@ -21,15 +21,15 @@ function DTFHome(props: Props): React.ReactElement {
 	type FieldType = DtfHomeType.All
 	const accessor = getFieldAccessor<All>();
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [dtfSavedForm, setDTFSavedForm] = useLocalStorage<Partial<All>>('dtfSavedForm', {});
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	
 	useEffect(() => {
-		const saved = localStorage.getItem("dtfSavedForm");
-		if (!saved) return;
+		if(!dtfSavedForm) {
+			return;
+		}
 
-		const parsed = JSON.parse(saved) as Partial<All>;
-
-		Object.entries(parsed).forEach(([key, value]) => {
+		Object.entries(dtfSavedForm).forEach(([key, value]) => {
 			accessor.setFieldValue(key as keyof All, value);
 		});
 	}, []);
@@ -66,7 +66,7 @@ function DTFHome(props: Props): React.ReactElement {
 	
 			return result;
 		}
-    const allianceTeamOptions : {label: string, value: DtfHomeType.ElimsAlliance} []= [
+    const allianceTeamOptions : {label: string, value: TbaApi.ElimsAlliance} []= [
 		{label :"", value: ""},
 		{label :"Alliance 1", value: "0"  },
 		{label: "Alliance 2", value: "1"},
@@ -144,8 +144,7 @@ function DTFHome(props: Props): React.ReactElement {
 		
 		
 		const teamsList = teamsPlayingToTeamsList(teamsInMatch1);
-
-		console.log (teamsList);
+		
 		for(let i = 0; i < Constants.TEAMS_PER_ALLIANCE * Constants.NUM_ALLIANCES; i++) {
 			accessor.setFieldValue(`teamNumber${i + 1}` as keyof DtfHomeType.All, teamsList[i])
 		}
@@ -184,7 +183,7 @@ function DTFHome(props: Props): React.ReactElement {
 				
 				<Form<All>
 					onFinish={(event: All) => {
-						localStorage.setItem("dtfSavedForm", JSON.stringify(event));
+						setDTFSavedForm(event);
 
 						const teamNumbers: (number | undefined)[] = [];
 
