@@ -4,32 +4,42 @@ import * as TbaApi from './tbaApi';
 import * as TbaRequest from './tbaRequest';
 
 export type Pre = {
-    match_event: TbaApi.EventKey;
-    team_number: number;
+    // team_number1: number;
+    // team_number2: number;
+    // team_number3: number;
     scouter_initials: string;
-    // comp_level: TbaApi.Comp_Level;
-    // match_number: number;
-    // robot_position: TbaRequest.RobotPosition;
-    // red_alliance: string;
-    // blue_alliance: string;
+    comp_level: TbaApi.Comp_Level;
+    match_number: number;
+    robot_alliance: TbaApi.AllianceColor;
+    red_alliance: string;
+    blue_alliance: string;
 };
 
 export type AllianceZone = {
-    // comments: string;
+    comments: string;
+    team1Value: "best" | "middle" | "worst";  // radio value
+    team2Value: "best" | "middle" | "worst";
+    team3Value: "best" | "middle" | "worst";
 };
 
 export type Alliance = Pre & AllianceZone;
 
 export type SubmitBody = {
-    match_event: TbaApi.EventKey;
-    team_number: number;
+    event_key: TbaApi.EventKey;
+    team_number1: number;
+    team_number2: number;
+    team_number3: number;
     scouter_initials: string;
-    // comp_level: TbaApi.Comp_Level;
-    // match_number: number;
-    // robot_position: TbaRequest.RobotPosition;
-    // red_alliance: TbaApi.AllianceColor;
-    // blue_alliance: TbaApi.AllianceColor;
-    // comments: string;
+    comp_level: TbaApi.Comp_Level;
+    match_number: number;
+    robot_alliance: TbaApi.AllianceColor;
+    red_alliance: string;
+    blue_alliance: string;
+    comments: string;
+    team1Value: "best" | "middle" | "worst";
+    team2Value: "best" | "middle" | "worst";
+    team3Value: "best" | "middle" | "worst";
+    
 };
 
 

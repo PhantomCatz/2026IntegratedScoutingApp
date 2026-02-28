@@ -604,7 +604,7 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 				console.error(`err=`, err);
 				console.error(`id=`, id);
 				console.error(`newValue=`, newValue);
-				console.error(`elements[0]=`, elements[0]);
+				console.error(`elements=`, elements);
 
 				throw err;
 			}
@@ -677,6 +677,8 @@ function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
 	}
 }
 function setFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(elementList: NodeListOf<Element>, newValue: FieldType[K], id: K): void {
+	let done = false;
+
 	for(const element of elementList) {
 		const tag = element.nodeName;
 
@@ -688,6 +690,7 @@ function setFieldValueMultipleElements<K extends string & keyof FieldType, Field
 						assertString(newValue);
 						if(newValue === element.value) {
 							element.checked = true;
+							done = true;
 						} else {
 							element.checked = false;
 						}
@@ -701,6 +704,9 @@ function setFieldValueMultipleElements<K extends string & keyof FieldType, Field
 		}
 	}
 
+	if(done) {
+		return;
+	}
 	throw new Error(`Could not set value of ${id}`);
 }
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
@@ -765,8 +771,6 @@ function getFieldValueMultipleElements<K extends string & keyof FieldType, Field
 			default:
 				throw new Error(`Could not use element tag ${tag}`);
 		}
-
-		throw new Error(`Could not find value of element`);
 	}
 
 	throw new Error(`Could not get value of ${id}`);

@@ -63,6 +63,19 @@ function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null):
 		];
 	}
 }
+function getRobotAllianceOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
+	if(teamsInMatch?.blue) {
+		return [
+			{ label: `Blue: ${teamsInMatch.blue.join(", ")}`, value: "blue" },
+			{ label: `Red: ${teamsInMatch.red.join(", ")}`, value: "red" },	
+		];
+	} else {
+		return [
+			{ label: "Red", value: "red" },
+			{ label: "Blue", value: "blue" },
+		];
+	}
+}
 function parseRobotPosition(robotPosition: TbaRequest.RobotPosition): [TbaApi.AllianceColor, number] {
 	const allianceColors: { [colorString: string]: TbaApi.AllianceColor } = {
 		"B": "blue",
@@ -333,6 +346,7 @@ function getAllianceTags(eventKey: TbaApi.EventKey): { label: string, value: str
 
 export {
 	getRobotPositionOptions,
+	getRobotAllianceOptions,
 	isInPlayoffs,
 	parseRobotPosition,
 	getOpposingAllianceColor,

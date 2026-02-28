@@ -8,6 +8,7 @@ import {
 	submitPitData,
 	submitMatchData,
 	submitStrategicData,
+	submitAllianceZoneData,
 } from "./database.js";
 import express from 'express';
 
@@ -95,6 +96,10 @@ app.post("/api", async function(req, res) {
 				console.log("submit strategic");
 				result = await submitStrategicData(data);
 				break;
+			case "submitAllianceZoneData":
+				console.log("submit Alliance");
+				result = await submitAllianceZoneData(data);
+				break;	
 			default:
 				console.error("query type not found", queries);
 				res.status(404);
