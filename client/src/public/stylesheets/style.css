@@ -61,34 +61,12 @@ footer {
 	margin-top: 1%;
 }
 .inputRow {
-		display: flex !important;
-		& > * {
-			flex-grow: 1;
-		}
+	display: flex !important;
+	& > * {
+		flex-grow: 1;
 	}
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-/* whole fuel score block */
 .fuelScoreSection {
   margin-top: 20px;
   display: flex;
@@ -122,14 +100,6 @@ footer {
   font-size: 18px;
 }
 
-/* radio circle size + color */
-/* .fuelRow input[type="radio"] {
-  width: 26px;
-  height: 26px;
-  accent-color: black;
-  margin: right;
-} */
-/* radio circle size + RIGHT alignment */
 .fuelRow input[type="radio"] {
   width: 26px;
   height: 26px;
@@ -138,9 +108,3 @@ footer {
   justify-self: end;   /* pushes radio to the right edge of the grid cell */
   margin: 0;           /* remove centering */
 }
-
-
-
-
-
-

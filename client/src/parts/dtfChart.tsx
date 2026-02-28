@@ -53,68 +53,19 @@ function DTFChartComponent(props: Props): React.ReactElement {
 		}
 
 		createChart(autonAlgaeCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
+			"Auton": {
 				values: {
-					"Net": "auton_algae_scored_net",
-					"Processor": "auton_algae_scored_processor",
-				}
+					"Auton": "auton_fuel_scored",
+				},
+				// calculateAverage: true,
 			},
-			"Missed": {
+			"Teleop": {
 				values: {
-					"Net": "auton_algae_missed_net",
-				}
-			},
-		}, commentCallback);
-		createChart(teleopAlgaeCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
-				values: {
-					"Net": "teleop_algae_scored_net",
-					"Processor": "teleop_algae_scored_processor",
-				}
-			},
-			"Missed": {
-				values: {
-					"Net": "teleop_algae_missed_net",
-				}
+					"Teleop": "teleop_fuel_scored",
+				},
+				// calculateAverage: true,
 			},
 		}, commentCallback);
-		createChart(autonCoralCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
-				values: {
-					"L1": "auton_coral_scored_l1",
-					"L2": "auton_coral_scored_l2",
-					"L3": "auton_coral_scored_l3",
-					"L4": "auton_coral_scored_l4",
-				}
-			},
-			"Missed": {
-				values: {
-					"L1": "auton_coral_missed_l1",
-					"L2": "auton_coral_missed_l2",
-					"L3": "auton_coral_missed_l3",
-					"L4": "auton_coral_missed_l4",
-				}
-			},
-		}, commentCallback);
-		createChart(teleopCoralCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
-				values: {
-					"L1": "teleop_coral_scored_l1",
-					"L2": "teleop_coral_scored_l2",
-					"L3": "teleop_coral_scored_l3",
-					"L4": "teleop_coral_scored_l4",
-				}
-			},
-			"Missed": {
-				values: {
-					"L1": "teleop_coral_missed_l1",
-					"L2": "teleop_coral_missed_l2",
-					"L3": "teleop_coral_missed_l3",
-					"L4": "teleop_coral_missed_l4",
-				}
-			},
-		}, commentCallback);
-
 	}, [autonAlgaeCanvas.current, teleopAlgaeCanvas.current, autonCoralCanvas.current, teleopCoralCanvas.current]);
 
 
@@ -132,6 +83,116 @@ function DTFChartComponent(props: Props): React.ReactElement {
 	);
 }
 
+function DTFAutonChartComponent(props: Props): React.ReactElement {
+	const autonFuelScored = useRef<HTMLCanvasElement>(null);
+
+	const teamMatches = props.teamMatches;
+	const teamStrategic = props.teamStrategic;
+
+	useEffect(() => {
+		if(!(autonFuelScored.current
+		)) {
+			return;
+		}
+		const matchNumbers = teamMatches.map(function(row) {
+			const comp_level = row.comp_level;
+			const match_number = row.match_number;
+
+			return comp_level[0].toUpperCase() + match_number.toString();
+		});
+
+		function commentCallback(message: string[], items: TooltipItem<'line'>[]): void {
+			const dataPoint = items[0];
+			const match = teamMatches[dataPoint.dataIndex];
+			const match_number = match.match_number;
+			const comp_level = match.comp_level;
+
+			const currentTeamMatches = teamMatches.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+			const currentStrategicMatches = teamStrategic.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+
+			for(const match of currentTeamMatches) {
+				message.push("MS: " + match.overall_comments);
+			}
+			for(const match of currentStrategicMatches) {
+				message.push("SS: " + match.comments);
+			}
+		}
+
+		createChart(autonFuelScored.current, teamMatches, matchNumbers, {
+			"Auton": {
+				values: {
+					"Fuel": "auton_fuel_scored",
+				},
+			},
+		}, commentCallback);
+
+	}, [autonFuelScored.current]);
+
+
+	return (
+		<div className="dtfChart">
+			<h2>Auton Fuel Score Graph</h2>
+			{<canvas ref={autonFuelScored}></canvas>}
+		</div>
+	);
+}
+
+function DTFTeleopChartComponent(props: Props): React.ReactElement {
+	const teleopFuelCanvas = useRef<HTMLCanvasElement>(null);
+
+	const teamMatches = props.teamMatches;
+	const teamStrategic = props.teamStrategic;
+
+	useEffect(() => {
+		if(!(teleopFuelCanvas.current
+		)) {
+			return;
+		}
+		const matchNumbers = teamMatches.map(function(row) {
+			const comp_level = row.comp_level;
+			const match_number = row.match_number;
+
+			return comp_level[0].toUpperCase() + match_number.toString();
+		});
+
+		function commentCallback(message: string[], items: TooltipItem<'line'>[]): void {
+			const dataPoint = items[0];
+			const match = teamMatches[dataPoint.dataIndex];
+			const match_number = match.match_number;
+			const comp_level = match.comp_level;
+
+			const currentTeamMatches = teamMatches.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+			const currentStrategicMatches = teamStrategic.filter((row) => row.match_number === match_number && row.comp_level === comp_level);
+
+			for(const match of currentTeamMatches) {
+				message.push("MS: " + match.overall_comments);
+			}
+			for(const match of currentStrategicMatches) {
+				message.push("SS: " + match.comments);
+			}
+		}
+
+		createChart(teleopFuelCanvas.current, teamMatches, matchNumbers, {
+			"Teleop": {
+				values: {
+					"Fuel": "teleop_fuel_scored",
+				},
+			},
+		}, commentCallback);
+
+	}, [teleopFuelCanvas.current]);
+
+
+	return (
+		<div className="dtfChart">
+			<h2>Teleop Fuel Score Graph</h2>
+			{<canvas ref={teleopFuelCanvas}></canvas>}
+		</div>
+	);
+}
+
+
+
 type ChartConfig = {
 	[name: string]: {
 		values: {
@@ -141,6 +202,7 @@ type ChartConfig = {
 	}
 };
 
+// Look in git history for how to make a line graph
 function createChart(canvas: HTMLCanvasElement,
 	teamMatches: Database.MatchEntry[],
 	matchNumbers: string[],
@@ -233,4 +295,4 @@ function createChart(canvas: HTMLCanvasElement,
 	});
 }
 
-export default DTFChartComponent;
+export { DTFChartComponent, DTFAutonChartComponent, DTFTeleopChartComponent };
