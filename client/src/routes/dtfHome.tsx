@@ -21,8 +21,18 @@ function DTFHome(props: Props): React.ReactElement {
 	type FieldType = DtfHomeType.All
 	const accessor = getFieldAccessor<All>();
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [dtfSavedForm, setDTFSavedForm] = useLocalStorage<Partial<All>>('dtfSavedForm', {});
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	
+	useEffect(() => {
+		if(!dtfSavedForm) {
+			return;
+		}
+
+		Object.entries(dtfSavedForm).forEach(([key, value]) => {
+			accessor.setFieldValue(key as keyof All, value);
+		});
+	}, []);
 
 	if(!_eventKey) {
 		throw new Error("Could not get event key");
@@ -56,7 +66,7 @@ function DTFHome(props: Props): React.ReactElement {
 	
 			return result;
 		}
-    const allianceTeamOptions : {label: string, value: DtfHomeType.ElimsAlliance} []= [
+    const allianceTeamOptions : {label: string, value: TbaApi.ElimsAlliance} []= [
 		{label :"", value: ""},
 		{label :"Alliance 1", value: "0"  },
 		{label: "Alliance 2", value: "1"},
@@ -134,8 +144,7 @@ function DTFHome(props: Props): React.ReactElement {
 		
 		
 		const teamsList = teamsPlayingToTeamsList(teamsInMatch1);
-
-		console.log (teamsList);
+		
 		for(let i = 0; i < Constants.TEAMS_PER_ALLIANCE * Constants.NUM_ALLIANCES; i++) {
 			accessor.setFieldValue(`teamNumber${i + 1}` as keyof DtfHomeType.All, teamsList[i])
 		}
@@ -174,6 +183,8 @@ function DTFHome(props: Props): React.ReactElement {
 				
 				<Form<All>
 					onFinish={(event: All) => {
+						setDTFSavedForm(event);
+
 						const teamNumbers: (number | undefined)[] = [];
 
 						for(let i = 1; i <= Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
@@ -265,7 +276,7 @@ function DTFHome(props: Props): React.ReactElement {
 				</div>
 					<footer>
 					<div className = "input_rows">
-		  			<button type="button" onMouseDown={() => {accessor.resetFields()}} className = "tabButton" >Clear</button>
+		  			<button type="button" onMouseDown={() => {accessor.resetFields(); localStorage.removeItem("dtfSavedForm");}} className = "tabButton" >Clear</button>
 					<button type="submit" className="tabButton"  >Submit</button>
 				 	</div>
 					</footer>
