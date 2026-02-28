@@ -45,7 +45,7 @@ function DTFHome(props: Props): React.ReactElement {
 			return result;
 		}
     const allianceTeamOptions : {label: string, value: TbaApi.ElimsAlliance} []= [
-		//{label :"", value: ""},
+		{label :"", value: ""},
 		{label :"Alliance 1", value: "0"  },
 		{label: "Alliance 2", value: "1"},
 		{label :"Alliance 3", value: "2" },
@@ -72,15 +72,11 @@ function DTFHome(props: Props): React.ReactElement {
 		if (accessor.getFieldValue('elimsAlliance1') == "")
 		{
 
-			for (let k = 0; k < 3; k++)
-			{
-				accessor.setFieldValue(`teamNumber${k+1}` as keyof DtfHomeType.All, "")
+			for (let k = 0; k < 3; k++) {
+			 	accessor.setFieldValue(`teamNumber${k+1}` as keyof DtfHomeType.All, 0)
 			}
-
-			return ;
 		}
-		else
-		{
+		else {
 			let TempListBlue = fromEliminationAllianceNumbers();
 			let BlueList = TempListBlue.blue;
 			let BlueAlliance = accessor.getFieldValue("elimsAlliance1");
@@ -92,12 +88,22 @@ function DTFHome(props: Props): React.ReactElement {
 	}
 
 
-	async function AllianceUpdateRed(){
+	async function AllianceUpdateRed() {
+		if (accessor.getFieldValue('elimsAlliance2') == "")
+		{
+
+			for (let l = 0; l < 3; l++) {
+			 	accessor.setFieldValue(`teamNumber${l+1}` as keyof DtfHomeType.All, 0)
+			}
+		}
+		else {
+		
 		let TempListRed = fromEliminationAllianceNumbers();
 		let RedList = TempListRed.red;
 			for (let i = 0; i < 3; i++){
 			accessor.setFieldValue(`teamNumber${i+4}` as keyof DtfHomeType.All, RedList[i])
 			}
+		}
 	}
 
 	
@@ -230,6 +236,7 @@ function DTFHome(props: Props): React.ReactElement {
 						message={"Select the Elims Alliance 1"}
 						options = {allianceTeamOptions}
 					    onChange={AllianceUpdateBlue}
+						required = {false}
 						/>
 
 					<Select<FieldType>
@@ -238,6 +245,7 @@ function DTFHome(props: Props): React.ReactElement {
 						message={"Select the Elims Alliance 2"}
 						options = {allianceTeamOptions}
 						onChange={AllianceUpdateRed}
+						required = {false}
 						/>
 				</div>
 
@@ -249,7 +257,7 @@ function DTFHome(props: Props): React.ReactElement {
 					<footer>
 					<div className = "input_rows">
 		  			<button type="button" onMouseDown={() => {accessor.resetFields()}} className = "tabButton" >Clear</button>
-					<button type="button" className="tabButton"  >Submit</button>
+					<button type="submit" className="tabButton"  >Submit</button>
 				 	</div>
 					</footer>
 					
