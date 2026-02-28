@@ -1,4 +1,5 @@
 import '../public/stylesheets/matchScout.css';
+import '../public/stylesheets/style.css';
 import { useEffect, useState } from 'react';
 import { useLocalStorage, } from 'react-use';
 import Header from '../parts/header';
@@ -552,7 +553,6 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<div className="inputRow multiplierButtons">
 					<Checkbox<FieldType>
-
 						name={"auton_1x_multiplier"}
 						title={""}
 						onChange={OneXMultiplier}
