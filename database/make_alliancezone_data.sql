@@ -1,8 +1,8 @@
 USE frcdb;
 
-DROP TABLE IF EXISTS alliancezone_data;
+DROP TABLE IF EXISTS alliance_zone_data;
 
-CREATE TABLE alliancezone_data (
+CREATE TABLE alliance_zone_data (
     
     id                                INT NOT NULL AUTO_INCREMENT,
     event_key                         VARCHAR(13) NOT NULL,

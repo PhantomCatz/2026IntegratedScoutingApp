@@ -4,9 +4,7 @@ import * as TbaApi from './tbaApi';
 import * as TbaRequest from './tbaRequest';
 
 export type Pre = {
-    // team_number1: number;
-    // team_number2: number;
-    // team_number3: number;
+   
     scouter_initials: string;
     comp_level: TbaApi.Comp_Level;
     match_number: number;

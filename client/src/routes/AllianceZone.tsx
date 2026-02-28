@@ -1,13 +1,9 @@
-// ==========================
-// Imports
-// ==========================
-
 import '../public/stylesheets/style.css';
 import '../public/stylesheets/strategicScout.css';
 
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'react-use';
-import { Table } from 'antd';
+import Table from '../parts/table';
 
 import { Tabs } from '../parts/tabs.tsx';
 import Header from '../parts/header.tsx';
@@ -39,11 +35,6 @@ import type * as AllianceZoneTypes from '../types/allianceZone.ts';
 import type * as Database from '../types/database.ts';
 import type * as ResultTypes from '../types/resultTypes.ts';
 
-
-// ==========================
-// Default Form Values
-// ==========================
-
 const formDefaultValues: AllianceZoneTypes.Alliance = {
 	"scouter_initials": "",
 	"comp_level": "qm",
@@ -59,19 +50,11 @@ const formDefaultValues: AllianceZoneTypes.Alliance = {
 } as const;
 
 
-// ==========================
-// Component
-// ==========================
-
 type Props = {
 	title: string,
 };
 
-function allianceZone(props: Props): React.ReactElement {
-
-	// ==========================
-	// State
-	// ==========================
+function AllianceZone(props: Props): React.ReactElement {
 
 	const [tabNum, setTabNum] = useState("1");
 	const [team_number1, setTeamNumber1] = useState(0);
@@ -90,20 +73,10 @@ function allianceZone(props: Props): React.ReactElement {
 	const eventKey = _eventKey;
 	const accessor = getFieldAccessor<AllianceZoneTypes.Alliance>();
 
-
-	// ==========================
-	// Effects
-	// ==========================
-
 	useEffect(() => {
 		document.title = props.title;
 	}, [props.title]);
 
-
-
-	// ==========================
-	// Match Logic
-	// ==========================
 
 	async function updateTeamsInMatch(): Promise<void> {
 		try {
@@ -207,18 +180,14 @@ function allianceZone(props: Props): React.ReactElement {
 	}
 
 
-	// ==========================
-	// Submit Helpers
-	// ==========================
 
 	function setNewAllianceZone(event: AllianceZoneTypes.Alliance): void {
-					// accessor.setFieldValue('team1', toString(Object.values(teamsInMatch).flat()[0]))
-
+				
 		const body: AllianceZoneTypes.SubmitBody = {
 			"event_key": eventKey,
 			"team_number1": teamsInMatch ? teamsInMatch[event.robot_alliance][0] : 0,
-			"team_number2": teamsInMatch ? teamsInMatch[event.robot_alliance][1] : 1,
-			"team_number3": teamsInMatch ? teamsInMatch[event.robot_alliance][2] : 2,
+			"team_number2": teamsInMatch ? teamsInMatch[event.robot_alliance][1] : 0,
+			"team_number3": teamsInMatch ? teamsInMatch[event.robot_alliance][2] : 0,
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"comp_level": event.comp_level,
 			"match_number": event.match_number,
@@ -293,9 +262,6 @@ function allianceZone(props: Props): React.ReactElement {
 	}
 
 
-	// ==========================
-	// UI Sections
-	// ==========================
 
 	function preMatch(): React.ReactElement {
 
@@ -382,25 +348,19 @@ function allianceZone(props: Props): React.ReactElement {
 	}
 
 
-	function AllianceZone(): React.ReactElement {
+	function allianceZone(): React.ReactElement {
 
 		let prevComments;
 		type FieldType = AllianceZoneTypes.AllianceZone;
 
 		if (teamData) {
 
-			const columns = [
-				{
-					"title": 'Scouter Initials',
-					"dataIndex": 'scouter_initials',
-					"width": '70vw',
+			const columns = {
+				"": {
+					"Scouter Initials": 'scouter_initials',
+					"Match #": 'match_number',
 				},
-				{
-					"title": 'Match #',
-					"dataIndex": 'match_number',
-					"width": '10vw',
-				},
-			];
+			};
 
 			const dataSource = [];
 
@@ -416,7 +376,8 @@ function allianceZone(props: Props): React.ReactElement {
 			prevComments =
 				<Table
 					columns={columns}
-					dataSource={dataSource}
+					data={dataSource}
+					getKey={(row) => row.key as unknown as string}
 				>
 				</Table>;
 
@@ -475,10 +436,7 @@ function allianceZone(props: Props): React.ReactElement {
 	}
 
 
-	// ==========================
-	// Tabs
-	// ==========================
-
+	
 	const items = [
 		{
 			key: '1',
@@ -488,14 +446,12 @@ function allianceZone(props: Props): React.ReactElement {
 		{
 			key: '2',
 			label: 'AllianceZone',
-			children: AllianceZone(),
+			children: allianceZone(),
 		},
 	];
 
 
-	// ==========================
-	// Return
-	// ==========================
+	
 
 	return (
 		<>
@@ -530,4 +486,4 @@ function allianceZone(props: Props): React.ReactElement {
 	);
 }
 
-export default allianceZone;
+export default AllianceZone;
