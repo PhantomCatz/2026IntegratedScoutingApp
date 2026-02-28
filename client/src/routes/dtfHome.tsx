@@ -23,6 +23,16 @@ function DTFHome(props: Props): React.ReactElement {
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	
+	useEffect(() => {
+		const saved = localStorage.getItem("dtfSavedForm");
+		if (!saved) return;
+
+		const parsed = JSON.parse(saved) as Partial<All>;
+
+		Object.entries(parsed).forEach(([key, value]) => {
+			accessor.setFieldValue(key as keyof All, value);
+		});
+	}, []);
 
 	if(!_eventKey) {
 		throw new Error("Could not get event key");
@@ -174,6 +184,8 @@ function DTFHome(props: Props): React.ReactElement {
 				
 				<Form<All>
 					onFinish={(event: All) => {
+						localStorage.setItem("dtfSavedForm", JSON.stringify(event));
+
 						const teamNumbers: (number | undefined)[] = [];
 
 						for(let i = 1; i <= Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
@@ -265,7 +277,7 @@ function DTFHome(props: Props): React.ReactElement {
 				</div>
 					<footer>
 					<div className = "input_rows">
-		  			<button type="button" onMouseDown={() => {accessor.resetFields()}} className = "tabButton" >Clear</button>
+		  			<button type="button" onMouseDown={() => {accessor.resetFields(); localStorage.removeItem("dtfSavedForm");}} className = "tabButton" >Clear</button>
 					<button type="submit" className="tabButton"  >Submit</button>
 				 	</div>
 					</footer>
