@@ -57,14 +57,12 @@ function DTFChartComponent(props: Props): React.ReactElement {
 				values: {
 					"Net": "auton_algae_scored_net",
 					"Processor": "auton_algae_scored_processor",
-				},
-				calculateAverage: true,
+				}
 			},
 			"Missed": {
 				values: {
 					"Net": "auton_algae_missed_net",
-				},
-				calculateAverage: true,
+				}
 			},
 		}, commentCallback);
 		createChart(teleopAlgaeCanvas.current, teamMatches, matchNumbers, {
@@ -72,14 +70,12 @@ function DTFChartComponent(props: Props): React.ReactElement {
 				values: {
 					"Net": "teleop_algae_scored_net",
 					"Processor": "teleop_algae_scored_processor",
-				},
-				calculateAverage: true,
+				}
 			},
 			"Missed": {
 				values: {
 					"Net": "teleop_algae_missed_net",
-				},
-				calculateAverage: true,
+				}
 			},
 		}, commentCallback);
 		createChart(autonCoralCanvas.current, teamMatches, matchNumbers, {
@@ -89,8 +85,7 @@ function DTFChartComponent(props: Props): React.ReactElement {
 					"L2": "auton_coral_scored_l2",
 					"L3": "auton_coral_scored_l3",
 					"L4": "auton_coral_scored_l4",
-				},
-				calculateAverage: true,
+				}
 			},
 			"Missed": {
 				values: {
@@ -98,8 +93,7 @@ function DTFChartComponent(props: Props): React.ReactElement {
 					"L2": "auton_coral_missed_l2",
 					"L3": "auton_coral_missed_l3",
 					"L4": "auton_coral_missed_l4",
-				},
-				calculateAverage: true,
+				}
 			},
 		}, commentCallback);
 		createChart(teleopCoralCanvas.current, teamMatches, matchNumbers, {
@@ -109,8 +103,7 @@ function DTFChartComponent(props: Props): React.ReactElement {
 					"L2": "teleop_coral_scored_l2",
 					"L3": "teleop_coral_scored_l3",
 					"L4": "teleop_coral_scored_l4",
-				},
-				calculateAverage: true,
+				}
 			},
 			"Missed": {
 				values: {
@@ -118,8 +111,7 @@ function DTFChartComponent(props: Props): React.ReactElement {
 					"L2": "teleop_coral_missed_l2",
 					"L3": "teleop_coral_missed_l3",
 					"L4": "teleop_coral_missed_l4",
-				},
-				calculateAverage: true,
+				}
 			},
 		}, commentCallback);
 
