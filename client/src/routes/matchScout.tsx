@@ -307,12 +307,19 @@ function MatchScout(props: Props): React.ReactElement {
 
 			accessor.resetFields();
 ///a code that reset the boolean fields on the overall tab
-			accessor.setFieldValue('overall_defended_others', false);
-			console.log("overall_defended:"+accessor.getFieldValue('overall_defended_others'));
-			accessor.setFieldValue('overall_was_defended', false);
-			console.log("overall_defended:"+accessor.getFieldValue('overall_was_defended'));
-			accessor.setFieldValue('overall_shot_while_moving', false);
+			accessor.setFieldValue('auton_climb_attempted', false);
+			accessor.setFieldValue('auton_climb_successful', false);
+			accessor.setFieldValue('endgame_climb_attempted', false);
+			accessor.setFieldValue('endgame_climb_successful', false);
 			
+			
+			
+			accessor.setFieldValue('overall_robot_died', false);
+			accessor.setFieldValue('overall_defended_others', false);
+			accessor.setFieldValue('overall_was_defended', false);
+			accessor.setFieldValue('overall_shot_while_moving', false);
+			accessor.setFieldValue('overall_shot_hoarded_pieces', false);
+		
 			
 			
 			accessor.setFieldValue("scouter_initials", scouter_initials);
@@ -491,9 +498,7 @@ function MatchScout(props: Props): React.ReactElement {
 						title={"Override Team"}
 						name={"team_override"}
 						required={false}
-						onChange={(e: number) => {
-							setTeamNumber(e);
-						}}
+						onChange={setTeamNumber}
 						min={0}
 						buttons={false}
 						align={"left"}
@@ -615,9 +620,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 					name={"auton_climb_attempted"}
 					title={"Climb Attempted"}
-					onChange={() => {
-							setAutonClimbAttempted(!autonClimbAttempted);
-						}}
+					onChange={setAutonClimbAttempted}
 				/>
 
 				<div
@@ -765,9 +768,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 					name="endgame_climb_attempted"
 					title="Climb Attempted?"
-					onChange={(event) => {
-						setEndgameClimbAttempted(event);
-					}}
+					onChange={setEndgameClimbAttempted}
 				/>
 
 				<div
@@ -814,24 +815,13 @@ function MatchScout(props: Props): React.ReactElement {
 					<Checkbox<FieldType>
 						title="Defended others?"
 						name="overall_defended_others"
-						onChange={() => {
-						
-							console.log(accessor.getFieldValue('overall_defended_others'));
-						
-							setDefendedIsVisible(accessor.getFieldValue('overall_defended_others'));
-						
-						}}
+						onChange={setDefendedIsVisible}
 					/>
 
 					<Checkbox<FieldType>
 						title="Was Defended?"
 						name="overall_was_defended"
-						onChange={() => {
-							console.log(accessor.getFieldValue('overall_was_defended'));
-							
-							setWasDefendedIsVisible(accessor.getFieldValue('overall_was_defended'));
-							
-						}}
+						onChange={setWasDefendedIsVisible}
 					/>
 				</div>
 

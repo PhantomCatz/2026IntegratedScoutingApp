@@ -168,7 +168,6 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		data[eventKey][matchId] = match;
 
 		localStorage.setItem("tbaData", JSON.stringify(data));
-		console.log(matchId)
 		return result;
 	}
 	
@@ -205,7 +204,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		if(!data || !data[eventKey]) {
 			return null;
 		}
-		console.log(data);
+		
 
 		const result = {
 			//eslint-disable-next-line @typescript-eslint/no-magic-numbers
