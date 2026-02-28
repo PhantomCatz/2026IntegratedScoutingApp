@@ -95,6 +95,7 @@ type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
 	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void,
 	setFormValues(values: Partial<FieldType>): void,
+	
 	resetFields(): void,
 };
 
@@ -618,11 +619,19 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 		},
 		resetFields(): void {
 			const form = document.querySelector("form");
-
+			const bool = document.querySelectorAll('input[type = "checkbox"]');
+			const n = document.querySelectorAll('input[type = "checkbox"]');
+			for (const node of n) {
+		
+				//accessor.setFieldValue(Node.id, false);
+			}
+			console.log (bool)
 			if(!form) {
 				console.error(`No form: form=`, form);
 				return;
 			}
+			console.log(form);
+			
 
 			form.reset();
 		}

@@ -31,7 +31,10 @@ function DTFHome(props: Props): React.ReactElement {
 				return null;
 			}
 			console.log(data);
-	
+			
+			if (!accessor.getFieldValue('elimsAlliance1')) {
+				return null;
+			}
 			const result = {
 				//eslint-disable-next-line @typescript-eslint/no-magic-numbers
 				blue: teamKeysToNumbers(data[eventKey][Number(accessor.getFieldValue('elimsAlliance1'))].picks.slice(0,3)),
@@ -42,6 +45,7 @@ function DTFHome(props: Props): React.ReactElement {
 			return result;
 		}
     const allianceTeamOptions : {label: string, value: TbaApi.ElimsAlliance} []= [
+		//{label :"", value: ""},
 		{label :"Alliance 1", value: "0"  },
 		{label: "Alliance 2", value: "1"},
 		{label :"Alliance 3", value: "2" },
@@ -51,8 +55,9 @@ function DTFHome(props: Props): React.ReactElement {
 		{label :"Alliance 7", value: "6" },
 		{label: "Alliance 8", value: "7"}
 	];
-	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
+	
 
 	if(!_eventKey) {
 		throw new Error("Could not get event key");
@@ -61,13 +66,31 @@ function DTFHome(props: Props): React.ReactElement {
 	const eventKey = _eventKey;
 
 	///function that auto-fill the fields in team 1-3
-	async function AllianceUpdateBlue(){
-		let TempListBlue = fromEliminationAllianceNumbers();
-		let BlueList = TempListBlue.blue;
+	async function AllianceUpdateBlue() {
+		
+		
+		if (accessor.getFieldValue('elimsAlliance1') == "")
+		{
+
+			for (let k = 0; k < 3; k++)
+			{
+				accessor.setFieldValue(`teamNumber${k+1}` as keyof DtfHomeType.All, "")
+			}
+
+			return ;
+		}
+		else
+		{
+			let TempListBlue = fromEliminationAllianceNumbers();
+			let BlueList = TempListBlue.blue;
+			let BlueAlliance = accessor.getFieldValue("elimsAlliance1");
 			for (let n = 0; n < 3; n++){
 			accessor.setFieldValue(`teamNumber${n+1}` as keyof DtfHomeType.All, BlueList[n])
 			}
+		}
+		
 	}
+
 
 	async function AllianceUpdateRed(){
 		let TempListRed = fromEliminationAllianceNumbers();
@@ -82,39 +105,22 @@ function DTFHome(props: Props): React.ReactElement {
 		
 
 
-	async function updateTeamNumber(): Promise<void> {
-		try {
-			const matchNumber = accessor.getFieldValue('qualMatch');
-
-			const teamsInMatch1 = await getTeamsInMatch(eventKey, "qm", accessor.getFieldValue('qualMatch')+1, 0, 0);
-			if(!teamsInMatch1) {
-				console.log (eventKey, "qm", accessor.getFieldValue('qualMatch'), 0, 0);
-				console.error("Failed to get teams playing: teams is empty");
-				return;
-			}
-
-			setTeamsInMatch(teamsInMatch1);
-
-			
+	// async function updateTeamNumber(): Promise<void> {
 		
-
-			
-		} catch (err) {
-			console.error("Failed to request TBA data when updating team number", err);
-		}
-	}
+	// }
 	
 
 
 	async function updateNumbers(): Promise<void> {
 		
-		await updateTeamNumber();
-		if(!teamsInMatch) {
-			return;
-		}
+		const matchNumber = accessor.getFieldValue('qualMatch');
+		
+		const teamsInMatch1 = await getTeamsInMatch(eventKey, "qm", matchNumber, 0, 0);
+		
+		
+		const teamsList = teamsPlayingToTeamsList(teamsInMatch1);
 
-		const teamsList = teamsPlayingToTeamsList(teamsInMatch);
-
+		console.log (teamsList);
 		for(let i = 0; i < Constants.TEAMS_PER_ALLIANCE * Constants.NUM_ALLIANCES; i++) {
 			accessor.setFieldValue(`teamNumber${i + 1}` as keyof DtfHomeType.All, teamsList[i])
 		}

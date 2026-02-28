@@ -30,7 +30,7 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 	return teamKeys.map((team) => Number(team.substring(3)));
 }
 
-function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch): number[] {
+function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch | null): number[] {
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
 function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
