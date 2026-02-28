@@ -95,6 +95,7 @@ type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
 	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void,
 	setFormValues(values: Partial<FieldType>): void,
+	
 	resetFields(): void,
 };
 
@@ -618,12 +619,10 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 		},
 		resetFields(): void {
 			const form = document.querySelector("form");
-
 			if(!form) {
 				console.error(`No form: form=`, form);
 				return;
 			}
-
 			form.reset();
 		}
 	}

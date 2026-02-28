@@ -30,7 +30,7 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 	return teamKeys.map((team) => Number(team.substring(3)));
 }
 
-function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch): number[] {
+function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch | null): number[] {
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
 function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
@@ -161,6 +161,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 	matchNumber: number,
 	blueAllianceNumber: number,
 	redAllianceNumber: number): Promise<ResultTypes.TeamsInMatch | null> {
+
 	async function normalFetch(): Promise<ResultTypes.TeamsInMatch | null> {
 		const matchId = getMatchId(eventKey, compLevel, matchNumber);
 
@@ -185,9 +186,9 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		data[eventKey][matchId] = match;
 
 		localStorage.setItem("tbaData", JSON.stringify(data));
-
 		return result;
 	}
+	
 	function fromLocalStorage(): ResultTypes.TeamsInMatch | null {
 		const tbaData = localStorage.getItem("tbaData");
 
@@ -214,9 +215,9 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 
 		return result;
 	}
+
 	function fromEliminationAllianceNumbers(): ResultTypes.TeamsInMatch | null {
 		const playoffAlliances = localStorage.getItem("tbaPlayoffAlliances");
-
 		if(playoffAlliances === null) {
 			return null;
 		}
@@ -225,6 +226,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		if(!data || !data[eventKey]) {
 			return null;
 		}
+		
 
 		const result = {
 			//eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -366,4 +368,5 @@ export {
 	request,
 	getAllianceTags,
 	teamsPlayingToTeamsList,
+	teamKeysToNumbers,
 };

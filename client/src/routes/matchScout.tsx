@@ -29,7 +29,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"match_number": 0,
 	"robot_position": "B1",
 	// Auton
-	"auton_1x_multiplier": true,
+	"auton_1x_multiplier": false,
 	"auton_2x_multiplier": false,
 	"auton_5x_multiplier": false,
 	"auton_shoot_location": [],
@@ -37,7 +37,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"auton_climb_attempted": false,
 	"auton_climb_successful": false,
 	// Teleop
-	"teleop_1x_multiplier": true,
+	"teleop_1x_multiplier": false,
 	"teleop_2x_multiplier": false,
 	"teleop_5x_multiplier": false,
 	"teleop_fuel_hoarded_amount": "",
@@ -129,7 +129,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const eventKey = _eventKey;
 
 	const accessor = getFieldAccessor<MatchScoutTypes.All>();
-
+	
 	useEffect(() => {
 		document.title = props.title;
 	}, [props.title]);
@@ -246,7 +246,11 @@ function MatchScout(props: Props): React.ReactElement {
 			});
 
 		setQrValue(body);
+		
 	}
+		
+
+		
 	async function tryFetch(body: MatchScoutTypes.SubmitBody): Promise<boolean> {
 		let fetchLink = Constants.SERVER_ADDRESS;
 
@@ -292,15 +296,6 @@ function MatchScout(props: Props): React.ReactElement {
 			const comp_level = accessor.getFieldValue("comp_level");
 			const robot_position = accessor.getFieldValue("robot_position");
 
-			accessor.resetFields();
-
-			accessor.setFieldValue("scouter_initials", scouter_initials);
-			accessor.setFieldValue("comp_level", comp_level);
-			accessor.setFieldValue("match_number", match_number + 1);
-			accessor.setFieldValue("robot_position", robot_position);
-			accessor.setFieldValue("auton_1x_multiplier", true);
-			accessor.setFieldValue("teleop_1x_multiplier", true);
-
 			setRobot_appeared(true);
 			setAutonFuelNumber(0);
 			setAutonClimbAttempted(false);
@@ -310,12 +305,41 @@ function MatchScout(props: Props): React.ReactElement {
 			setDefendedIsVisible(false);
 			setWasDefendedIsVisible(false);
 
+
+			accessor.resetFields();
+///a code that reset the boolean fields on the overall tab
+			accessor.setFieldValue('auton_climb_attempted', false);
+			accessor.setFieldValue('auton_climb_successful', false);
+			accessor.setFieldValue('endgame_climb_attempted', false);
+			accessor.setFieldValue('endgame_climb_successful', false);
+			
+			
+			
+			accessor.setFieldValue('overall_robot_died', false);
+			accessor.setFieldValue('overall_defended_others', false);
+			accessor.setFieldValue('overall_was_defended', false);
+			accessor.setFieldValue('overall_shot_while_moving', false);
+			accessor.setFieldValue('overall_shot_hoarded_pieces', false);
+		
+			
+			
+			accessor.setFieldValue("scouter_initials", scouter_initials);
+			accessor.setFieldValue("comp_level", comp_level);
+			accessor.setFieldValue("match_number", match_number + 1);
+			accessor.setFieldValue("robot_position", robot_position);
+			accessor.setFieldValue("auton_1x_multiplier", true);
+			accessor.setFieldValue("teleop_1x_multiplier", true);
+
+			
 			await updateNumbers();
 		} catch (err) {
 			console.log(`err=`, err);
 		} finally {
 			setLoading(false);
 		}
+		defaultMultiplier();
+		
+		
 	}
 
 	async function updateNumbers(): Promise<void> {
@@ -475,9 +499,7 @@ function MatchScout(props: Props): React.ReactElement {
 						title={"Override Team"}
 						name={"team_override"}
 						required={false}
-						onChange={(e: number) => {
-							setTeamNumber(e);
-						}}
+						onChange={setTeamNumber}
 						min={0}
 						buttons={false}
 						align={"left"}
@@ -512,11 +534,13 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Outpost", value: "Outpost" },
 			{ label: "Depot", value: "Depot" },
 			{ label: "Trench", value: "Trench" },
+			{ label: "None", value: "None"},
 		];
 		const intakeLocation = [
 			{ label: "Neutral", value: "Neutral" },
 			{ label: "Outpost", value: "Outpost" },
 			{ label: "Depot", value: "Depot" },
+			{ label: "None", value: "None"},
 		];
 
 		return (
@@ -533,7 +557,14 @@ function MatchScout(props: Props): React.ReactElement {
 				className={"plusButton"}
 				type="button"
 				onClick={() => {
+					if (accessor.getFieldValue('auton_1x_multiplier') == false && accessor.getFieldValue('auton_2x_multiplier') == false && accessor.getFieldValue('auton_5x_multiplier') == false)
+					{
+						window.alert("Please select one of the multipiers")
+					}
+					else
+					{
 					setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
+					}
 						}}
 				>+{fuel_multiplier}</button>
 
@@ -557,6 +588,7 @@ function MatchScout(props: Props): React.ReactElement {
 						title={""}
 						onChange={OneXMultiplier}
 					/>
+			
 
 					<Checkbox<FieldType>
 						name={"auton_2x_multiplier"}
@@ -588,9 +620,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 					name={"auton_climb_attempted"}
 					title={"Climb Attempted"}
-					onChange={() => {
-							setAutonClimbAttempted(!autonClimbAttempted);
-						}}
+					onChange={setAutonClimbAttempted}
 				/>
 
 				<div
@@ -606,6 +636,24 @@ function MatchScout(props: Props): React.ReactElement {
 			</div>
 		);
 	}
+//function that reset the multiplliers in auton &teleop
+	async function defaultMultiplier()
+	{
+       accessor.setFieldValue("auton_1x_multiplier", false);
+	   accessor.setFieldValue("auton_2x_multiplier", false);
+	   accessor.setFieldValue("auton_5x_multiplier", false);
+
+	    accessor.setFieldValue("teleop_1x_multiplier", false);
+	   accessor.setFieldValue("teleop_2x_multiplier", false);
+	   accessor.setFieldValue("teleop_5x_multiplier", false);
+
+	}
+
+
+
+
+
+
 
 	function teleopMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.TeleopMatch;
@@ -634,9 +682,16 @@ function MatchScout(props: Props): React.ReactElement {
 				className={"plusButton"}
 				type="button"
 				onClick={() => {
-					setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
-						}}
-				>+{fuel_multiplier}</button>
+					if (accessor.getFieldValue('auton_1x_multiplier') == false && accessor.getFieldValue('auton_2x_multiplier') == false && accessor.getFieldValue('auton_5x_multiplier') == false)
+					{
+						window.alert("Please select one of the multipliers")
+					}
+					else
+					{
+						setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
+					}
+					}
+				}>+{fuel_multiplier}</button>
 
 				<button
 				className={"minusButton"}
@@ -698,6 +753,8 @@ function MatchScout(props: Props): React.ReactElement {
 			</div>
 		);
 	}
+  
+
 
 	function endgameMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.EndgameMatch;
@@ -711,9 +768,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 					name="endgame_climb_attempted"
 					title="Climb Attempted?"
-					onChange={(event) => {
-						setEndgameClimbAttempted(event);
-					}}
+					onChange={setEndgameClimbAttempted}
 				/>
 
 				<div
@@ -736,14 +791,16 @@ function MatchScout(props: Props): React.ReactElement {
 				</div>
 			</>
 		)}
-
+		
+		
+	
 	function overallMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.OverallMatch;
 
 		const opposingTeams = opposingTeamNum.map((team) => ({ label: team.toString(), value: team.toString() }));
 		const overall_path_to_neutral_zone = [
 			{ label: "Bump", value: "Bump" },
-			{ label: "Trench", value: "Trench" },
+			{ label: "Trench", value: "Trench"},
 			{ label: "Both", value: "Both" },
 			{ label: "None", value: "None" },
 		];
@@ -758,17 +815,13 @@ function MatchScout(props: Props): React.ReactElement {
 					<Checkbox<FieldType>
 						title="Defended others?"
 						name="overall_defended_others"
-						onChange={() => {
-							setDefendedIsVisible(!defendedIsVisible);
-						}}
+						onChange={setDefendedIsVisible}
 					/>
 
 					<Checkbox<FieldType>
 						title="Was Defended?"
 						name="overall_was_defended"
-						onChange={() => {
-							setWasDefendedIsVisible(!wasDefendedIsVisible);
-						}}
+						onChange={setWasDefendedIsVisible}
 					/>
 				</div>
 
@@ -812,6 +865,8 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 						title="Shot While Moving"
 						name="overall_shot_while_moving"
+						
+						
 				/>
 
 				<Checkbox<FieldType>
@@ -863,6 +918,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<Form<MatchScoutTypes.All>
 					initialValues={formDefaultValues}
 					onFinish={onSubmit}
+					
 					onFinishFailed={(_values, errorFields) => {
 						const errorMessage = Object.entries(errorFields).map((x) => x[0]).join("\n");
 						window.alert(errorMessage);
@@ -890,5 +946,7 @@ function MatchScout(props: Props): React.ReactElement {
 		</>
 	);
 }
+
+
 
 export default MatchScout;
