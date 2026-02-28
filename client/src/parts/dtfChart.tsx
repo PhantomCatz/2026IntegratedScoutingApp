@@ -53,76 +53,19 @@ function DTFChartComponent(props: Props): React.ReactElement {
 		}
 
 		createChart(autonAlgaeCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
+			"Auton": {
 				values: {
-					"Net": "auton_algae_scored_net",
-					"Processor": "auton_algae_scored_processor",
+					"Auton": "auton_fuel_scored",
 				},
-				calculateAverage: true,
+				// calculateAverage: true,
 			},
-			"Missed": {
+			"Teleop": {
 				values: {
-					"Net": "auton_algae_missed_net",
+					"Teleop": "teleop_fuel_scored",
 				},
-				calculateAverage: true,
-			},
-		}, commentCallback);
-		createChart(teleopAlgaeCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
-				values: {
-					"Net": "teleop_algae_scored_net",
-					"Processor": "teleop_algae_scored_processor",
-				},
-				calculateAverage: true,
-			},
-			"Missed": {
-				values: {
-					"Net": "teleop_algae_missed_net",
-				},
-				calculateAverage: true,
+				// calculateAverage: true,
 			},
 		}, commentCallback);
-		createChart(autonCoralCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
-				values: {
-					"L1": "auton_coral_scored_l1",
-					"L2": "auton_coral_scored_l2",
-					"L3": "auton_coral_scored_l3",
-					"L4": "auton_coral_scored_l4",
-				},
-				calculateAverage: true,
-			},
-			"Missed": {
-				values: {
-					"L1": "auton_coral_missed_l1",
-					"L2": "auton_coral_missed_l2",
-					"L3": "auton_coral_missed_l3",
-					"L4": "auton_coral_missed_l4",
-				},
-				calculateAverage: true,
-			},
-		}, commentCallback);
-		createChart(teleopCoralCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
-				values: {
-					"L1": "teleop_coral_scored_l1",
-					"L2": "teleop_coral_scored_l2",
-					"L3": "teleop_coral_scored_l3",
-					"L4": "teleop_coral_scored_l4",
-				},
-				calculateAverage: true,
-			},
-			"Missed": {
-				values: {
-					"L1": "teleop_coral_missed_l1",
-					"L2": "teleop_coral_missed_l2",
-					"L3": "teleop_coral_missed_l3",
-					"L4": "teleop_coral_missed_l4",
-				},
-				calculateAverage: true,
-			},
-		}, commentCallback);
-
 	}, [autonAlgaeCanvas.current, teleopAlgaeCanvas.current, autonCoralCanvas.current, teleopCoralCanvas.current]);
 
 
@@ -141,13 +84,13 @@ function DTFChartComponent(props: Props): React.ReactElement {
 }
 
 function DTFAutonChartComponent(props: Props): React.ReactElement {
-	const autonCoralCanvas = useRef<HTMLCanvasElement>(null);
+	const autonFuelScored = useRef<HTMLCanvasElement>(null);
 
 	const teamMatches = props.teamMatches;
 	const teamStrategic = props.teamStrategic;
 
 	useEffect(() => {
-		if(!(autonCoralCanvas.current
+		if(!(autonFuelScored.current
 		)) {
 			return;
 		}
@@ -175,46 +118,33 @@ function DTFAutonChartComponent(props: Props): React.ReactElement {
 			}
 		}
 
-		createChart(autonCoralCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
+		createChart(autonFuelScored.current, teamMatches, matchNumbers, {
+			"Auton": {
 				values: {
-					"L1": "auton_coral_scored_l1",
-					"L2": "auton_coral_scored_l2",
-					"L3": "auton_coral_scored_l3",
-					"L4": "auton_coral_scored_l4",
+					"Fuel": "auton_fuel_scored",
 				},
-				calculateAverage: true,
-			},
-			"Missed": {
-				values: {
-					"L1": "auton_coral_missed_l1",
-					"L2": "auton_coral_missed_l2",
-					"L3": "auton_coral_missed_l3",
-					"L4": "auton_coral_missed_l4",
-				},
-				calculateAverage: true,
 			},
 		}, commentCallback);
 
-	}, [autonCoralCanvas.current]);
+	}, [autonFuelScored.current]);
 
 
 	return (
 		<div className="dtfChart">
 			<h2>Auton Fuel Score Graph</h2>
-			{<canvas ref={autonCoralCanvas}></canvas>}
+			{<canvas ref={autonFuelScored}></canvas>}
 		</div>
 	);
 }
 
 function DTFTeleopChartComponent(props: Props): React.ReactElement {
-	const teleopCoralCanvas = useRef<HTMLCanvasElement>(null);
+	const teleopFuelCanvas = useRef<HTMLCanvasElement>(null);
 
 	const teamMatches = props.teamMatches;
 	const teamStrategic = props.teamStrategic;
 
 	useEffect(() => {
-		if(!(teleopCoralCanvas.current
+		if(!(teleopFuelCanvas.current
 		)) {
 			return;
 		}
@@ -242,34 +172,21 @@ function DTFTeleopChartComponent(props: Props): React.ReactElement {
 			}
 		}
 
-		createChart(teleopCoralCanvas.current, teamMatches, matchNumbers, {
-			"Scored": {
+		createChart(teleopFuelCanvas.current, teamMatches, matchNumbers, {
+			"Teleop": {
 				values: {
-					"L1": "teleop_coral_scored_l1",
-					"L2": "teleop_coral_scored_l2",
-					"L3": "teleop_coral_scored_l3",
-					"L4": "teleop_coral_scored_l4",
+					"Fuel": "teleop_fuel_scored",
 				},
-				calculateAverage: true,
-			},
-			"Missed": {
-				values: {
-					"L1": "teleop_coral_missed_l1",
-					"L2": "teleop_coral_missed_l2",
-					"L3": "teleop_coral_missed_l3",
-					"L4": "teleop_coral_missed_l4",
-				},
-				calculateAverage: true,
 			},
 		}, commentCallback);
 
-	}, [teleopCoralCanvas.current]);
+	}, [teleopFuelCanvas.current]);
 
 
 	return (
 		<div className="dtfChart">
 			<h2>Teleop Fuel Score Graph</h2>
-			{<canvas ref={teleopCoralCanvas}></canvas>}
+			{<canvas ref={teleopFuelCanvas}></canvas>}
 		</div>
 	);
 }
@@ -285,6 +202,7 @@ type ChartConfig = {
 	}
 };
 
+// Look in git history for how to make a line graph
 function createChart(canvas: HTMLCanvasElement,
 	teamMatches: Database.MatchEntry[],
 	matchNumbers: string[],
