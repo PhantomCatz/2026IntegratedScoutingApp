@@ -38,3 +38,9 @@ export function assertTinyInt(value: unknown): asserts value is 0 | 1 {
 		throw new Error(`Assertion Error: ${value} is not 0 or 1`);
 	}
 }
+
+export function assertEquals<T>(a: T, b: unknown): asserts b is T {
+	if(a !== b) {
+		throw new Error(`Assertion Error: ${a} is not equal to ${b}`);
+	}
+}

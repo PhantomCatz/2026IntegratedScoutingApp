@@ -66,7 +66,6 @@ function Tabs(props: Props): React.ReactElement {
 		<tabs-container>
 			<tabs-nav-container>
 				{...navigationItems}
-				<tab-ink-bar></tab-ink-bar>
 			</tabs-nav-container>
 			{...tabItems}
 		</tabs-container>
@@ -76,4 +75,4 @@ function Tabs(props: Props): React.ReactElement {
 export { Tabs };
 
 export type TabItem = { label: string, key: string, children: React.ReactElement };
-export type TabItems = { label: string, key: string, children: React.ReactElement }[];
+export type TabItems = TabItem[];

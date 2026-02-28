@@ -1,98 +1,45 @@
 import '../public/stylesheets/matchData.css';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Table } from 'antd';
-import Column from 'antd/es/table/Column';
-import ColumnGroup from 'antd/es/table/ColumnGroup';
+import Table from '../parts/table';
 import { Checkbox } from '../parts/formItems';
 import Header from '../parts/header';
 
 import Constants from '../utils/constants';
-import { assertNumber, assertString, assertTinyInt  } from '../types/assertions';
+import { assertString, assertTinyInt  } from '../types/assertions';
 
 import type * as Database from '../types/database';
 
 const DATA_COLUMNS = {
-	"Match Identifier": {
-		"Team Number": "team_number",
-		"Match Event": "match_event",
-		"Scouter Initials": "scouter_initials",
-		"Match Level": "comp_level",
-		"Match #": "match_number",
-		"Robot Appeared": "robot_appeared",
-	},
-	"Teleop": {
-		"Coral L4": "teleop_coral_l4",
-		"Coral L3": "teleop_coral_l3",
-		"Coral L2": "teleop_coral_l2",
-		"Coral L1": "teleop_coral_l1",
-		"Algae Net": "teleop_algae_net",
-		"Algae Scored Processor": "teleop_algae_scored_processor",
-	},
-	"Auton": {
-		"Left Starting Line": "auton_leave_starting_line",
-		"Coral L4": "auton_coral_l4",
-		"Coral L3": "auton_coral_l3",
-		"Coral L2": "auton_coral_l2",
-		"Coral L1": "auton_coral_l1",
-		"Algae Net": "auton_algae_net",
-		"Algae Scored Processor": "auton_algae_scored_processor",
-	},
-	"Endgame": {
-		"Coral Intake": "endgame_coral_intake_capability",
-		"Coral Station": "endgame_coral_station",
-		"Algae Intake": "endgame_algae_intake_capability",
+	"": {
+		"Match Number": "match_number",
+		"Auto Fuel Scored": "auton_fuel_scored",
+		"Auton Climb Attempted": "auton_climb_attempted",
+		"Auton Climb Successful": "auton_climb_successful",
+		"Teleop Fuel Scored": "teleop_fuel_scored",
+		"Hoard Amount": "teleop_fuel_hoarded_amount",
+		"Primary Hoard Type": "teleop_primary_hoard_type",
+		"Climb Type": "endgame_climb_level",
 		"Climb Successful": "endgame_climb_successful",
-		"Climb Type": "endgame_climb_type",
-		"Climb Time": "endgame_climb_time",
-	},
-	"Overall": {
-		"Robot Died": "overall_robot_died",
+		"Auton Shoot Location": "auton_shoot_location",
+		"Auton Intake Location": "auton_intake_location",
+		"Shot While Moving": "overall_shot_while_moving",
+		"Path to Neutral Zone": "overall_path_to_neutral_zone",
+		"Shot Hoarded Pieces": "overall_shot_hoarded_pieces",
 		"Defended Others": "overall_defended_others",
 		"Was Defended": "overall_was_defended",
-		"Defended": "overall_defended",
-		"Defended by": "overall_defended_by",
-		"Pushing": "overall_pushing",
-		"Defense Quality": "overall_defense_quality",
-		"Counter Defense": "overall_counter_defense",
-		"Driver Skill": "overall_driver_skill",
-		"Major Penalties": "overall_major_penalties",
-		"Minor Penalties": "overall_minor_penalties",
-		"Penalties Incurred": "overall_penalties_incurred",
+		"Event Key": "event_key",
+		"Team Number": "team_number",
+		"Scouter Initials": "scouter_initials",
+		"Competition Level": "comp_level",
+		"Robot Position": "robot_position",
+		"Endgame Climb Attempted": "endgame_climb_attempted",
+		"Robot Died": "overall_robot_died",
+		"Robots Defended": "overall_defended",
+		"Robots Defended By": "overall_defended_by",
 		"Comments": "overall_comments",
-	},
-} as const;
-
-const HIDABLE_FIELDS: { readonly [key: string]: false | undefined } = {
-	"robot_appeared": false,
-
-	//"teleop_coral_scored_l4": false,
-	//"teleop_coral_missed_l4": false,
-	//"teleop_coral_scored_l3": false,
-	//"teleop_coral_missed_l3": false,
-	//"teleop_coral_scored_l2": false,
-	//"teleop_coral_missed_l2": false,
-	//"teleop_coral_scored_l1": false,
-	//"teleop_coral_missed_l1": false,
-	//"teleop_algae_scored_net": false,
-	//"teleop_algae_missed_net": false,
-	"teleop_algae_scored_processor": false,
-
-	//"auton_coral_scored_l4": false,
-	//"auton_coral_missed_l4": false,
-	//"auton_coral_scored_l3": false,
-	//"auton_coral_missed_l3": false,
-	//"auton_coral_scored_l2": false,
-	//"auton_coral_missed_l2": false,
-	//"auton_coral_scored_l1": false,
-	//"auton_coral_missed_l1": false,
-	//"auton_algae_scored_net": false,
-	//"auton_algae_missed_net": false,
-	"auton_algae_scored_processor": false,
-} as const;
-
-const FIXED_FIELDS: { readonly [key: string]: true | undefined } = {
-	"match_number": true,
+		"Robot Appeaered": "robot_appeared",
+	}
 } as const;
 
 type Props = {
@@ -102,7 +49,7 @@ type Props = {
 function MatchData(props: Props): React.ReactElement {
 	const { teamNumber } = useParams();
 	const [loading, setLoading] = useState(true);
-	const [matchData, setMatchData] = useState<Database.MatchEntry[]>([]);
+	const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode}[] | null>(null);
 
 	useEffect(() => {
 		document.title = props.title;
@@ -130,19 +77,14 @@ function MatchData(props: Props): React.ReactElement {
 				}
 
 				for (const match of data) {
-					const row = {};
+					const row: {
+						key: string,
+						[key: string]: React.ReactNode | undefined,
+					} = { key: "" };
 
 					for (const field in match) {
-						const [result, location, hasValue] = getCellValue(field, match[field], match);
-
-						if(location === null) {
-							continue;
-						}
-						row[location] = result;
-
-						if(HIDABLE_FIELDS[location] === false && hasValue === true) {
-							HIDABLE_FIELDS[location] = true;
-						}
+						const result = getCellValue(field, match[field as keyof typeof match] as unknown);
+						row[field as keyof typeof match] = result;
 					}
 					const key = `${match.id}`;
 					row["key"] = key;
@@ -169,55 +111,30 @@ function MatchData(props: Props): React.ReactElement {
 
 	const fixedFields: number[] = [];
 
-	let titleCount = 0;
+	function getCellValue(field: string, value: unknown): React.ReactNode {
+		let result: React.ReactNode = null;
 
-	function getCellValue(field: string, value: unknown, data) {
-		let result: unknown = null;
-		let location = "";
-		let hasValue = false;
-
-		if(value === null || value === undefined || value === "") {
+		if(value === null || value === undefined) {
 			console.error(`field=`, field);
 			console.error(`value=`, value);
 		}
 
 		switch(field) {
-			case "auton_coral_scored_l4":
-			case "auton_coral_scored_l3":
-			case "auton_coral_scored_l2":
-			case "auton_coral_scored_l1":
-			case "auton_algae_scored_net":
-			case "teleop_coral_scored_l4":
-			case "teleop_coral_scored_l3":
-			case "teleop_coral_scored_l2":
-			case "teleop_coral_scored_l1":
-			case "teleop_algae_scored_net": {
-				assertNumber(value);
-
-				const scored = value;
-				// :eyes:
-				const missed = data[field.replace("scored", "missed") as keyof typeof data];
-				const total = scored + missed;
-
-				result = `${scored}/${total}`;
-				location = field.replace("_scored", "");
-				hasValue = true;
-				break;
-			}
 			case "robot_appeared":
-			case "auton_leave_starting_line":
+			case "auton_climb_attempted":
+			case "auton_climb_successful":
+			case "endgame_climb_attempted":
 			case "endgame_climb_successful":
 			case "overall_robot_died":
 			case "overall_defended_others":
-			case "overall_was_defended": {
+			case "overall_was_defended":
+			case "overall_shot_while_moving":
+			case "overall_shot_hoarded_pieces": {
 				assertTinyInt(value);
 
 				const newValue = Boolean(value);
 
 				result = (<Checkbox disabled defaultValue={newValue} />);
-				location = field;
-				// Negate certain values
-				hasValue = ["robot_appeared"].includes(field) !== newValue;
 				break;
 			}
 			case "overall_penalties_incurred":
@@ -228,82 +145,35 @@ function MatchData(props: Props): React.ReactElement {
 				result = (<p className="commentBox">
 					{text}
 				</p>);
-				location = field;
-				hasValue = Boolean(value);
 				break;
 			}
+			case "event_key":
 			case "team_number":
-			case "match_event":
 			case "scouter_initials":
 			case "comp_level":
 			case "match_number":
 			case "robot_position":
-			case "robot_starting_position":
-			case "auton_algae_scored_processor":
-			case "teleop_algae_scored_processor":
-			case "endgame_coral_intake_capability":
-			case "endgame_coral_station":
-			case "endgame_algae_intake_capability":
-			case "endgame_climb_type":
-			case "endgame_climb_time":
+			case "auton_fuel_scored":
+			case "auton_shoot_location":
+			case "auton_intake_location":
+			case "teleop_fuel_scored":
+			case "teleop_fuel_hoarded_amount":
+			case "teleop_primary_hoard_type":
+			case "endgame_climb_level":
 			case "overall_defended":
 			case "overall_defended_by":
-			case "overall_pushing":
-			case "overall_defense_quality":
-			case "overall_counter_defense":
-			case "overall_driver_skill":
-			case "overall_major_penalties":
-			case "overall_minor_penalties": {
+			case "overall_path_to_neutral_zone": {
 				result = (value || "").toString();
-				location = field;
-				hasValue = Boolean(value);
 				break;
 			}
 			case "id":
-			case "auton_coral_missed_l4":
-			case "auton_coral_missed_l3":
-			case "auton_coral_missed_l2":
-			case "auton_coral_missed_l1":
-			case "auton_algae_missed_net":
-			case "teleop_coral_missed_l4":
-			case "teleop_coral_missed_l3":
-			case "teleop_coral_missed_l2":
-			case "teleop_coral_missed_l1":
-			case "teleop_algae_missed_net":
 				break;
 			default:
 				console.error(`Unknown field`, field);
 				break;
 		}
 
-		return [result, location, hasValue];
-	}
-	function makeColumns(): React.ReactElement[] {
-		const groups = [];
-		for(const [section, fields] of Object.entries(DATA_COLUMNS)) {
-			const group = [];
-			for(const [title, field] of Object.entries(fields)) {
-				if(HIDABLE_FIELDS[field] === false) {
-					continue;
-				}
-
-				if(FIXED_FIELDS[field] === true) {
-					fixedFields.push(titleCount);
-				}
-				group.push(
-					<Column title={title} dataIndex={field} key={field} />
-				);
-				titleCount++;
-			}
-			groups.push(
-				<ColumnGroup title={section} key={section}>
-					{group}
-				</ColumnGroup>
-			);
-		}
-
-		fixFields();
-		return groups;
+		return result;
 	}
 
 	function fixFields(): void {
@@ -320,17 +190,19 @@ function MatchData(props: Props): React.ReactElement {
 			<Header name={`Data for ${teamNumber}`} back="#scoutingapp/lookup/match" />
 
 			<match-data>
-				<h2 style={{ whiteSpace: 'pre-line' }}>{loading ? "Loading..." : ""}</h2>
-				<Table
-					dataSource={matchData}
-					className={"matchDataTable"}
-					pagination={false}
-				>
-					{
-						makeColumns()
-					}
+				{ loading &&
+				<h2>Loading...</h2>
+				}
 
-				</Table>
+				{matchData ?
+					<Table
+						data={matchData}
+						columns={DATA_COLUMNS}
+						getKey={(row) => (row.id as unknown as number).toString()}
+					/>
+					:
+					<h1>No Data QAQ</h1>
+				}
 			</match-data>
 		</>
 	);

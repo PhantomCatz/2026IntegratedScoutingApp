@@ -16,27 +16,25 @@ type Props = {
 	title: string,
 };
 
-const formDefaultValues = {
+const formDefaultValues: Partial<PitScoutTypes.Pit> = {
 	"team_number": 0,
 	"scouter_initials": "",
 	"robot_weight": 0,
 	"drive_train_type": "",
-	"motor_type": "",
-	"number_of_motors": 0,
+	"driving_motor_type": "",
+	"number_of_driving_motors": 0,
 	"wheel_type": "",
-	"coral_intake_capability": "",
+	"fuel_intake_location": "",
+	"intake_type": [],
 	"intake_width": "",
-	"coral_scoring_l1": false,
-	"coral_scoring_l2": false,
-	"coral_scoring_l3": false,
-	"coral_scoring_l4": false,
-	"can_remove_algae": false,
-	"algae_intake_capability": "",
-	"algae_scoring_capability": "",
-	"score_aiming_coral": "",
-	"score_aiming_algae": "",
-	"aiming_description": "",
-	"climbing_capability": "",
+	"max_fuel_capacity": 0,
+	"max_shot_range": "",
+	"auto_aim": false,
+	"trench_capability": false,
+	"climb_during_auto": false,
+	"can_climb_l1": false,
+	"can_climb_l2": false,
+	"can_climb_l3": false,
 	"pit_organization": 4,
 	"team_safety": 4,
 	"team_workmanship": 4,
@@ -90,34 +88,33 @@ function PitScout(props: Props): React.ReactElement {
 			}})();
 	}, [eventKey]);
 
-	function submitData(event: PitScoutTypes.Pit): void {
+	function submitData(event: PitScoutTypes.Pit, robot_image_uri: string[]): void {
 		const body: PitScoutTypes.SubmitBody = {
-			"match_event": eventKey,
+			"event_key": eventKey,
 			"team_number": event.team_number,
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"robot_weight": event.robot_weight,
 			"drive_train_type": event.drive_train_type,
-			"motor_type": event.motor_type,
-			"number_of_motors": event.number_of_motors,
+			"driving_motor_type": event.driving_motor_type,
+			"number_of_driving_motors": event.number_of_driving_motors,
 			"wheel_type": event.wheel_type,
+			"fuel_intake_location": event.fuel_intake_location,
 			"intake_width": event.intake_width,
-			"coral_intake_capability": event.coral_intake_capability,
-			"coral_scoring_l1": event.coral_scoring_l1,
-			"coral_scoring_l2": event.coral_scoring_l2,
-			"coral_scoring_l3": event.coral_scoring_l3,
-			"coral_scoring_l4": event.coral_scoring_l4,
-			"can_remove_algae": event.can_remove_algae,
-			"algae_intake_capability": event.algae_intake_capability,
-			"algae_scoring_capability": event.algae_scoring_capability,
-			"score_aiming_coral": event.score_aiming_coral,
-			"score_aiming_algae": event.score_aiming_algae,
-			"aiming_description": event.aiming_description,
-			"climbing_capability": event.climbing_capability,
+			"intake_type": event.intake_type.join(','),
+			"max_fuel_capacity": event.max_fuel_capacity,
+			"max_shot_range": event.max_shot_range,
+			"auto_aim": event.auto_aim,
+			"trench_capability": event.trench_capability,
+			"climb_during_auto": event.climb_during_auto,
+			"can_climb_l1": event.can_climb_l1,
+			"can_climb_l2": event.can_climb_l2,
+			"can_climb_l3": event.can_climb_l3,
 			"pit_organization": event.pit_organization,
 			"team_safety": event.team_safety,
 			"team_workmanship": event.team_workmanship,
 			"gracious_professionalism": event.gracious_professionalism,
 			"comments": event.comments,
+			"robot_image_uri": "",
 		};
 		Object.entries(body)
 			.forEach((item) => {
@@ -133,7 +130,7 @@ function PitScout(props: Props): React.ReactElement {
 				body[access] = newVal as unknown as never;
 			});
 
-		void tryFetch(body)
+		void tryOnlineSubmission(body, robot_image_uri)
 			.then((successful) => {
 				if(successful) {
 					window.alert("Submit successful.");
@@ -144,7 +141,7 @@ function PitScout(props: Props): React.ReactElement {
 
 		setQrValue(body);
 	}
-	async function tryFetch(body: PitScoutTypes.SubmitBody): Promise<boolean> {
+	async function tryOnlineSubmission(body: PitScoutTypes.SubmitBody, robot_image_uri: string[]): Promise<boolean> {
 		let fetchLink = Constants.SERVER_ADDRESS;
 
 		if(!fetchLink) {
@@ -154,11 +151,11 @@ function PitScout(props: Props): React.ReactElement {
 
 		fetchLink += "reqType=submitPitData";
 
-		const imageData = robotImageURI.join(IMAGE_DELIMITER);
+		const imageData = robot_image_uri.join(IMAGE_DELIMITER);
 
-		const submitBody = {
+		const submitBody: PitScoutTypes.SubmitBody = {
 			...body,
-			robotImageURI: imageData,
+			robot_image_uri: imageData,
 		};
 
 		try {
@@ -185,36 +182,39 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "H-Drive", value: "H-Drive" },
 			{ label: "Other", value: "Other" },
 		];
-		const motor_type_options = [
-			{ label: "Falcon 500", value: "Falcon 500" },
+		const driving_motor_type_options = [
+			{ label: "Falcon", value: "Falcon" },
 			{ label: "Kraken", value: "Kraken" },
 			{ label: "NEO", value: "NEO" },
 			{ label: "CIM", value: "CIM" },
 			{ label: "Other", value: "Other" },
 		];
 		const wheel_type_options = [
-			{ label: "Nitrile / Neoprene / Plaction", value: "Nitrile_Neoprene_Plaction" },
-			{ label: "HiGrip", value: "HiGrip" },
-			{ label: "Colson", value: 'Colson' },
-			{ label: "Stealth / Smooth grip", value: "Stealth_Smooth grip" },
-			{ label: "Pneumatasic", value: "Pneumatasic" },
+			{ label: "Molded/SpikeGrip", value: "Molded/SpikeGrip" },
+			{ label: "TPU", value: "TPU" },
+			{ label: "Nitrile", value: "Nitrile" },
+			{ label: "Colson", value: "Colson" },
+			{ label: "Pneumatic", value: "Pneumatic" },
 			{ label: "Omni", value: "Omni" },
 			{ label: "Mechanum", value: "Mechanum" },
-			{ label: "TPU", value: "TPU" },
 			{ label: "Other", value: "Other" },
 		];
-		const coral_intake_capability_options = [
-			{ label: "Coral Station - Small", value: "Coral Station - Small" },
-			{ label: "Coral Station - Wide", value: "Coral Station - Wide" },
+		const fuel_intake_location_options = [
 			{ label: "Ground", value: "Ground" },
+			{ label: "Outpost", value: "Outpost" },
 			{ label: "Both", value: "Both" },
-			{ label: "Neither", value: "Neither" },
+		];
+		const intake_type_options = [
+			{ label: "Over Bumper", value: "Over Bumper" },
+			{ label: "Through Bumper", value: "Through Bumper" },
+			{ label: "Hopper", value: "Hopper" },
+			{ label: "No Intake", value: "No Intake" },
 		];
 		const intake_width_options = [
-			{ label: "Full Width", value: "Full Width" },
-			{ label: "Half Width", value: "Half Width" },
-			{ label: "Claw/ Aiming", value: "Claw/ Aiming" },
-			{ label: "Other", value: "Other" },
+			{ label: "100", value: "100" },
+			{ label: "75", value: "75" },
+			{ label: "50", value: "50" },
+			{ label: "25", value: "25" },
 		];
 		const algae_intake_capability_options = [
 			{ label: "Reef Zone", value: "Reef Zone" },
@@ -243,6 +243,12 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "Deep", value: "Deep" },
 			{ label: "Both", value: "Both" },
 			{ label: "Neither", value: "Neither" },
+		];
+		const max_shot_range_options = [
+			{ label: "Opponent Alliance Zone", value: "Opponent Alliance Zone" },
+			{ label: " Opponent Neutral Zone", value: " Opponent Neutral Zone" },
+			{ label: "Neutral Zone", value: "Neutral Zone" },
+			{ label: "Alliance Zone", value: "Alliance Zone" },
 		];
 		return (
 			<>
@@ -281,15 +287,15 @@ function PitScout(props: Props): React.ReactElement {
 					options={drive_train_options}
 				/>
 				<Select<FieldType>
-					title={"Motor Type"}
-					name={"motor_type"}
-					message={"Please input the motor type"}
-					options={motor_type_options}
+					title={"Driving Motor Type"}
+					name={"driving_motor_type"}
+					message={"Please input the driving motor type"}
+					options={driving_motor_type_options}
 				/>
 				<NumberInput<FieldType>
-					title={"# of Motors"}
-					name={"number_of_motors"}
-					message={"Please input the number of motors"}
+					title={"# of Driving Motors"}
+					name={"number_of_driving_motors"}
+					message={"Please input the number of driving motors"}
 					min={0}
 					align={"left"}
 				/>
@@ -300,10 +306,17 @@ function PitScout(props: Props): React.ReactElement {
 					options={wheel_type_options}
 				/>
 				<Select<FieldType>
-					title={"Coral Intake Type"}
-					name={"coral_intake_capability"}
+					title={"Fuel Intake Location"}
+					name={"fuel_intake_location"}
+					message={"Please input the fuel intake location"}
+					options={fuel_intake_location_options}
+				/>
+				<Select<FieldType>
+					title={"Intake Type"}
+					name={"intake_type"}
 					message={"Please input the intake type"}
-					options={coral_intake_capability_options}
+					options={intake_type_options}
+					multiple
 				/>
 				<Select<FieldType>
 					title={"Intake Width"}
@@ -311,59 +324,47 @@ function PitScout(props: Props): React.ReactElement {
 					message={"Please input the intake width"}
 					options={intake_width_options}
 				/>
-				<h2>Coral Scoring</h2>
+				<NumberInput<FieldType>
+					title={"Max Fuel Capacity"}
+					name={"max_fuel_capacity"}
+					message={"Please input the fuel capacity"}
+					min={0}
+					max={99999}
+					buttons={false}
+					align={"left"}
+				/>
+				<Select<FieldType>
+					title={"Max Shot Range"}
+					name={"max_shot_range"}
+					message={"Please input the max shot range"}
+					options={max_shot_range_options}
+				/>
 				<Checkbox<FieldType>
-					name="coral_scoring_l1"
+                    name="auto_aim"
+                    title="Auto Aim"
+                />
+				<Checkbox<FieldType>
+					name="trench_capability"
+					title="Trench Capability"
+				/>
+				<Checkbox<FieldType>
+					name="climb_during_auto"
+					title="Climb during auto?"
+				/>
+
+				<h1>Climbing Capability</h1>
+				<Checkbox<FieldType>
 					title="L1"
+					name="can_climb_l1"
 				/>
 				<Checkbox<FieldType>
-					name="coral_scoring_l2"
 					title="L2"
+					name="can_climb_l2"
 				/>
 				<Checkbox<FieldType>
-					name="coral_scoring_l3"
 					title="L3"
+					name="can_climb_l3"
 				/>
-				<Checkbox<FieldType>
-					name="coral_scoring_l4"
-					title="L4"
-				/>
-				<Select<FieldType>
-					title={"Algae Intake Capability"}
-					name={"algae_intake_capability"}
-					message={"Please input the algae intake capability"}
-					options={algae_intake_capability_options}
-				/>
-				<Select<FieldType>
-					title={"Algae Scoring Capability"}
-					name={"algae_scoring_capability"}
-					message={'Please input the algae scoring capability'}
-					options={algae_scoring_capability_options}
-				/>
-				<Select<FieldType>
-					title={"Coral Score Aiming"}
-					name={"score_aiming_coral"}
-					message={"Please input the coral score aiming"}
-					options={score_aiming_coral_options}
-				/>
-				<Select<FieldType>
-					title={"Algae Score Aiming"}
-					name={"score_aiming_algae"}
-					message={"Please input the algae score aiming"}
-					options={score_aiming_algae_options}
-				/>
-				<TextArea<FieldType>
-					name="aiming_description"
-					title="Aiming Description"
-				/>
-
-				<Select<FieldType>
-					title={"Climbing Capability"}
-					name={"climbing_capability"}
-					message={"Please input the climbing capability"}
-					options={climbing_capability_options}
-				/>
-
 				<NumberInput<FieldType>
 					title={"Pit Organization(0-4)"}
 					name={"pit_organization"}
@@ -417,7 +418,7 @@ function PitScout(props: Props): React.ReactElement {
 						setRefresh(!refresh);
 					}}
 				/>
-				<input type="submit" value="Submit" className='submit' />
+				<input type="submit" value="Submit" className="submitButton" />
 			</>
 		);
 	}
@@ -436,20 +437,21 @@ function PitScout(props: Props): React.ReactElement {
 						try {
 							setLoading(true);
 
-							submitData(event);
-
-							const initials = accessor.getFieldValue("scouter_initials");
-
-							accessor.resetFields();
+							let parsedFiles: string[] = [];
 
 							if(robotImageInput.current && robotImageInput.current.files) {
 								const fileList: FileList = robotImageInput.current.files;
 
-								const parsedFiles: string[] = await Promise.all(fileList[Symbol.iterator]().map(readImage));
+								parsedFiles = await Promise.all(fileList[Symbol.iterator]().map(readImage));
 
-								setRobotImageURI(parsedFiles)
 								robotImageInput.current.value = "";
 							}
+
+							submitData(event, parsedFiles);
+
+							const initials = accessor.getFieldValue("scouter_initials");
+
+							accessor.resetFields();
 
 							accessor.setFormValues({...formDefaultValues, "scouter_initials": initials});
 						}
@@ -467,7 +469,7 @@ function PitScout(props: Props): React.ReactElement {
 						window.alert(errorMessage);
 					}}
 				>
-					<Pit />
+					{Pit()}
 				</Form>
 				<QrCode value={qrValue} />
 			</pit-scout>
