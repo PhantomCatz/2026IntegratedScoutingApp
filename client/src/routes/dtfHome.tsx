@@ -32,9 +32,12 @@ function DTFHome(props: Props): React.ReactElement {
 			}
 			console.log(data);
 			
-			if (!accessor.getFieldValue('elimsAlliance1')) {
+			if (!accessor.getFieldValue('elimsAlliance1') && !accessor.getFieldValue('elimsAlliance2')) {
 				return null;
 			}
+			// else if (!accessor.getFieldValue('elimsAlliance2')) {
+			// 	return null;
+			// }
 			const result = {
 				//eslint-disable-next-line @typescript-eslint/no-magic-numbers
 				blue: teamKeysToNumbers(data[eventKey][Number(accessor.getFieldValue('elimsAlliance1'))].picks.slice(0,3)),
@@ -91,9 +94,8 @@ function DTFHome(props: Props): React.ReactElement {
 	async function AllianceUpdateRed() {
 		if (accessor.getFieldValue('elimsAlliance2') == "")
 		{
-
 			for (let l = 0; l < 3; l++) {
-			 	accessor.setFieldValue(`teamNumber${l+1}` as keyof DtfHomeType.All, 0)
+			 	accessor.setFieldValue(`teamNumber${l+4}` as keyof DtfHomeType.All, 0)
 			}
 		}
 		else {
@@ -192,42 +194,42 @@ function DTFHome(props: Props): React.ReactElement {
 						title={"Team 1 Number"}
 						name={"teamNumber1"}
 						message={"Enter the Team 1 Number"}
-						
+						buttons={false}
 					/>
 
 					<NumberInput<FieldType>
 						title={"Team 2 Number"}
 						name={"teamNumber2"}
 						message={"Enter the Team 2 Number"}
-						
+						buttons={false}
 					/>
 
 					<NumberInput<FieldType>
 						title={"Team 3 Number"}
 						name={"teamNumber3"}
 						message={"Enter the Team 3 Number"}
-						
+						buttons={false}
 					/>
 
 					<NumberInput<FieldType>
 						title={"Team 4 Number"}
 						name={"teamNumber4"}
 						message={"Enter the Team 4 Number"}
-						
+						buttons={false}
 					/>
 
 					<NumberInput<FieldType>
 						title={"Team 5 Number"}
 						name={"teamNumber5"}
 						message={"Enter the Team 5 Number"}
-						
+						buttons={false}
 					/>
 
 					<NumberInput<FieldType>
 						title={"Team 6 Number"}
 						name={"teamNumber6"}
 						message={"Enter the Team 6 Number"}
-						
+						buttons={false}
 					/>
 				<div className="inputRow">
 					<Select<FieldType>
