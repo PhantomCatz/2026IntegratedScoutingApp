@@ -23,8 +23,8 @@ export type SubmitBody = {
 	comp_level: TbaApi.Comp_Level;
 	match_number: number;
 	robot_position: TbaRequest.RobotPosition;
-	red_alliance: TbaApi.AllianceColor;
-	blue_alliance: TbaApi.AllianceColor;
+	red_alliance: string;
+	blue_alliance: string;
 	comments: string;
 };
 

@@ -66,7 +66,7 @@ function DTFHome(props: Props): React.ReactElement {
 	
 			return result;
 		}
-    const allianceTeamOptions : {label: string, value: TbaApi.ElimsAlliance} []= [
+    const allianceTeamOptions : {label: string, value: DtfHomeType.ElimsAlliance} []= [
 		{label :"", value: ""},
 		{label :"Alliance 1", value: "0"  },
 		{label: "Alliance 2", value: "1"},

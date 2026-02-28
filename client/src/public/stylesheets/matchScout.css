@@ -8,12 +8,6 @@ match-scout {
 		color: var(--font-color) !important;
 		text-align: center !important;
 	}
-	.inputRow {
-		display: flex !important;
-		& > * {
-			flex-grow: 1;
-		}
-	}
 	.fieldTitle {
 		text-align: center;
 		width: 100%;
