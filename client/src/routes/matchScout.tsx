@@ -865,9 +865,7 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 						title="Shot While Moving"
 						name="overall_shot_while_moving"
-						onChange={() => {
-							console.log (accessor.getFieldValue('overall_shot_while_moving'))
-						}}
+						
 						
 				/>
 

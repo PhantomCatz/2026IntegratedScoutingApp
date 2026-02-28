@@ -9,7 +9,7 @@ export type All = {
 	elimsAlliance1: string;
 	elimsAlliance2: string;
 };
-
+export type ElimsAlliance = `${number}` | "";
 export type Props = {
 	title: string;
 };
