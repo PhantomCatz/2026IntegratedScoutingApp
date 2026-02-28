@@ -15,6 +15,7 @@ import type { ResultTypes } from '../types/tbaRequest';
 import type * as TbaRequest from '../types/tbaRequest';
 import type * as MatchScoutTypes from '../types/matchScout';
 import type { TabItems } from '../parts/tabs';
+import type * as Database from '../types/database.ts';
 
 type Props = {
 	title: string,
@@ -63,7 +64,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 } as const;
 const noShowValues: Partial<MatchScoutTypes.All> = {
 	// Pre-match
-	//"match_event": "",
+	//"event_key": "",
 	//"team_number": 0,
 	//"scouter_initials": "",
 	//"comp_level": "",
@@ -118,6 +119,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const [robot_appeared, setRobot_appeared] = useState(true);
 	const [endgameClimbAttempted, setEndgameClimbAttempted] = useState(false);
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [maxFuelCapacity,setMaxFuelCapacity] = useState(0);
 
 	if(!_eventKey) {
 		throw new Error("Could not get event key");
@@ -153,6 +155,29 @@ function MatchScout(props: Props): React.ReactElement {
 
 		setOpposingTeamNum(team);
 	}, [teamsInMatch, currentRobotPosition]);
+
+	useEffect(() => {
+		void (async () => {
+			if(!team_number) {
+				return;
+			}
+
+			let fetchLink = Constants.SERVER_ADDRESS;
+
+			if(!fetchLink) {
+				console.error("Could not get fetch link; check .env");
+				return;
+			}
+			fetchLink += "reqType=getTeamPit";
+
+			const res = await fetch(fetchLink + `&team=${team_number}`);
+			const data = await res.json() as Database.PitDataEntry[];
+			const max_fuel_capacity = data[data.length-1]?.max_fuel_capacity ?? 0;
+			setMaxFuelCapacity(max_fuel_capacity);
+
+		})();
+	}, [team_number]);
+
 
 	function submitData(event: MatchScoutTypes.All): void {
 		if (team_number === 0) {
@@ -441,6 +466,8 @@ function MatchScout(props: Props): React.ReactElement {
 					onChange={() => { updateTeamNumber(teamsInMatch); }}
 				/>
 
+				<h2> Max Fuel Capacity: {maxFuelCapacity}</h2>
+
 				<details className="overrideOptions">
 					<summary>Warning! These options should not be used normally!</summary>
 					<NumberInput<FieldType>
@@ -493,7 +520,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 		return (
 			<div style={{ alignContent: 'center' }}>
-				
+
 				<NumberInput<FieldType>
 					title={"Fuel Scored"}
 					buttons={false}
@@ -525,7 +552,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<div className="inputRow multiplierButtons">
 					<Checkbox<FieldType>
-						
+
 						name={"auton_1x_multiplier"}
 						title={""}
 						onChange={OneXMultiplier}
@@ -589,9 +616,9 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "None", value: "None" },
 		];
 		const teleop_primary_hoard_type= [
-			{ label: "Push Hoard", value: "Push_Hoard" },
-			{ label: "Shoot Hoard", value: "Shoot_Hoard" },
-			{ label: "Dump Hoard", value: "Dump_Hoard" },
+			{ label: "Push Hoard", value: "Push Hoard" },
+			{ label: "Shoot Hoard", value: "Shoot Hoard" },
+			{ label: "Dump Hoard", value: "Dump Hoard" },
 		];
 
 		return (
@@ -675,9 +702,9 @@ function MatchScout(props: Props): React.ReactElement {
 	function endgameMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.EndgameMatch;
 		const endgame_climb_level = [
-			{ label: "Level 1", value: "Level_1" },
-			{ label: "Level 2", value: "Level_2" },
-			{ label: "Level 3", value: "Level_3" },
+			{ label: "Level 1", value: "Level 1" },
+			{ label: "Level 2", value: "Level 2" },
+			{ label: "Level 3", value: "Level 3" },
 		];
 		return (
 			<>
@@ -735,7 +762,7 @@ function MatchScout(props: Props): React.ReactElement {
 							setDefendedIsVisible(!defendedIsVisible);
 						}}
 					/>
-					
+
 					<Checkbox<FieldType>
 						title="Was Defended?"
 						name="overall_was_defended"

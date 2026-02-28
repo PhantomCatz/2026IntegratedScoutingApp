@@ -28,7 +28,7 @@ function StrategicTabs(props: Props): TabItems {
 					<Input
 						title="Match Event"
 						disabled
-						defaultValue={strategicInfo.match_event}
+						defaultValue={strategicInfo.event_key}
 					/>
 					<Input
 						title="Scouter Initials"

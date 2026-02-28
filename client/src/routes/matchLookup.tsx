@@ -78,12 +78,12 @@ function MatchLookup(props: Props): React.ReactElement {
 						name="teamNumber"
 						message="Please input the team number!"
 						min={0}
+						buttons={false}
 					/>
 					<button
 						type="submit"
-						value="Submit"
 						className='submitButton'
-					/>
+					>Submit</button>
 					<h2>List of Teams</h2>
 					{teamNumberElements}
 				</Form>

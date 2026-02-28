@@ -8,7 +8,7 @@ const IMAGE_DELIMITER = "$";
 
 type Props = {
 	teamNumber: number
-	data: Database.PitEntry[] | null;
+	data: Database.PitDataFullEntry[] | null;
 };
 
 function PitTabs(props: Props): TabItems {
@@ -26,7 +26,7 @@ function PitTabs(props: Props): TabItems {
 	for (const pitInfo of data) {
 		pitInfo.comments = pitInfo.comments.replaceAll("\\n", "\n");
 
-		const images = pitInfo.robotImageURI.split(IMAGE_DELIMITER).filter((x: string) => x !== "");
+		const images = pitInfo.robot_image_uri.split(IMAGE_DELIMITER).filter((x: string) => x !== "");
 
 		const pictures = [];
 
@@ -52,44 +52,40 @@ function PitTabs(props: Props): TabItems {
 			label: `${pitInfo.scouter_initials.toUpperCase()}:${pitInfo.team_number}`,
 			children: (
 				<div className="pitTabs">
-					<h2>Match Event</h2>
-					<Input disabled defaultValue={pitInfo.match_event} />
+					<h2>Event Key</h2>
+					<Input disabled defaultValue={pitInfo.event_key} />
 					<h2>Scouter Initials</h2>
 					<Input disabled defaultValue={pitInfo.scouter_initials} />
 					<h2>Robot Weight</h2>
 					<Input disabled defaultValue={pitInfo.robot_weight.toString()} />
 					<h2>Drive Train Type</h2>
 					<Input disabled defaultValue={pitInfo.drive_train_type} />
-					<h2>Motor Type</h2>
-					<Input disabled defaultValue={pitInfo.motor_type} />
-					<h2># of Motors</h2>
-					<Input disabled defaultValue={pitInfo.number_of_motors.toString()} />
+					<h2>Propulsion Motor Type</h2>
+					<Input disabled defaultValue={pitInfo.propulsion_motor_type} />
+					<h2># of Propulsion Motors</h2>
+					<Input disabled defaultValue={pitInfo.number_of_propulsion_motors.toString()} />
 					<h2>Wheel Type</h2>
 					<Input disabled defaultValue={pitInfo.wheel_type} />
-					<h2>Coral Intake Capability</h2>
-					<Input disabled defaultValue={pitInfo.coral_intake_capability} />
-					<h2>Coral Scoring L1</h2>
-					<Checkbox disabled defaultValue={Boolean(pitInfo.coral_scoring_l1)}/>
-					<h2>Coral Scoring L2</h2>
-					<Checkbox disabled defaultValue={Boolean(pitInfo.coral_scoring_l2)}/>
-					<h2>Coral Scoring L3</h2>
-					<Checkbox disabled defaultValue={Boolean(pitInfo.coral_scoring_l3)}/>
-					<h2>Coral Scoring L4</h2>
-					<Checkbox disabled defaultValue={Boolean(pitInfo.coral_scoring_l4)}/>
-					<h2>Can Remove Algae</h2>
-					<Checkbox disabled defaultValue={Boolean(pitInfo.can_remove_algae)} />
-					<h2>Algae Intake Capability</h2>
-					<Input disabled defaultValue={pitInfo.algae_intake_capability} />
-					<h2>Algae Scoring Capability</h2>
-					<Input disabled defaultValue={pitInfo.algae_scoring_capability} />
-					<h2>Score Aiming Coral</h2>
-					<Input disabled defaultValue={pitInfo.score_aiming_coral} />
-					<h2>Score Aiming Algae</h2>
-					<Input disabled defaultValue={pitInfo.score_aiming_algae} />
-					<h2>Aiming Description</h2>
-					<TextArea disabled defaultValue={pitInfo.aiming_description}/>
-					<h2>Climbing Capability</h2>
-					<Input disabled defaultValue={pitInfo.climbing_capability} />
+					<h2>Fuel Intake Location</h2>
+					<Input disabled defaultValue={pitInfo.fuel_intake_location} />
+					<h2>Intake Type</h2>
+					<Input disabled defaultValue={pitInfo.intake_type} />
+					<h2>Intake Width</h2>
+					<Input disabled defaultValue={pitInfo.intake_width} />
+					<h2>Max Fuel Capacity</h2>
+					<Input disabled defaultValue={pitInfo.max_fuel_capacity.toString()} />
+					<h2>Max Shot Range</h2>
+					<Input disabled defaultValue={pitInfo.max_shot_range} />
+					<h2>Trench Capability</h2>
+					<Checkbox disabled defaultValue={Boolean(pitInfo.trench_capability)}/>
+					<h2>Climb During Auto</h2>
+					<Checkbox disabled defaultValue={Boolean(pitInfo.climb_during_auto)} />
+					<h2>Can Climb L1</h2>
+					<Checkbox disabled defaultValue={Boolean(pitInfo.can_climb_l1)} />
+					<h2>Can Climb L2</h2>
+					<Checkbox disabled defaultValue={Boolean(pitInfo.can_climb_l2)} />
+					<h2>Can Climb L3</h2>
+					<Checkbox disabled defaultValue={Boolean(pitInfo.can_climb_l3)} />
 					<h2>Pit Organization</h2>
 					<Input disabled defaultValue={pitInfo.pit_organization.toString()} />
 					<h2>Team Safety</h2>
@@ -98,6 +94,8 @@ function PitTabs(props: Props): TabItems {
 					<Input disabled defaultValue={pitInfo.team_workmanship.toString()} />
 					<h2>Gracious Professionalism</h2>
 					<Input disabled defaultValue={pitInfo.gracious_professionalism.toString()} />
+					<h2>Any Electrical Issues</h2>
+					<TextArea disabled defaultValue={pitInfo.any_electrical_issues} />
 					<h2>Comments</h2>
 					<TextArea disabled defaultValue={pitInfo.comments} />
 

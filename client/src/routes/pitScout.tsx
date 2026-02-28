@@ -16,22 +16,22 @@ type Props = {
 	title: string,
 };
 
-const formDefaultValues = {
+const formDefaultValues: Partial<PitScoutTypes.Pit> = {
 	"team_number": 0,
 	"scouter_initials": "",
 	"robot_weight": 0,
 	"drive_train_type": "",
-	"propulsion_motor_type": "",
-	"number_of_propulsion_motors": 0,
+	"driving_motor_type": "",
+	"number_of_driving_motors": 0,
 	"wheel_type": "",
 	"fuel_intake_location": "",
-	"intake_type": "",
+	"intake_type": [],
 	"intake_width": "",
 	"max_fuel_capacity": 0,
 	"max_shot_range": "",
+	"auto_aim": false,
 	"trench_capability": false,
 	"climb_during_auto": false,
-    "any_electrical_issues": "",
 	"can_climb_l1": false,
 	"can_climb_l2": false,
 	"can_climb_l3": false,
@@ -88,24 +88,24 @@ function PitScout(props: Props): React.ReactElement {
 			}})();
 	}, [eventKey]);
 
-	function submitData(event: PitScoutTypes.Pit): void {
+	function submitData(event: PitScoutTypes.Pit, robot_image_uri: string[]): void {
 		const body: PitScoutTypes.SubmitBody = {
-			"match_event": eventKey,
+			"event_key": eventKey,
 			"team_number": event.team_number,
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"robot_weight": event.robot_weight,
 			"drive_train_type": event.drive_train_type,
-			"propulsion_motor_type": event.propulsion_motor_type,
-			"number_of_propulsion_motors": event.number_of_propulsion_motors,
+			"driving_motor_type": event.driving_motor_type,
+			"number_of_driving_motors": event.number_of_driving_motors,
 			"wheel_type": event.wheel_type,
 			"fuel_intake_location": event.fuel_intake_location,
 			"intake_width": event.intake_width,
 			"intake_type": event.intake_type.join(','),
 			"max_fuel_capacity": event.max_fuel_capacity,
 			"max_shot_range": event.max_shot_range,
+			"auto_aim": event.auto_aim,
 			"trench_capability": event.trench_capability,
 			"climb_during_auto": event.climb_during_auto,
-			"any_electrical_issues": event.any_electrical_issues,
 			"can_climb_l1": event.can_climb_l1,
 			"can_climb_l2": event.can_climb_l2,
 			"can_climb_l3": event.can_climb_l3,
@@ -114,6 +114,7 @@ function PitScout(props: Props): React.ReactElement {
 			"team_workmanship": event.team_workmanship,
 			"gracious_professionalism": event.gracious_professionalism,
 			"comments": event.comments,
+			"robot_image_uri": "",
 		};
 		Object.entries(body)
 			.forEach((item) => {
@@ -129,7 +130,7 @@ function PitScout(props: Props): React.ReactElement {
 				body[access] = newVal as unknown as never;
 			});
 
-		void tryFetch(body)
+		void tryOnlineSubmission(body, robot_image_uri)
 			.then((successful) => {
 				if(successful) {
 					window.alert("Submit successful.");
@@ -140,7 +141,7 @@ function PitScout(props: Props): React.ReactElement {
 
 		setQrValue(body);
 	}
-	async function tryFetch(body: PitScoutTypes.SubmitBody): Promise<boolean> {
+	async function tryOnlineSubmission(body: PitScoutTypes.SubmitBody, robot_image_uri: string[]): Promise<boolean> {
 		let fetchLink = Constants.SERVER_ADDRESS;
 
 		if(!fetchLink) {
@@ -150,11 +151,11 @@ function PitScout(props: Props): React.ReactElement {
 
 		fetchLink += "reqType=submitPitData";
 
-		const imageData = robotImageURI.join(IMAGE_DELIMITER);
+		const imageData = robot_image_uri.join(IMAGE_DELIMITER);
 
-		const submitBody = {
+		const submitBody: PitScoutTypes.SubmitBody = {
 			...body,
-			robotImageURI: imageData,
+			robot_image_uri: imageData,
 		};
 
 		try {
@@ -181,7 +182,7 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "H-Drive", value: "H-Drive" },
 			{ label: "Other", value: "Other" },
 		];
-		const propulsion_motor_type_options = [
+		const driving_motor_type_options = [
 			{ label: "Falcon", value: "Falcon" },
 			{ label: "Kraken", value: "Kraken" },
 			{ label: "NEO", value: "NEO" },
@@ -206,6 +207,7 @@ function PitScout(props: Props): React.ReactElement {
 		const intake_type_options = [
 			{ label: "Over Bumper", value: "Over Bumper" },
 			{ label: "Through Bumper", value: "Through Bumper" },
+			{ label: "Hopper", value: "Hopper" },
 			{ label: "No Intake", value: "No Intake" },
 		];
 		const intake_width_options = [
@@ -285,15 +287,15 @@ function PitScout(props: Props): React.ReactElement {
 					options={drive_train_options}
 				/>
 				<Select<FieldType>
-					title={"Propulsion Motor Type"}
-					name={"propulsion_motor_type"}
-					message={"Please input the propulsion motor type"}
-					options={propulsion_motor_type_options}
+					title={"Driving Motor Type"}
+					name={"driving_motor_type"}
+					message={"Please input the driving motor type"}
+					options={driving_motor_type_options}
 				/>
 				<NumberInput<FieldType>
-					title={"# of Propulsion Motors"}
-					name={"number_of_propulsion_motors"}
-					message={"Please input the number of propulsion motors"}
+					title={"# of Driving Motors"}
+					name={"number_of_driving_motors"}
+					message={"Please input the number of driving motors"}
 					min={0}
 					align={"left"}
 				/>
@@ -338,13 +340,17 @@ function PitScout(props: Props): React.ReactElement {
 					options={max_shot_range_options}
 				/>
 				<Checkbox<FieldType>
-                    name="trench_capability"
-                    title="Trench Capability"
+                    name="auto_aim"
+                    title="Auto Aim"
                 />
 				<Checkbox<FieldType>
-                    name="climb_during_auto"
-                    title="Climb during auto?"
-                />
+					name="trench_capability"
+					title="Trench Capability"
+				/>
+				<Checkbox<FieldType>
+					name="climb_during_auto"
+					title="Climb during auto?"
+				/>
 
 				<h1>Climbing Capability</h1>
 				<Checkbox<FieldType>
@@ -394,10 +400,6 @@ function PitScout(props: Props): React.ReactElement {
 					max={4}
 					align={"left"}
 				/>
-				<TextArea<FieldType>
-					name="any_electrical_issues"
-					title="ANY electrical issues?"
-				/>
 
 				<TextArea<FieldType>
 					name="comments"
@@ -408,6 +410,7 @@ function PitScout(props: Props): React.ReactElement {
 				<label className="robotImageLabel" htmlFor="robotImageInput">Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}</label>
 				<input
 					ref={robotImageInput}
+					id="robotImageInput"
 					type="file"
 					accept="image/*"
 					multiple
@@ -415,7 +418,7 @@ function PitScout(props: Props): React.ReactElement {
 						setRefresh(!refresh);
 					}}
 				/>
-				<input type="submit" value="Submit" className='submit' />
+				<input type="submit" value="Submit" className="submitButton" />
 			</>
 		);
 	}
@@ -434,20 +437,21 @@ function PitScout(props: Props): React.ReactElement {
 						try {
 							setLoading(true);
 
-							submitData(event);
-
-							const initials = accessor.getFieldValue("scouter_initials");
-
-							accessor.resetFields();
+							let parsedFiles: string[] = [];
 
 							if(robotImageInput.current && robotImageInput.current.files) {
 								const fileList: FileList = robotImageInput.current.files;
 
-								const parsedFiles: string[] = await Promise.all(fileList[Symbol.iterator]().map(readImage));
+								parsedFiles = await Promise.all(fileList[Symbol.iterator]().map(readImage));
 
-								setRobotImageURI(parsedFiles)
 								robotImageInput.current.value = "";
 							}
+
+							submitData(event, parsedFiles);
+
+							const initials = accessor.getFieldValue("scouter_initials");
+
+							accessor.resetFields();
 
 							accessor.setFormValues({...formDefaultValues, "scouter_initials": initials});
 						}

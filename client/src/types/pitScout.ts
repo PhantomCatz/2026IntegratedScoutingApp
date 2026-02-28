@@ -5,17 +5,17 @@ export type Pit = {
 	team_number: number;
 	drive_train_type: string;
 	robot_weight: number;
-	propulsion_motor_type: string;
-	number_of_propulsion_motors: number;
+	driving_motor_type: string;
+	number_of_driving_motors: number;
 	wheel_type: string;
 	fuel_intake_location: string;
 	intake_width: string;
 	intake_type: string[];
 	max_fuel_capacity: number;
 	max_shot_range: string;
+	auto_aim: boolean;
 	trench_capability: boolean;
 	climb_during_auto: boolean;
-	any_electrical_issues: string;
 	can_climb_l1: boolean;
 	can_climb_l2: boolean;
 	can_climb_l3: boolean;
@@ -27,22 +27,22 @@ export type Pit = {
 };
 
 export type SubmitBody = {
-			"match_event": TbaApi.EventKey;
+			"event_key": TbaApi.EventKey;
 			"team_number": number;
 			"scouter_initials": string;
 			"robot_weight": number;
 			"drive_train_type": string;
-			"propulsion_motor_type": string;
-			"number_of_propulsion_motors": number;
+			"driving_motor_type": string;
+			"number_of_driving_motors": number;
 			"wheel_type": string;
 			"fuel_intake_location": string;
 			"intake_width": string;
 			"intake_type": string;
 			"max_fuel_capacity":number;
 			"max_shot_range": string;
+			"auto_aim": boolean;
 			"trench_capability": boolean;
 			"climb_during_auto": boolean;
-			"any_electrical_issues":string;
 			"can_climb_l1": boolean;
 			"can_climb_l2": boolean;
 			"can_climb_l3": boolean;
@@ -51,4 +51,5 @@ export type SubmitBody = {
 			"team_workmanship": number;
 			"gracious_professionalism": number;
 			"comments": string;
+			"robot_image_uri": string;
 };
