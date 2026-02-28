@@ -22,8 +22,8 @@ const formDefaultValues: StrategicScoutTypes.All = {
 	"match_number": 0,
 	"robot_position": "B1",
 	"comments": "",
-	"red_alliance": 0,
-	"blue_alliance": 0,
+	"red_alliance": "",
+	"blue_alliance": "",
 } as const;
 
 type Props = {

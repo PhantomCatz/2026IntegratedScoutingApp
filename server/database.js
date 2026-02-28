@@ -198,6 +198,9 @@ async function submitStrategicData(data) {
 async function submitWatchlistData(data) {
 	return await submitData(data, "watchlist_data");
 }
+async function submitAllianceZoneData(data) {
+	return await submitData(data, "alliance_zone_data");
+}
 
 function verifyConnection(connection) {
 	if(connection.state === "disconnected") {
@@ -217,4 +220,5 @@ export {
 	submitMatchData,
 	submitStrategicData,
 	submitWatchlistData,
+	submitAllianceZoneData,
 };
