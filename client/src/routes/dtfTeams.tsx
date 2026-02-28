@@ -485,7 +485,7 @@ function DTFTeams(props: Props): React.ReactElement {
 
 				const teleop_fuel_hoarded_amount_ordering = {
 					"High": 3,
-					"Med": 2,
+					"Medium": 2,
 					"Low": 1,
 					"None": 0,
 				} as const;
