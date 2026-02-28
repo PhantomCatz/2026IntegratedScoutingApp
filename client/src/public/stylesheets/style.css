@@ -60,3 +60,9 @@ footer {
 	text-align: center !important;
 	margin-top: 1%;
 }
+.inputRow {
+	display: flex !important;
+	& > * {
+		flex-grow: 1;
+	}
+}

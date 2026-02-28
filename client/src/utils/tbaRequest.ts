@@ -29,7 +29,7 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 	//eslint-disable-next-line @typescript-eslint/no-magic-numbers
 	return teamKeys.map((team) => Number(team.substring(3)));
 }
-// TODO: remove?
+
 function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch): number[] {
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
@@ -351,4 +351,5 @@ export {
 	getMatchId,
 	request,
 	getAllianceTags,
+	teamsPlayingToTeamsList,
 };

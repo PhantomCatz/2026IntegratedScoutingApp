@@ -21,17 +21,17 @@ const formDefaultValues: Partial<PitScoutTypes.Pit> = {
 	"scouter_initials": "",
 	"robot_weight": 0,
 	"drive_train_type": "",
-	"propulsion_motor_type": "",
-	"number_of_propulsion_motors": 0,
+	"driving_motor_type": "",
+	"number_of_driving_motors": 0,
 	"wheel_type": "",
 	"fuel_intake_location": "",
 	"intake_type": [],
 	"intake_width": "",
 	"max_fuel_capacity": 0,
 	"max_shot_range": "",
+	"auto_aim": false,
 	"trench_capability": false,
 	"climb_during_auto": false,
-	"any_electrical_issues": "",
 	"can_climb_l1": false,
 	"can_climb_l2": false,
 	"can_climb_l3": false,
@@ -95,17 +95,17 @@ function PitScout(props: Props): React.ReactElement {
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"robot_weight": event.robot_weight,
 			"drive_train_type": event.drive_train_type,
-			"propulsion_motor_type": event.propulsion_motor_type,
-			"number_of_propulsion_motors": event.number_of_propulsion_motors,
+			"driving_motor_type": event.driving_motor_type,
+			"number_of_driving_motors": event.number_of_driving_motors,
 			"wheel_type": event.wheel_type,
 			"fuel_intake_location": event.fuel_intake_location,
 			"intake_width": event.intake_width,
 			"intake_type": event.intake_type.join(','),
 			"max_fuel_capacity": event.max_fuel_capacity,
 			"max_shot_range": event.max_shot_range,
+			"auto_aim": event.auto_aim,
 			"trench_capability": event.trench_capability,
 			"climb_during_auto": event.climb_during_auto,
-			"any_electrical_issues": event.any_electrical_issues,
 			"can_climb_l1": event.can_climb_l1,
 			"can_climb_l2": event.can_climb_l2,
 			"can_climb_l3": event.can_climb_l3,
@@ -182,7 +182,7 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "H-Drive", value: "H-Drive" },
 			{ label: "Other", value: "Other" },
 		];
-		const propulsion_motor_type_options = [
+		const driving_motor_type_options = [
 			{ label: "Falcon", value: "Falcon" },
 			{ label: "Kraken", value: "Kraken" },
 			{ label: "NEO", value: "NEO" },
@@ -207,6 +207,7 @@ function PitScout(props: Props): React.ReactElement {
 		const intake_type_options = [
 			{ label: "Over Bumper", value: "Over Bumper" },
 			{ label: "Through Bumper", value: "Through Bumper" },
+			{ label: "Hopper", value: "Hopper" },
 			{ label: "No Intake", value: "No Intake" },
 		];
 		const intake_width_options = [
@@ -286,15 +287,15 @@ function PitScout(props: Props): React.ReactElement {
 					options={drive_train_options}
 				/>
 				<Select<FieldType>
-					title={"Propulsion Motor Type"}
-					name={"propulsion_motor_type"}
-					message={"Please input the propulsion motor type"}
-					options={propulsion_motor_type_options}
+					title={"Driving Motor Type"}
+					name={"driving_motor_type"}
+					message={"Please input the driving motor type"}
+					options={driving_motor_type_options}
 				/>
 				<NumberInput<FieldType>
-					title={"# of Propulsion Motors"}
-					name={"number_of_propulsion_motors"}
-					message={"Please input the number of propulsion motors"}
+					title={"# of Driving Motors"}
+					name={"number_of_driving_motors"}
+					message={"Please input the number of driving motors"}
 					min={0}
 					align={"left"}
 				/>
@@ -338,6 +339,10 @@ function PitScout(props: Props): React.ReactElement {
 					message={"Please input the max shot range"}
 					options={max_shot_range_options}
 				/>
+				<Checkbox<FieldType>
+                    name="auto_aim"
+                    title="Auto Aim"
+                />
 				<Checkbox<FieldType>
 					name="trench_capability"
 					title="Trench Capability"
@@ -394,10 +399,6 @@ function PitScout(props: Props): React.ReactElement {
 					min={0}
 					max={4}
 					align={"left"}
-				/>
-				<TextArea<FieldType>
-					name="any_electrical_issues"
-					title="ANY electrical issues?"
 				/>
 
 				<TextArea<FieldType>
