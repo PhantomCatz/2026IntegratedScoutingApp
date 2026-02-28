@@ -20,6 +20,15 @@ function DTFHome(props: Props): React.ReactElement {
 	}, [props.title]);
 	type FieldType = DtfHomeType.All
 	const accessor = getFieldAccessor<All>();
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
+	
+
+	if(!_eventKey) {
+		throw new Error("Could not get event key");
+	}
+
+	const eventKey = _eventKey;
 	function fromEliminationAllianceNumbers(): ResultTypes.TeamsInMatch | null {
 			const playoffAlliances = localStorage.getItem("tbaPlayoffAlliances");
 			if(playoffAlliances === null) {
@@ -58,21 +67,13 @@ function DTFHome(props: Props): React.ReactElement {
 		{label :"Alliance 7", value: "6" },
 		{label: "Alliance 8", value: "7"}
 	];
-	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
-	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	
 
-	if(!_eventKey) {
-		throw new Error("Could not get event key");
-	}
-
-	const eventKey = _eventKey;
-
 	///function that auto-fill the fields in team 1-3
-	async function AllianceUpdateBlue() {
+	function AllianceUpdateBlue(): void {
 		
 		
-		if (accessor.getFieldValue('elimsAlliance1') == "")
+		if (accessor.getFieldValue('elimsAlliance1') === "")
 		{
 
 			for (let k = 0; k < 3; k++) {
@@ -80,9 +81,12 @@ function DTFHome(props: Props): React.ReactElement {
 			}
 		}
 		else {
-			let TempListBlue = fromEliminationAllianceNumbers();
-			let BlueList = TempListBlue.blue;
-			let BlueAlliance = accessor.getFieldValue("elimsAlliance1");
+			const TempListBlue = fromEliminationAllianceNumbers();
+			if (!TempListBlue) {
+				return ;
+			}
+			const BlueList = TempListBlue.blue;
+			
 			for (let n = 0; n < 3; n++){
 			accessor.setFieldValue(`teamNumber${n+1}` as keyof DtfHomeType.All, BlueList[n])
 			}
@@ -91,8 +95,8 @@ function DTFHome(props: Props): React.ReactElement {
 	}
 
 
-	async function AllianceUpdateRed() {
-		if (accessor.getFieldValue('elimsAlliance2') == "")
+	function AllianceUpdateRed(): void {
+		if (accessor.getFieldValue('elimsAlliance2') === "")
 		{
 			for (let l = 0; l < 3; l++) {
 			 	accessor.setFieldValue(`teamNumber${l+4}` as keyof DtfHomeType.All, 0)
@@ -100,8 +104,11 @@ function DTFHome(props: Props): React.ReactElement {
 		}
 		else {
 		
-		let TempListRed = fromEliminationAllianceNumbers();
-		let RedList = TempListRed.red;
+		const TempListRed = fromEliminationAllianceNumbers();
+		if (!TempListRed){
+			return ;
+		}
+		const RedList = TempListRed.red;
 			for (let i = 0; i < 3; i++){
 			accessor.setFieldValue(`teamNumber${i+4}` as keyof DtfHomeType.All, RedList[i])
 			}
@@ -171,7 +178,7 @@ function DTFHome(props: Props): React.ReactElement {
 
 						for(let i = 1; i <= Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
 							const number = event[`teamNumber${i}` as keyof All] || undefined;
-							teamNumbers.push(number);
+							teamNumbers.push(number as number | undefined);
 						}
 
 						window.location.href = "#dtf/" + teamNumbers.join(",");
