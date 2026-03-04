@@ -43,7 +43,7 @@ const formDefaultValues: AllianceZoneTypes.Alliance = {
 	"comments": "",
 	"red_alliance": "",
 	"blue_alliance": "",
-	
+
 	"team1Value": "best",  // default selected radio
 	"team2Value": "best",
 	"team3Value": "best",
@@ -148,7 +148,7 @@ function AllianceZone(props: Props): React.ReactElement {
 		const scouter_initials = accessor.getFieldValue('scouter_initials');
 		const match_number = accessor.getFieldValue('match_number');
 		const comp_level = accessor.getFieldValue('comp_level');
-		
+
 		const robot_alliance = accessor.getFieldValue('robot_alliance');
 
 		accessor.resetFields();
@@ -182,7 +182,7 @@ function AllianceZone(props: Props): React.ReactElement {
 
 
 	function setNewAllianceZone(event: AllianceZoneTypes.Alliance): void {
-				
+
 		const body: AllianceZoneTypes.SubmitBody = {
 			"event_key": eventKey,
 			"team_number1": teamsInMatch ? teamsInMatch[event.robot_alliance][0] : 0,
@@ -412,7 +412,7 @@ function AllianceZone(props: Props): React.ReactElement {
 					{/* {`team_${i}`} */}
 
 				</div>
-				
+
 
 				<TextArea<FieldType>
 					title="Comments"
@@ -436,7 +436,7 @@ function AllianceZone(props: Props): React.ReactElement {
 	}
 
 
-	
+
 	const items = [
 		{
 			key: '1',
@@ -451,7 +451,7 @@ function AllianceZone(props: Props): React.ReactElement {
 	];
 
 
-	
+
 
 	return (
 		<>
