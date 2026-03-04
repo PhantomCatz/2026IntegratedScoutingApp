@@ -634,7 +634,10 @@ function DTFTeams(props: Props): React.ReactElement {
 					}
 
 					const team = persistentData[teamNumber];
-					console.log(`team=`, team);
+					
+					if(!team) {
+						continue;
+					}
 
 					assertNonNull(team);
 
