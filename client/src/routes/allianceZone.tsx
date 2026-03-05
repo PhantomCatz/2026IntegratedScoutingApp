@@ -387,9 +387,13 @@ function AllianceZone(props: Props): React.ReactElement {
 
 		return (
 			<div>
-				{prevComments}
 
 				<div className="fuelScoreSection">
+
+					<div className="allianceZoneHeader">
+						<span>Teams:</span>
+						<span>Fuel Score Performance:</span>
+					</div>
 
 					<div className="fuelHeader">
 						<span></span>
