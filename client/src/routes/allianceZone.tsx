@@ -154,11 +154,11 @@ function AllianceZone(props: Props): React.ReactElement {
 
 		accessor.setFieldValue('scouter_initials', scouter_initials);
 		accessor.setFieldValue('comp_level', comp_level);
-		accessor.setFieldValue("match_number", match_number + 1);
+		accessor.setFieldValue('match_number', match_number + 1);
 		accessor.setFieldValue('robot_alliance', robot_alliance);
-		accessor.setFieldValue('team1Value', "best");
-		accessor.setFieldValue('team2Value', "best");
-		accessor.setFieldValue('team3Value', "best");
+		accessor.setFieldValue('team1Value', formDefaultValues.team1Value);
+		accessor.setFieldValue('team2Value', formDefaultValues.team2Value);
+		accessor.setFieldValue('team3Value', formDefaultValues.team3Value);
 
 		calculateMatchLevel();
 		await updateTeamsInMatch();
