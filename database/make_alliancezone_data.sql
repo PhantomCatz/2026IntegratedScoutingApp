@@ -1,4 +1,4 @@
-USE frcdb;
+USE testdb;
 
 DROP TABLE IF EXISTS alliance_zone_data;
 
