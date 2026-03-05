@@ -195,6 +195,7 @@ function DTFHome(props: Props): React.ReactElement {
 						name={"qualMatch"}
 						message={"Enter the Qual Match Number"}
 						onChange={updateNumbers}
+						required = {false}
 					/>
 
 					<NumberInput<FieldType>
