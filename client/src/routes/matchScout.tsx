@@ -169,7 +169,7 @@ function MatchScout(props: Props): React.ReactElement {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			fetchLink += "reqType=getTeamPit";
+			fetchLink += "reqType=getTeamPitData";
 
 			const res = await fetch(fetchLink + `&team=${team_number}`);
 			const data = await res.json() as Database.PitDataEntry[];
@@ -545,13 +545,14 @@ function MatchScout(props: Props): React.ReactElement {
 
 		return (
 			<div style={{ alignContent: 'center' }}>
-
+				<div className="fuel-button">
 				<NumberInput<FieldType>
 					title={"Fuel Scored"}
 					buttons={false}
 					value={auton_fuel_number}
 					disabled
 				/>
+			 </div>
 
 				<button
 				className={"plusButton"}
