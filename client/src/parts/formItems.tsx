@@ -22,6 +22,7 @@ type InputType<FieldType> = Disableable<{
 	required?: boolean,
 	message?: string,
 	onChange?: (val: string) => void,
+	onBlur?: (val: string) => void,
 	onInput?: React.InputEventHandler,
 	align?: AlignOptions,
 	shown?: boolean,
@@ -167,6 +168,7 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 	}
 	const message = props.message ?? "";
 	const onChange = props.onChange ?? (() => {});
+	const onBlur = props.onBlur ?? (() => {});
 	const align = props.align ?? "center";
 	const pattern = props.pattern;
 	const disabled = props.disabled;
@@ -182,6 +184,15 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 		const newVal = target.value;
 
 		onChange(newVal);
+	}
+	function handleBlur(e: React.ChangeEvent): void {
+		const target = e.target;
+
+		assertInstanceOf(target, HTMLInputElement);
+
+		const newVal = target.value;
+
+		onBlur(newVal);
 	}
 
 	return (
@@ -208,6 +219,7 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 					type="text"
 					pattern={pattern}
 					onChange={handleChange}
+					onBlur={handleBlur}
 					required={required}
 					disabled={disabled}
 					defaultValue={defaultValue}
