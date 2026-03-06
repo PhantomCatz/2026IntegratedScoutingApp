@@ -278,7 +278,7 @@ function createChart(canvas: HTMLCanvasElement,
 	}
 
 	new Chart(canvas, {
-		type: 'line',
+		type: 'bar',
 		data: {
 			labels: matchNumbers,
 			datasets: [...values, ...averages, ]

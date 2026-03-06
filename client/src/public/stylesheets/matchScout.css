@@ -32,6 +32,12 @@ match-scout {
 		border-radius: 1rem;
 		margin: 0% auto auto;
 	}
+
+	.plusButton:active {
+  	filter: brightness(0.9);
+  	transform: scale(0.98);
+	}
+
 	.minusButton{
 		width: 100%;
 		height: 4.5rem;
@@ -42,6 +48,12 @@ match-scout {
 		border-radius: 1rem;
 		margin: 2% auto auto;
 	}
+
+	.minusButton:active {
+  	filter: brightness(0.9);
+  	transform: scale(0.99);
+	}
+
 	.overrideOptions {
 		border: 2px solid var(--font-color);
 		border-radius: 1rem;

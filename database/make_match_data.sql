@@ -1,4 +1,6 @@
-USE frcdb;
+USE testdb;
+
+DROP TABLE IF EXISTS match_data;
 
 CREATE TABLE match_data(
     id                           INT NOT NULL AUTO_INCREMENT,
