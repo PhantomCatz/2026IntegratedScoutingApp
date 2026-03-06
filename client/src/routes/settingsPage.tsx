@@ -125,8 +125,8 @@ function SettingsPage(props: Props): React.ReactElement {
 					title="Event Key"
 					name="event_key"
 					pattern="^\d{4}[a-z]+$"
-					onChange={(value) => {
-						if(!eventKey || !/^\d{4}[a-z]+$/.test(eventKey)) {
+					onBlur={(value) => {
+						if(!value || !/^\d{4}[a-z]+$/.test(value)) {
 							window.alert("Please input a valid event code!");
 							return;
 						}
