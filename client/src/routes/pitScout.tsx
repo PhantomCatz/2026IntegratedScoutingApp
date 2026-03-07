@@ -48,7 +48,6 @@ function PitScout(props: Props): React.ReactElement {
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 	const [isLoading, setLoading] = useState(false);
 	const [qrValue, setQrValue] = useState<unknown>();
-	const [robotImageURI, setRobotImageURI] = useState<string[]>([]);
 	const robotImageInput = useRef<HTMLInputElement>(null);
 	const [refresh, setRefresh] = useState(false);
 
@@ -197,6 +196,7 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "Pneumatic", value: "Pneumatic" },
 			{ label: "Omni", value: "Omni" },
 			{ label: "Mechanum", value: "Mechanum" },
+			{ label: "HiGrip", value: "HiGrip" },
 			{ label: "Other", value: "Other" },
 		];
 		const fuel_intake_location_options = [
@@ -215,34 +215,6 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "75", value: "75" },
 			{ label: "50", value: "50" },
 			{ label: "25", value: "25" },
-		];
-		const algae_intake_capability_options = [
-			{ label: "Reef Zone", value: "Reef Zone" },
-			{ label: "Ground", value: "Ground" },
-			{ label: "Both", value: "Both" },
-			{ label: "Neither", value: "Neither" },
-		];
-		const algae_scoring_capability_options = [
-			{ label: "Net", value: "Net" },
-			{ label: "Processor", value: "Processor" },
-			{ label: "Both", value: "Both" },
-			{ label: "Neither", value: "Neither" },
-		];
-		const score_aiming_coral_options = [
-			{ label: "Manual", value: "Manual" },
-			{ label: "Auto", value: "Auto" },
-			{ label: "Neither", value: "Neither" },
-		];
-		const score_aiming_algae_options = [
-			{ label: "Manual", value: "Manual" },
-			{ label: "Auto", value: "Auto" },
-			{ label: "Neither", value: "Neither" },
-		];
-		const climbing_capability_options = [
-			{ label: "Shallow", value: "Shallow" },
-			{ label: "Deep", value: "Deep" },
-			{ label: "Both", value: "Both" },
-			{ label: "Neither", value: "Neither" },
 		];
 		const max_shot_range_options = [
 			{ label: "Opponent Alliance Zone", value: "Opponent Alliance Zone" },
@@ -340,9 +312,9 @@ function PitScout(props: Props): React.ReactElement {
 					options={max_shot_range_options}
 				/>
 				<Checkbox<FieldType>
-                    name="auto_aim"
-                    title="Auto Aim"
-                />
+					name="auto_aim"
+					title="Auto Aim"
+				/>
 				<Checkbox<FieldType>
 					name="trench_capability"
 					title="Trench Capability"
@@ -439,12 +411,17 @@ function PitScout(props: Props): React.ReactElement {
 
 							let parsedFiles: string[] = [];
 
-							if(robotImageInput.current && robotImageInput.current.files) {
-								const fileList: FileList = robotImageInput.current.files;
+							if(robotImageInput.current?.files) {
+								try {
+									const fileList: FileList = robotImageInput.current.files;
 
-								parsedFiles = await Promise.all(fileList[Symbol.iterator]().map(readImage));
-
-								robotImageInput.current.value = "";
+									parsedFiles = await Promise.all(fileList[Symbol.iterator]().map(readImage));
+								} catch (err) {
+									window.alert(`Could not send files qaq ${err}`);
+								}
+								try {
+									robotImageInput.current.value = "";
+								} catch (_) { /* empty */ }
 							}
 
 							submitData(event, parsedFiles);
