@@ -203,6 +203,7 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "Ground", value: "Ground" },
 			{ label: "Outpost", value: "Outpost" },
 			{ label: "Both", value: "Both" },
+			{ label: "None", value: "None" },
 		];
 		const intake_type_options = [
 			{ label: "Over Bumper", value: "Over Bumper" },
@@ -215,6 +216,7 @@ function PitScout(props: Props): React.ReactElement {
 			{ label: "75", value: "75" },
 			{ label: "50", value: "50" },
 			{ label: "25", value: "25" },
+			{ label: "None", value: "None" },
 		];
 		const max_shot_range_options = [
 			{ label: "Opponent Alliance Zone", value: "Opponent Alliance Zone" },
