@@ -96,7 +96,7 @@ type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
 	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void,
 	setFormValues(values: Partial<FieldType>): void,
-	
+
 	resetFields(): void,
 };
 
@@ -650,9 +650,8 @@ function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
 		case "SELECT":
 			assertInstanceOf(element, HTMLSelectElement);
 			if(element.multiple) {
-				for (let i = 0; i < element.options.length; i++) {
-
-					element.options[i].selected = (newValue as unknown[]).indexOf(element.options[i].value) >= 0;
+				for (const option of element) {
+					option.selected = (newValue as unknown[]).indexOf(option.value) >= 0;
 				}
 			} else {
 				assertString(newValue);
