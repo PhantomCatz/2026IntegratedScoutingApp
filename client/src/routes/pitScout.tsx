@@ -236,81 +236,81 @@ function PitScout(props: Props): React.ReactElement {
 				/>
 
 				<NumberInput<FieldType>
-					title={"Team #"}
-					name={"team_number"}
-					message={"Please input the team number"}
+					title="Team #"
+					name="team_number"
+					message="Please input the team number"
 					min={1}
 					max={99999}
 					buttons={false}
-					align={"left"}
+					align="left"
 				/>
 
 				<NumberInput<FieldType>
-					title={"Robot Weight (lbs)"}
-					name={"robot_weight"}
-					message={"Please input the robot weight in lbs"}
+					title="Robot Weight (lbs)"
+					name="robot_weight"
+					message="Please input the robot weight in lbs"
 					min={0}
 					max={1000}
-					align={"left"}
+					align="left"
 				/>
 
 				<Select<FieldType>
-					title={"Drive Train Type"}
-					name={"drive_train_type"}
-					message={"Please input the drive train type"}
+					title="Drive Train Type"
+					name="drive_train_type"
+					message="Please input the drive train type"
 					options={drive_train_options}
 				/>
 				<Select<FieldType>
-					title={"Driving Motor Type"}
-					name={"driving_motor_type"}
-					message={"Please input the driving motor type"}
+					title="Driving Motor Type"
+					name="driving_motor_type"
+					message="Please input the driving motor type"
 					options={driving_motor_type_options}
 				/>
 				<NumberInput<FieldType>
-					title={"# of Driving Motors"}
-					name={"number_of_driving_motors"}
-					message={"Please input the number of driving motors"}
+					title="# of Driving Motors"
+					name="number_of_driving_motors"
+					message="Please input the number of driving motors"
 					min={0}
-					align={"left"}
+					align="left"
 				/>
 				<Select<FieldType>
-					title={"Wheel Type"}
-					name={"wheel_type"}
-					message={"Please input the wheel type"}
+					title="Wheel Type"
+					name="wheel_type"
+					message="Please input the wheel type"
 					options={wheel_type_options}
 				/>
 				<Select<FieldType>
-					title={"Fuel Intake Location"}
-					name={"fuel_intake_location"}
-					message={"Please input the fuel intake location"}
+					title="Fuel Intake Location"
+					name="fuel_intake_location"
+					message="Please input the fuel intake location"
 					options={fuel_intake_location_options}
 				/>
 				<Select<FieldType>
-					title={"Intake Type"}
-					name={"intake_type"}
-					message={"Please input the intake type"}
+					title="Intake Type"
+					name="intake_type"
+					message="Please input the intake type"
 					options={intake_type_options}
 					multiple
 				/>
 				<Select<FieldType>
-					title={"Intake Width"}
-					name={"intake_width"}
-					message={"Please input the intake width"}
+					title="Intake Width"
+					name="intake_width"
+					message="Please input the intake width"
 					options={intake_width_options}
 				/>
 				<NumberInput<FieldType>
-					title={"Max Fuel Capacity"}
-					name={"max_fuel_capacity"}
-					message={"Please input the fuel capacity"}
+					title="Max Fuel Capacity"
+					name="max_fuel_capacity"
+					message="Please input the fuel capacity"
 					min={0}
 					max={99999}
 					buttons={false}
-					align={"left"}
+					align="left"
 				/>
 				<Select<FieldType>
-					title={"Max Shot Range"}
-					name={"max_shot_range"}
-					message={"Please input the max shot range"}
+					title="Max Shot Range"
+					name="max_shot_range"
+					message="Please input the max shot range"
 					options={max_shot_range_options}
 				/>
 				<Checkbox<FieldType>
@@ -340,39 +340,39 @@ function PitScout(props: Props): React.ReactElement {
 					name="can_climb_l3"
 				/>
 				<NumberInput<FieldType>
-					title={"Pit Organization(0-4)"}
-					name={"pit_organization"}
-					message={"Please input pit organization rating"}
+					title="Pit Organization(0-4)"
+					name="pit_organization"
+					message="Please input pit organization rating"
 					min={0}
 					max={4}
-					align={"left"}
+					align="left"
 				/>
 
 				<NumberInput<FieldType>
-					title={"Team Safety(0-4)"}
-					name={"team_safety"}
-					message={"Please input team safety rating"}
+					title="Team Safety(0-4)"
+					name="team_safety"
+					message="Please input team safety rating"
 					min={0}
 					max={4}
-					align={"left"}
+					align="left"
 				/>
 
 				<NumberInput<FieldType>
-					title={"Team Workmanship(0-4)"}
-					name={"team_workmanship"}
-					message={"Please input team workmanship rating"}
+					title="Team Workmanship(0-4)"
+					name="team_workmanship"
+					message="Please input team workmanship rating"
 					min={0}
 					max={4}
-					align={"left"}
+					align="left"
 				/>
 
 				<NumberInput<FieldType>
-					title={"Gracious Professionalism(0-4)"}
-					name={"gracious_professionalism"}
-					message={"Please input GP rating"}
+					title="Gracious Professionalism(0-4)"
+					name="gracious_professionalism"
+					message="Please input GP rating"
 					min={0}
 					max={4}
-					align={"left"}
+					align="left"
 				/>
 
 				<TextArea<FieldType>
@@ -398,7 +398,7 @@ function PitScout(props: Props): React.ReactElement {
 	}
 	return (
 		<>
-			<Header name={"Pit Scout"} back={"#scoutingapp"}/>
+			<Header name="Pit Scout" back="#scoutingapp"/>
 
 			<pit-scout>
 				<Form<PitScoutTypes.Pit>

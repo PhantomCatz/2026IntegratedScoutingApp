@@ -10,9 +10,5 @@ export type All = {
 	elimsAlliance2: string;
 };
 export type ElimsAlliance = `${number}` | "";
-export type Props = {
-	title: string;
-};
 
- 
 export type PossibleNumbers = 1 | 2 | 3 | 4 | 5 | 6;

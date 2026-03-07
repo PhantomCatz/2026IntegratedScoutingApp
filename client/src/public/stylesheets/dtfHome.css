@@ -15,31 +15,19 @@ dtf-home {
 		border-radius: 1rem;
 		font-size: 1.5rem;
 	}
-	
 	.clear {
 		margin-top: 3rem;
 		display: block;
-		width: 100%;
-		background-color: var(--background-color);
-		height: 3rem;
-		border: 2px solid var(--font-color);
-		border-radius: 1rem;
-		font-size: 1.5rem;
 	}
-
-
-
-
-
-.tabButton, .submitButton, .clear {
-	width: 50%;
-	height: auto;
-	border: 2px solid var(--font-color) !important;
-	border-radius: 10px;
-	background-color: var(--background-color);
-	font-size: 2rem !important;
-	color: var(--font-color) !important;
-	text-align: center !important;
-	margin-top: 1%;
-}
+	.tabButton, .submitButton, .clear {
+		width: 50%;
+		height: auto;
+		border: 2px solid var(--font-color) !important;
+		border-radius: 10px;
+		background-color: var(--background-color);
+		font-size: 2rem !important;
+		color: var(--font-color) !important;
+		text-align: center !important;
+		margin-top: 1%;
+	}
 }

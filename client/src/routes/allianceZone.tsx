@@ -1,38 +1,20 @@
 import '../public/stylesheets/style.css';
 import '../public/stylesheets/strategicScout.css';
-
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'react-use';
-import Table from '../parts/table';
-
 import { Tabs } from '../parts/tabs.tsx';
 import Header from '../parts/header.tsx';
 import QrCode from '../parts/qrCodeViewer.tsx';
-
-import {
-	isInPlayoffs,
-	getTeamsInMatch,
-	getAllianceTags,
-	parseRobotPosition,
-	getRobotAllianceOptions
-} from '../utils/tbaRequest.ts';
-
+import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getRobotAllianceOptions } from '../utils/tbaRequest.ts';
 import { escapeUnicode } from '../utils/utils.ts';
 import { getFieldAccessor } from '../parts/formItems.tsx';
 
-import Form, {
-	NumberInput,
-	Select,
-	Input,
-	TextArea,
-	Radio
-} from '../parts/formItems.tsx';
+import Form, { NumberInput, Select, Input, TextArea, Radio } from '../parts/formItems.tsx';
 
 import Constants from '../utils/constants.ts';
 
 import type * as TbaApi from '../types/tbaApi.ts';
 import type * as AllianceZoneTypes from '../types/allianceZone.ts';
-import type * as Database from '../types/database.ts';
 import type * as ResultTypes from '../types/resultTypes.ts';
 
 const formDefaultValues: AllianceZoneTypes.Alliance = {
@@ -43,7 +25,6 @@ const formDefaultValues: AllianceZoneTypes.Alliance = {
 	"comments": "",
 	"red_alliance": "",
 	"blue_alliance": "",
-
 	"team1Value": "best",  // default selected radio
 	"team2Value": "best",
 	"team3Value": "best",
@@ -55,14 +36,9 @@ type Props = {
 };
 
 function AllianceZone(props: Props): React.ReactElement {
-
 	const [tabNum, setTabNum] = useState("1");
-	const [team_number1, setTeamNumber1] = useState(0);
-	const [team_number2, setTeamNumber2] = useState(0);
-	const [team_number3, setTeamNumber3] = useState(0);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
-	const [teamData, setTeamData] = useState<Database.StrategicEntry[] | null>(null);
 	const [inPlayoffs, setInPlayoffs] = useState(false);
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 
@@ -77,10 +53,8 @@ function AllianceZone(props: Props): React.ReactElement {
 		document.title = props.title;
 	}, [props.title]);
 
-
 	async function updateTeamsInMatch(): Promise<void> {
 		try {
-
 			const compLevel = accessor.getFieldValue('comp_level');
 			const matchNumber = accessor.getFieldValue('match_number');
 			const blueAllianceNumber = Number(accessor.getFieldValue('blue_alliance'));
@@ -90,14 +64,13 @@ function AllianceZone(props: Props): React.ReactElement {
 				return;
 			}
 
-			const teamsInMatch =
-				await getTeamsInMatch(
-					eventKey,
-					compLevel,
-					matchNumber,
-					blueAllianceNumber,
-					redAllianceNumber
-				);
+			const teamsInMatch = await getTeamsInMatch(
+				eventKey,
+				compLevel,
+				matchNumber,
+				blueAllianceNumber,
+				redAllianceNumber
+			);
 
 			if (!teamsInMatch) {
 				console.error("Failed to get teams playing: teams is empty");
@@ -105,34 +78,10 @@ function AllianceZone(props: Props): React.ReactElement {
 			}
 
 			setTeamsInMatch(teamsInMatch);
-			console.log(teamsInMatch)
-
-			updateTeamNumber(teamsInMatch);
-
 		} catch (err) {
 			console.error("Failed to request TBA data when updating team number", err);
 		}
 	}
-
-
-	function updateTeamNumber(teamsInMatch: ResultTypes.TeamsInMatch | null): void {
-		if(!teamsInMatch) {
-			return;
-		}
-		const robotAlliance = accessor.getFieldValue('robot_alliance');
-
-		const teamNumber1 = teamsInMatch[robotAlliance][0];
-		const teamNumber2 = teamsInMatch[robotAlliance][1];
-		const teamNumber3 = teamsInMatch[robotAlliance][2];
-
-		console.log(teamNumber1)
-		setTeamNumber1(teamNumber1);
-		setTeamNumber2(teamNumber2);
-		setTeamNumber3(teamNumber3);
-
-
-	}
-
 
 	function calculateMatchLevel(): void {
 		const matchLevel = accessor.getFieldValue('comp_level');
@@ -140,9 +89,7 @@ function AllianceZone(props: Props): React.ReactElement {
 		setInPlayoffs(inPlayoffs);
 	}
 
-
 	async function trySubmit(event: AllianceZoneTypes.Alliance): Promise<void> {
-
 		setNewAllianceZone(event);
 
 		const scouter_initials = accessor.getFieldValue('scouter_initials');
@@ -164,7 +111,6 @@ function AllianceZone(props: Props): React.ReactElement {
 		await updateTeamsInMatch();
 	}
 
-
 	async function runFormFinish(event: AllianceZoneTypes.Alliance): Promise<void> {
 		try {
 			await trySubmit(event);
@@ -174,21 +120,17 @@ function AllianceZone(props: Props): React.ReactElement {
 		}
 	}
 
-
 	async function updateNumbers(): Promise<void> {
 		calculateMatchLevel();
 		await updateTeamsInMatch();
 
 	}
 
-
-
 	function setNewAllianceZone(event: AllianceZoneTypes.Alliance): void {
-
 		const body: AllianceZoneTypes.SubmitBody = {
 			"event_key": eventKey,
 			"team_number1": teamsInMatch ? teamsInMatch[event.robot_alliance][0] : 0,
-			"team_number2": teamsInMatch ? teamsInMatch[event.robot_alliance][1] : 0,
+			"team_number2": teamsInMatch ? teamsInMatch[event.robot_alliance][1] : 0, // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 			"team_number3": teamsInMatch ? teamsInMatch[event.robot_alliance][2] : 0,
 			"scouter_initials": event.scouter_initials.toLowerCase(),
 			"comp_level": event.comp_level,
@@ -197,14 +139,13 @@ function AllianceZone(props: Props): React.ReactElement {
 			"blue_alliance": event.blue_alliance,
 			"red_alliance": event.red_alliance,
 			"comments": event.comments,
-			"team1Value": accessor.getFieldValue("team1Value"), // include selected radio
-			"team2Value": accessor.getFieldValue("team2Value"),
-			"team3Value": accessor.getFieldValue("team3Value"),
-					};
+			"team1Value": event.team1Value,
+			"team2Value": event.team2Value,
+			"team3Value": event.team3Value,
+		};
 
 		Object.entries(body)
 			.forEach((entry) => {
-
 				const [field, value] = entry;
 
 				const newVal =
@@ -216,7 +157,6 @@ function AllianceZone(props: Props): React.ReactElement {
 
 				body[access] = newVal as unknown as never;
 			});
-
 
 		void tryFetch(body)
 			.then((successful) => {
@@ -230,9 +170,7 @@ function AllianceZone(props: Props): React.ReactElement {
 		setQrValue(body);
 	}
 
-
 	async function tryFetch(body: AllianceZoneTypes.SubmitBody): Promise<boolean> {
-
 		let fetchLink = Constants.SERVER_ADDRESS;
 
 		if (!fetchLink) {
@@ -247,7 +185,6 @@ function AllianceZone(props: Props): React.ReactElement {
 		};
 
 		try {
-
 			const res = await fetch(fetchLink, {
 				method: "POST",
 				body: JSON.stringify(submitBody),
@@ -257,16 +194,12 @@ function AllianceZone(props: Props): React.ReactElement {
 			});
 
 			return res.ok;
-
 		} catch (_) {
 			return false;
 		}
 	}
 
-
-
 	function preMatch(): React.ReactElement {
-
 		type FieldType = AllianceZoneTypes.Pre;
 
 		const compLevelOptions: { label: string, value: TbaApi.Comp_Level }[] = [
@@ -276,12 +209,10 @@ function AllianceZone(props: Props): React.ReactElement {
 		];
 
 		const robot_alliance = getRobotAllianceOptions(teamsInMatch);
-		console.log(robot_alliance)
 		const playoff_alliances = getAllianceTags(eventKey);
 
 		return (
 			<>
-
 				<Input<FieldType>
 					name="scouter_initials"
 					title="Scouter Initials"
@@ -292,49 +223,48 @@ function AllianceZone(props: Props): React.ReactElement {
 				/>
 
 				<Select<FieldType>
-					title={"Match Level"}
-					name={"comp_level"}
+					title="Match Level"
+					name="comp_level"
 					options={compLevelOptions}
 					onChange={updateNumbers}
 				/>
 
 				<div
-					className={"playoff-alliances"}
 					style={{ display: inPlayoffs ? 'inherit' : 'none' }}
 				>
 					<Select<FieldType>
-						title={"Blue Alliance"}
-						name={"blue_alliance"}
+						title="Blue Alliance"
+						name="blue_alliance"
 						required={inPlayoffs}
-						message={"Enter the blue alliance"}
+						message="Enter the blue alliance"
 						options={playoff_alliances}
 						onChange={updateNumbers}
 					/>
 
 					<Select<FieldType>
-						title={"Red Alliance"}
-						name={"red_alliance"}
+						title="Red Alliance"
+						name="red_alliance"
 						required={inPlayoffs}
-						message={"Enter the red alliance"}
+						message="Enter the red alliance"
 						options={playoff_alliances}
 						onChange={updateNumbers}
 					/>
 				</div>
 
 				<NumberInput<FieldType>
-					title={"Match #"}
-					name={"match_number"}
-					message={"Enter match #"}
+					title="Match #"
+					name="match_number"
+					message="Enter match #"
 					onChange={updateNumbers}
 					min={1}
 					buttons={false}
-					align={"left"}
+					align="left"
 				/>
 
 				<Select<FieldType>
-					title={"Robot Alliance"}
-					name={"robot_alliance"}
-					message={"Please input the robot alliance"}
+					title="Robot Alliance"
+					name="robot_alliance"
+					message="Please input the robot alliance"
 					options={robot_alliance}
 				/>
 
@@ -349,49 +279,12 @@ function AllianceZone(props: Props): React.ReactElement {
 		);
 	}
 
-
 	function allianceZone(): React.ReactElement {
-
-		let prevComments;
 		type FieldType = AllianceZoneTypes.AllianceZone;
-
-		if (teamData) {
-
-			const columns = {
-				"": {
-					"Scouter Initials": 'scouter_initials',
-					"Match #": 'match_number',
-				},
-			};
-
-			const dataSource = [];
-
-			for (const match of teamData) {
-				dataSource.push({
-					"key": `${match.id}`,
-					"scouter_initials": `Scouter Initials: ${match.scouter_initials}`,
-					"match_number": match.match_number,
-					"comment": match.comments,
-				});
-			}
-
-			prevComments =
-				<Table
-					columns={columns}
-					data={dataSource}
-					getKey={(row) => row.key as unknown as string}
-				>
-				</Table>;
-
-		} else {
-			prevComments = <p>This team has not been scouted yet.</p>;
-		}
 
 		return (
 			<div>
-
 				<div className="fuelScoreSection">
-
 					<div className="allianceZoneHeader">
 						<span>Teams:</span>
 						<span>Fuel Score Performance:</span>
@@ -404,6 +297,7 @@ function AllianceZone(props: Props): React.ReactElement {
 						<span>Worst</span>
 					</div>
 
+					{ /* eslint-disable-next-line @typescript-eslint/no-magic-numbers */ }
 					{[1, 2, 3].map((i) => (
 						<div className="fuelRow" key={i}>
 							<div className="teamNumber">
@@ -415,10 +309,7 @@ function AllianceZone(props: Props): React.ReactElement {
 							<Radio<FieldType> title={"worst"} name={`team${i}Value`as keyof AllianceZoneTypes.AllianceZone } value="worst" />
 						</div>
 					))}
-					{/* {`team_${i}`} */}
-
 				</div>
-
 
 				<TextArea<FieldType>
 					title="Comments"
@@ -441,8 +332,6 @@ function AllianceZone(props: Props): React.ReactElement {
 		);
 	}
 
-
-
 	const items = [
 		{
 			key: '1',
@@ -455,9 +344,6 @@ function AllianceZone(props: Props): React.ReactElement {
 			children: allianceZone(),
 		},
 	];
-
-
-
 
 	return (
 		<>
