@@ -88,8 +88,8 @@ function maximumOfMap(map: Map<string, number>, ordering?: { [key: string]: numb
 
 	if(ordering) {
 		maxKeys.sort((a, b) => {
-			const o1 = ordering[a];
-			const o2 = ordering[b];
+			const o1 = ordering[a] ?? -1;
+			const o2 = ordering[b] ?? -1;
 
 			Assertions.assertNumber(o1);
 			Assertions.assertNumber(o2);
