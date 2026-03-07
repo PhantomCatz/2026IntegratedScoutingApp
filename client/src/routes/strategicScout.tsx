@@ -249,46 +249,46 @@ function StrategicScout(props: Props): React.ReactElement {
 				/>
 
 				<Select<FieldType>
-					title={"Match Level"}
-					name={"comp_level"}
+					title="Match Level"
+					name="comp_level"
 					options={compLevelOptions}
 					onChange={updateNumbers}
 				/>
 
-				<div className={"playoff-alliances"} style={{ display: inPlayoffs ? 'inherit' : 'none' }}>
+				<div style={{ display: inPlayoffs ? 'inherit' : 'none' }}>
 					<Select<FieldType>
-						title={"Blue Alliance"}
-						name={"blue_alliance"}
+						title="Blue Alliance"
+						name="blue_alliance"
 						required={inPlayoffs}
-						message={"Enter the blue alliance"}
+						message="Enter the blue alliance"
 						options={playoff_alliances}
 						onChange={updateNumbers}
 					/>
 
 					<Select<FieldType>
-						title={"Red Alliance"}
-						name={"red_alliance"}
+						title="Red Alliance"
+						name="red_alliance"
 						required={inPlayoffs}
-						message={"Enter the red alliance"}
+						message="Enter the red alliance"
 						options={playoff_alliances}
 						onChange={updateNumbers}
 					/>
 				</div>
 
 				<NumberInput<FieldType>
-					title={"Match #"}
-					name={"match_number"}
-					message={"Enter match #"}
+					title="Match #"
+					name="match_number"
+					message="Enter match #"
 					onChange={updateNumbers}
 					min={1}
 					buttons={false}
-					align={"left"}
+					align="left"
 				/>
 
 				<Select<FieldType>
-					title={"Robot Position"}
-					name={"robot_position"}
-					message={"Please input the robot position"}
+					title="Robot Position"
+					name="robot_position"
+					message="Please input the robot position"
 					options={robot_position}
 					onChange={() => { updateTeamNumber(teamsInMatch); }}
 				/>
@@ -367,7 +367,7 @@ function StrategicScout(props: Props): React.ReactElement {
 
 	return (
 		<>
-			<Header name={"Strategic Scout"} back="#scoutingapp/" />
+			<Header name="Strategic Scout" back="#scoutingapp/" />
 
 			<strategic-scout>
 				<Form<StrategicScoutTypes.All>

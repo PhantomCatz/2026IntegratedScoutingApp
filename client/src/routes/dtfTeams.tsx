@@ -634,7 +634,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					}
 
 					const team = persistentData[teamNumber];
-					
+
 					if(!team) {
 						continue;
 					}

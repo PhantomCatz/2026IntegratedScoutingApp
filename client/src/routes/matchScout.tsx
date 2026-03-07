@@ -186,7 +186,6 @@ function MatchScout(props: Props): React.ReactElement {
 			return;
 		}
 
-		// TODO: write SubmitBody
 		const body: MatchScoutTypes.SubmitBody = {
 			// Pre-match
 			"event_key": eventKey,
@@ -440,46 +439,46 @@ function MatchScout(props: Props): React.ReactElement {
 				/>
 
 				<Select<FieldType>
-					title={"Match Level"}
-					name={"comp_level"}
+					title="Match Level"
+					name="comp_level"
 					options={compLevelOptions}
 					onChange={updateNumbers}
 				/>
 
-				<div className={"playoff-alliances"} style={{ display: inPlayoffs ? 'inherit' : 'none' }}>
+				<div style={{ display: inPlayoffs ? 'inherit' : 'none' }}>
 					<Select<FieldType>
-						title={"Blue Alliance"}
-						name={"blue_alliance"}
+						title="Blue Alliance"
+						name="blue_alliance"
 						required={inPlayoffs}
-						message={"Enter the blue alliance"}
+						message="Enter the blue alliance"
 						options={playoff_alliances}
 						onChange={updateNumbers}
 					/>
 
 					<Select<FieldType>
-						title={"Red Alliance"}
-						name={"red_alliance"}
+						title="Red Alliance"
+						name="red_alliance"
 						required={inPlayoffs}
-						message={"Enter the red alliance"}
+						message="Enter the red alliance"
 						options={playoff_alliances}
 						onChange={updateNumbers}
 					/>
 				</div>
 
 				<NumberInput<FieldType>
-					title={"Match #"}
-					name={"match_number"}
-					message={"Please enter match #"}
+					title="Match #"
+					name="match_number"
+					message="Please enter match #"
 					onChange={updateNumbers}
 					min={1}
 					buttons={false}
-					align={"left"}
+					align="left"
 				/>
 
 				<Select<FieldType>
-					title={"Robot Position"}
-					name={"robot_position"}
-					message={"Enter robot position"}
+					title="Robot Position"
+					name="robot_position"
+					message="Enter robot position"
 					options={robot_position}
 					onChange={() => { updateTeamNumber(teamsInMatch); }}
 				/>
@@ -489,18 +488,18 @@ function MatchScout(props: Props): React.ReactElement {
 				<details className="overrideOptions">
 					<summary>Warning! These options should not be used normally!</summary>
 					<NumberInput<FieldType>
-						title={"Override Team"}
-						name={"team_override"}
+						title="Override Team"
+						name="team_override"
 						required={false}
 						onChange={setTeamNumber}
 						min={0}
 						buttons={false}
-						align={"left"}
+						align="left"
 					/>
 
 					<button
 						type="button"
-						className={"noShowButton"}
+						className="noShowButton"
 						onMouseDown={() => {
 							const confirmed = window.confirm("Are you sure that this robot did not appear?");
 
@@ -540,7 +539,7 @@ function MatchScout(props: Props): React.ReactElement {
 			<div style={{ alignContent: 'center' }}>
 				<div className="fuel-button">
 					<NumberInput<FieldType>
-						title={"Fuel Scored"}
+						title="Fuel Scored"
 						buttons={false}
 						value={auton_fuel_number}
 						disabled
@@ -548,7 +547,7 @@ function MatchScout(props: Props): React.ReactElement {
 				</div>
 
 				<button
-					className={"plusButton"}
+					className="plusButton"
 					type="button"
 					onClick={() => {
 						if (!accessor.getFieldValue('auton_1x_multiplier') && !accessor.getFieldValue('auton_2x_multiplier') && !accessor.getFieldValue('auton_5x_multiplier')) {
@@ -561,7 +560,7 @@ function MatchScout(props: Props): React.ReactElement {
 				>+{fuel_multiplier}</button>
 
 				<button
-					className={"minusButton"}
+					className="minusButton"
 					type="button"
 					onClick={() => {
 						let new_fuel_number = auton_fuel_number - fuel_multiplier;
@@ -576,42 +575,42 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<div className="inputRow multiplierButtons">
 					<Checkbox<FieldType>
-						name={"auton_1x_multiplier"}
-						title={""}
+						name="auton_1x_multiplier"
+						title=""
 						onChange={OneXMultiplier}
 					/>
 
 
 					<Checkbox<FieldType>
-						name={"auton_2x_multiplier"}
-						title={""}
+						name="auton_2x_multiplier"
+						title=""
 						onChange={TwoXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
-						name={"auton_5x_multiplier"}
-						title={""}
+						name="auton_5x_multiplier"
+						title=""
 						onChange={FiveXMultiplier}
 					/>
 				</div>
 
 				<Select<FieldType>
-					title={"Shoot Location"}
-					name={"auton_shoot_location"}
+					title="Shoot Location"
+					name="auton_shoot_location"
 					options={shootLocation}
 					multiple
 				/>
 
 				<Select<FieldType>
-					title={"Intake Location"}
-					name={"auton_intake_location"}
+					title="Intake Location"
+					name="auton_intake_location"
 					options={intakeLocation}
 					multiple
 				/>
 
 				<Checkbox<FieldType>
-					name={"auton_climb_attempted"}
-					title={"Climb Attempted"}
+					name="auton_climb_attempted"
+					title="Climb Attempted"
 					onChange={setAutonClimbAttempted}
 				/>
 
@@ -621,8 +620,8 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>
 					<Checkbox<FieldType>
-						name={"auton_climb_successful"}
-						title={"Climb Successful"}
+						name="auton_climb_successful"
+						title="Climb Successful"
 					/>
 				</div>
 			</div>
@@ -656,14 +655,14 @@ function MatchScout(props: Props): React.ReactElement {
 		return (
 			<div>
 				<NumberInput<FieldType>
-					title={"Fuel Scored"}
+					title="Fuel Scored"
 					buttons={false}
 					value={teleop_fuel_number}
 					disabled
 				/>
 
 				<button
-					className={"plusButton"}
+					className="plusButton"
 					type="button"
 					onClick={() => {
 						if (!accessor.getFieldValue('auton_1x_multiplier') && !accessor.getFieldValue('auton_2x_multiplier') && !accessor.getFieldValue('auton_5x_multiplier')) {
@@ -675,7 +674,7 @@ function MatchScout(props: Props): React.ReactElement {
 					}}>+{fuel_multiplier}</button>
 
 				<button
-					className={"minusButton"}
+					className="minusButton"
 					type="button"
 					onClick={() => {
 						let new_fuel_number = teleop_fuel_number - fuel_multiplier;
@@ -690,28 +689,28 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<div className="inputRow multiplierButtons">
 					<Checkbox<FieldType>
-						name={"teleop_1x_multiplier"}
-						title={""}
+						name="teleop_1x_multiplier"
+						title=""
 						onChange={OneXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
-						name={"teleop_2x_multiplier"}
-						title={""}
+						name="teleop_2x_multiplier"
+						title=""
 						onChange={TwoXMultiplier}
 					/>
 
 					<Checkbox<FieldType>
-						name={"teleop_5x_multiplier"}
-						title={""}
+						name="teleop_5x_multiplier"
+						title=""
 						onChange={FiveXMultiplier}
 					/>
 				</div>
 
 				<Select<FieldType>
-					title={"Fuel Hoarded Amount"}
-					name={"teleop_fuel_hoarded_amount"}
-					message={"Enter fuel hoarded amount"}
+					title="Fuel Hoarded Amount"
+					name="teleop_fuel_hoarded_amount"
+					message="Enter fuel hoarded amount"
 					options={teleop_fuel_hoarded_amount}
 					onChange={(value) => {
 						setPrimaryHoardTypeIsVisible(value !== "None")
@@ -724,9 +723,9 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>
 					<Select<FieldType>
-						title={"Primary Hoard Type"}
-						name={"teleop_primary_hoard_type"}
-						message={"Enter primary hoard type"}
+						title="Primary Hoard Type"
+						name="teleop_primary_hoard_type"
+						message="Enter primary hoard type"
 						options={teleop_primary_hoard_type}
 						required={primaryHoardTypeIsVisible}
 					/>
@@ -758,9 +757,9 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>
 					<Select<FieldType>
-						title={"Climb Level"}
-						name={"endgame_climb_level"}
-						message={"Enter climb level"}
+						title="Climb Level"
+						name="endgame_climb_level"
+						message="Enter climb level"
 						options={endgame_climb_level}
 						required={endgameClimbAttempted}
 					/>
@@ -812,10 +811,10 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>
 					<Select<FieldType>
-						title={"Defended"}
-						name={"overall_defended"}
+						title="Defended"
+						name="overall_defended"
 						required={defendedIsVisible}
-						message={"Please select the teams it defended"}
+						message="Please select the teams it defended"
 						options={opposingTeams}
 						multiple
 					/>
@@ -827,19 +826,19 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>
 					<Select<FieldType>
-						title={"Defended By"}
-						name={"overall_defended_by"}
+						title="Defended By"
+						name="overall_defended_by"
 						required={wasDefendedIsVisible}
-						message={"Please select the teams it was defended by"}
+						message="Please select the teams it was defended by"
 						options={opposingTeams}
 						multiple
 					/>
 				</div>
 
 				<Select<FieldType>
-					title={"Path to Neutral Zone"}
-					name={"overall_path_to_neutral_zone"}
-					message={"Enter path to neutral zone"}
+					title="Path to Neutral Zone"
+					name="overall_path_to_neutral_zone"
+					message="Enter path to neutral zone"
 					options={overall_path_to_neutral_zone}
 				/>
 
