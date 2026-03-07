@@ -61,9 +61,9 @@ function PitTabs(props: Props): TabItems {
 					<h2>Drive Train Type</h2>
 					<Input disabled defaultValue={pitInfo.drive_train_type} />
 					<h2>Propulsion Motor Type</h2>
-					<Input disabled defaultValue={pitInfo.propulsion_motor_type} />
+					<Input disabled defaultValue={pitInfo.driving_motor_type} />
 					<h2># of Propulsion Motors</h2>
-					<Input disabled defaultValue={pitInfo.number_of_propulsion_motors.toString()} />
+					<Input disabled defaultValue={pitInfo.number_of_driving_motors.toString()} />
 					<h2>Wheel Type</h2>
 					<Input disabled defaultValue={pitInfo.wheel_type} />
 					<h2>Fuel Intake Location</h2>
