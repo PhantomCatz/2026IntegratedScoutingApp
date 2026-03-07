@@ -50,8 +50,8 @@ export type PitDataEntry = {
     scouter_initials:            string;
     robot_weight:                number;
     drive_train_type:            string;
-    propulsion_motor_type:       string;
-    number_of_propulsion_motors: number;
+    driving_motor_type:          string;
+    number_of_driving_motors:    number;
     wheel_type:                  string;
     fuel_intake_location:        string;
     intake_type:                 string;
