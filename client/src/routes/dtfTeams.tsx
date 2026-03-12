@@ -155,7 +155,7 @@ const ACTIONS = {
 
 function DTFTeams(props: Props): React.ReactElement {
 	const { teamParams } = useParams();
-	const [loading, setLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [tabItems, setTabItems] = useState<TabItems>([]);
 	const [teamList, setTeamList] = useState<number[]>([]);
 	const [teamIndex, setTeamIndex] = useState<{ [team: string]: number } | null>(null);
@@ -184,7 +184,7 @@ function DTFTeams(props: Props): React.ReactElement {
 		setTeamIndex(inverse);
 	}, [teamParams]);
 	useEffect(() => {
-		let fetchLink = Constants.SERVER_ADDRESS;
+		const fetchLink = Constants.SERVER_ADDRESS;
 
 		const teams = teamList;
 		if(!teams.some(x => x)) {
@@ -196,68 +196,69 @@ function DTFTeams(props: Props): React.ReactElement {
 			return;
 		}
 
-		fetchLink += "reqType=getTeam"
+		setIsLoading(true);
 
-		for(let i = 0; i < Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
-			if(teams[i]) {
-				fetchLink += `&team${i+1}=${teams[i]}`;
-			}
-		}
+		void Promise.all([
+			(async function() {
+				let matchDataFetchLink = fetchLink + "reqType=getTeam";
 
-		void (async function () {
-			try {
-				const response = await fetch(fetchLink);
-				const data = await response.json() as MatchData;
+				for(let i = 0; i < Constants.NUM_ALLIANCES * Constants.TEAMS_PER_ALLIANCE; i++) {
+					if(teams[i]) {
+						matchDataFetchLink += `&team${i+1}=${teams[i]}`;
+					}
+				}
 
-				sortByMatches(data);
-				setTeamsMatchData(data);
-			} catch (err: unknown) {
-				console.error("Error fetching data. Is server on?", err);
-			}
-		})();
+				try {
+					const response = await fetch(matchDataFetchLink);
+					const data = await response.json() as MatchData;
 
-		fetchLink = Constants.SERVER_ADDRESS;
-		fetchLink += "reqType=getTeamStrategic";
+					sortByMatches(data);
+					setTeamsMatchData(data);
+				} catch (err: unknown) {
+					console.error("Error fetching data. Is server on?", err);
+				}
+			})(),
+			(async function() {
+				const strategicDataFetchLink = fetchLink + "reqType=getTeamStrategic";
+				try {
+					const strategicData: { [teamIndex: number]: Database.StrategicEntry[] } = {};
 
-		void (async () => {
-			try {
-				const strategicData: { [teamIndex: number]: Database.StrategicEntry[] } = {};
+					await Promise.all(teams.filter(team => team).map(async (team) => {
+						const res = await fetch(strategicDataFetchLink + `&team=${team}`);
+						const data = await res.json() as Database.StrategicEntry[];
+						strategicData[team] = data;
+					}));
 
-				await Promise.all(teams.filter(team => team).map(async (team) => {
-					const res = await fetch(fetchLink + `&team=${team}`);
-					const data = await res.json() as Database.StrategicEntry[];
-					strategicData[team] = data;
-				}));
+					sortByMatches(strategicData);
+					setTeamsStrategicData(strategicData);
+				} catch(err) {
+					console.error("An error occurred:", err);
+				}
+			})(),
+			(async function() {
+				const pitDataFetchLink = fetchLink + "reqType=getTeamPitData";
+				try {
+					const pitData: { [teamIndex: number]: Database.PitDataEntry[] } = {};
 
-				sortByMatches(strategicData);
-				setTeamsStrategicData(strategicData);
-			} catch(err) {
-				console.error("An error occurred:", err);
-			}
-		})();
+					await Promise.all(teams.filter(team => team).map(async (team) => {
+						const res = await fetch(pitDataFetchLink + `&team=${team}`);
+						const data = await res.json() as Database.PitDataEntry[];
+						pitData[team] = data;
+					}));
 
-		fetchLink = Constants.SERVER_ADDRESS;
-		fetchLink += "reqType=getTeamPitData";
-
-		void (async () => {
-			try {
-				const pitData: { [teamIndex: number]: Database.PitDataEntry[] } = {};
-
-				await Promise.all(teams.filter(team => team).map(async (team) => {
-					const res = await fetch(fetchLink + `&team=${team}`);
-					const data = await res.json() as Database.PitDataEntry[];
-					pitData[team] = data;
-				}));
-
-				setTeamsPitData(pitData);
-			} catch(err) {
-				console.error("An error occurred:", err);
-			}
-		})();
+					setTeamsPitData(pitData);
+				} catch(err) {
+					console.error("An error occurred:", err);
+				}
+			})(),
+		])
+			.finally(() => {
+				setIsLoading(false);
+			})
 	}, [teamList]);
 	useEffect(() => {
 		getDTF(teamList);
-	}, [teamsMatchData, teamsStrategicData]);
+	}, [teamsMatchData, teamsStrategicData, teamsPitData]);
 
 	function sortByMatches(data: { [teamIndex: string]: { comp_level: TbaApi.Comp_Level, match_number: number}[]}): void {
 		const matchLevelOrder = {
@@ -595,17 +596,21 @@ function DTFTeams(props: Props): React.ReactElement {
 		return tabs;
 	}
 	function getDTF(teams: number[]): void {
-		setLoading(true);
-
-		if(!teamsMatchData || !teamsStrategicData) {
-			console.error("Could not load DTF. No data found");
+		if(isLoading) {
 			return;
 		}
-		console.log("Loaded data.");
+		setIsLoading(true);
+
+		if(!teamsMatchData || !teamsStrategicData || !teamsPitData) {
+			console.error("Could not load DTF. No data found");
+			setIsLoading(false);
+			return;
+		}
+		console.info("Loaded data.");
 
 		try {
 			const persistentData: { [teamNumber: number]: AggregateData | undefined } = {};
-			const allianceTabs = [];
+			const allianceTabs: TabItems = [];
 
 			for(let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
 				const alliance = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
@@ -676,14 +681,15 @@ function DTFTeams(props: Props): React.ReactElement {
 		} catch (error) {
 			console.error("Error fetching team data:", error);
 		}
-		setLoading(false);
+
+		setIsLoading(false);
 	}
 	return (
 		<>
 			<Header name={"Drive Team Feeder"} back={"#dtf"} />
 
 			<dtf-teams>
-				<h2 style={{ display: loading ? 'inherit' : 'none' }}>Loading data...</h2>
+				<h2 style={{ display: isLoading ? 'inherit' : 'none' }}>Loading data...</h2>
 				{ tabItems.length ?
 					<Tabs items={tabItems} />
 					:
