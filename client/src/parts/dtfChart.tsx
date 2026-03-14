@@ -213,13 +213,14 @@ function createChart(canvas: HTMLCanvasElement,
 	for(const [dataLine, lineOptions] of Object.entries(config)) {
 		const doAverage = lineOptions.calculateAverage;
 		let average = 0;
-
+			//put each data in teamMatches as a parameter of function(row)
+			//function that returns the height of each "bar" of graph
 		const data = teamMatches.map(function(row) {
 			let value = 0;
 			for(const [_, item] of Object.entries(lineOptions.values)) {
 				// :eyes:
 				const itemValue = row[item as keyof typeof row];
-
+				//assertNumber checks if itemValue is "number" type or not
 				assertNumber(itemValue);
 				value += itemValue;
 			}
@@ -231,9 +232,18 @@ function createChart(canvas: HTMLCanvasElement,
 			return value;
 		});
 
+		const color = teamMatches.map(function(row) {
+			const checker = row.overall_was_defended;
+			if (checker) {
+				return 'rgba(224, 22, 22, 0.5)';
+			}
+			return 'rgba(65, 144, 223, 0.5)';
+		});
+
 		values.push({
 			label: dataLine,
 			data: data,
+			backgroundColor: color,
 		});
 
 		if(doAverage) {
@@ -281,8 +291,9 @@ function createChart(canvas: HTMLCanvasElement,
 		type: 'bar',
 		data: {
 			labels: matchNumbers,
-			datasets: [...values, ...averages, ]
+			datasets: [...values, ...averages,]
 		},
+		
 		options: {
 			plugins: {
 				tooltip: {
