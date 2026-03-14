@@ -1,0 +1,30 @@
+match-validation {
+	invalid-match {
+		display: block;
+		border: 2px solid black;
+		padding: 0.25rem;
+		border-radius: 1rem;
+		margin-bottom: 1rem;
+
+		invalid-item {
+			display: block;
+			margin-bottom: 0.5rem;
+			--border-color: black;
+			border: 2px solid var(--border-color);
+			border-radius: 1rem;
+			padding: 0.25rem;
+
+			&.invalid-item__auton-mismatch {
+				--border-color: green;
+			}
+			&.invalid-item__teleop-mismatch {
+				--border-color: purple;
+			}
+		}
+
+		a {
+			color: blue;
+			text-decoration: underline;
+		}
+	}
+}

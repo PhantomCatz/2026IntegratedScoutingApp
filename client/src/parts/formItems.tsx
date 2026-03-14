@@ -101,7 +101,7 @@ type FormAccessorType<FieldType> = {
 };
 
 // TODO: implement onFinishFailed
-function Form<FieldType extends Object>(props: FormType<NoInfer<FieldType>>): React.ReactElement {
+function Form<FieldType extends object>(props: FormType<NoInfer<FieldType>>): React.ReactElement {
 	const onFinish = props.onFinish ?? (() => {});
 	const accessor = props.accessor;
 	const initialValues = props.initialValues;
@@ -576,6 +576,7 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 	);
 }
 
+// TODO: investigate opitonal generics
 // This was the best solution I had that could infer the key type qaq
 function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 	const accessor =  {

@@ -1,5 +1,4 @@
 import mysql from 'mysql2/promise';
-
 const defaultValue = { "err" : "Failed to resolve request." };
 const connectionData = {
 	"user": process.env.DB_USERNAME,
@@ -151,6 +150,34 @@ async function getTeamStrategicInfo(queries) {
 async function getTeamWatchlistInfo(queries) {
 	return await getTeamInfoSpecific("watchlist_data", queries)
 }
+async function getAllianceZoneData(queries) {
+	const eventKey = queries.eventKey;
+
+	if(!eventKey) {
+		console.error("Error: bad event key input: ", eventKey);
+		return {};
+	}
+
+	const sqlQuery = `SELECT * FROM alliance_zone_data WHERE event_key=?`;
+
+	const result = await requestDatabase(sqlQuery, eventKey);
+
+	return result;
+}
+async function getAllMatchData(queries) {
+	const eventKey = queries.eventKey;
+
+	if(!eventKey) {
+		console.error("Error: bad event key input: ", eventKey);
+		return {};
+	}
+
+	const sqlQuery = `SELECT * FROM match_data WHERE event_key=?`;
+
+	const result = await requestDatabase(sqlQuery, eventKey);
+
+	return result;
+}
 
 async function submitData(data, table) {
 	const keys = Object.keys(data);
@@ -216,6 +243,8 @@ export {
 	getTeamPitPictureDataInfo,
 	getTeamStrategicInfo,
 	getTeamWatchlistInfo,
+	getAllianceZoneData,
+	getAllMatchData,
 	submitPitData,
 	submitMatchData,
 	submitStrategicData,

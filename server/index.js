@@ -5,6 +5,8 @@ import {
 	getTeamPitDataInfo,
 	getTeamPitPictureDataInfo,
 	getTeamStrategicInfo,
+	getAllianceZoneData,
+	getAllMatchData,
 	submitPitData,
 	submitMatchData,
 	submitStrategicData,
@@ -55,6 +57,12 @@ app.get("/api", async function(req, res) {
 			case "getTeamStrategic":
 				result = await getTeamStrategicInfo(queries);
 				break;
+			case "getAllianceZoneData":
+				result = await getAllianceZoneData(queries);
+				break;
+			case "getAllMatchData":
+				result = await getAllMatchData(queries);
+				break;
 			default:
 				console.error("reqType not used when getting:", queries);
 				result = await getTeamInfo(queries);
@@ -99,7 +107,7 @@ app.post("/api", async function(req, res) {
 			case "submitAllianceZoneData":
 				console.log("submit Alliance");
 				result = await submitAllianceZoneData(data);
-				break;	
+				break;
 			default:
 				console.error("query type not found", queries);
 				res.status(404);

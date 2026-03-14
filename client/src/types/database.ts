@@ -72,11 +72,29 @@ export type PitDataEntry = {
 };
 
 export type PitPictureEntry = {
-    id:                        number;
-    event_key:                 TbaApi.EventKey;
-    team_number:               number;
-    scouter_initials:          string;
-    robot_image_uri:           string;
+    id:               number;
+    event_key:        TbaApi.EventKey;
+    team_number:      number;
+    scouter_initials: string;
+    robot_image_uri:  string;
 }
 
 export type PitDataFullEntry = PitDataEntry & { robot_image_uri: string };
+
+export type AllianceZoneEntry = {
+    id:               number;
+    event_key:        TbaApi.EventKey,
+    team_number1:     number,
+    team_number2:     number,
+    team_number3:     number,
+    scouter_initials: string ,
+    comp_level:       TbaApi.Comp_Level,
+    match_number:     number,
+    robot_alliance:   TbaApi.AllianceColor,
+    red_alliance:     string,
+    blue_alliance:    string,
+    comments:         string,
+    team1value:       string,
+    team2value:       string,
+    team3value:       string,
+}

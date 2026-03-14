@@ -31,6 +31,7 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 }
 
 function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch | null): number[] {
+	// TODO: fix
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
 function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
@@ -67,7 +68,7 @@ function getRobotAllianceOptions(teamsInMatch: ResultTypes.TeamsInMatch | null):
 	if(teamsInMatch?.blue) {
 		return [
 			{ label: `Blue: ${teamsInMatch.blue.join(", ")}`, value: "blue" },
-			{ label: `Red: ${teamsInMatch.red.join(", ")}`, value: "red" },	
+			{ label: `Red: ${teamsInMatch.red.join(", ")}`, value: "red" },
 		];
 	} else {
 		return [
@@ -188,7 +189,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		localStorage.setItem("tbaData", JSON.stringify(data));
 		return result;
 	}
-	
+
 	function fromLocalStorage(): ResultTypes.TeamsInMatch | null {
 		const tbaData = localStorage.getItem("tbaData");
 
@@ -226,7 +227,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		if(!data || !data[eventKey]) {
 			return null;
 		}
-		
+
 
 		const result = {
 			//eslint-disable-next-line @typescript-eslint/no-magic-numbers
