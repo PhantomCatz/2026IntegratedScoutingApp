@@ -303,6 +303,7 @@ function MatchScout(props: Props): React.ReactElement {
 			setTeleopFuelNumber(0);
 			setFuelMultiplier(1);
 			setPrimaryHoardTypeIsVisible(false);
+			setEndgameClimbAttempted(false);
 			setDefendedIsVisible(false);
 			setWasDefendedIsVisible(false);
 
