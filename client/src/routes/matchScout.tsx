@@ -311,12 +311,17 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue('auton_climb_attempted', false);
 			accessor.setFieldValue('auton_climb_successful', false);
 
+			accessor.setFieldValue('teleop_fuel_hoarded_amount', formDefaultValues.teleop_fuel_hoarded_amount);
+			accessor.setFieldValue('teleop_primary_hoard_type', formDefaultValues.teleop_primary_hoard_type);
+
 			accessor.setFieldValue('endgame_climb_attempted', false);
+			accessor.setFieldValue('endgame_climb_level', formDefaultValues.endgame_climb_level);
 			accessor.setFieldValue('endgame_climb_successful', false);
 
 			accessor.setFieldValue('overall_robot_died', false);
 			accessor.setFieldValue('overall_defended_others', false);
 			accessor.setFieldValue('overall_was_defended', false);
+			accessor.setFieldValue('overall_path_to_neutral_zone', formDefaultValues.overall_path_to_neutral_zone);
 			accessor.setFieldValue('overall_shot_while_moving', false);
 			accessor.setFieldValue('overall_shot_hoarded_pieces', false);
 
@@ -614,7 +619,12 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 					name="auton_climb_attempted"
 					title="Climb Attempted"
-					onChange={setAutonClimbAttempted}
+					onChange={(value) => {
+						setAutonClimbAttempted(value)
+						if (!value) {
+							accessor.setFieldValue('auton_climb_successful', formDefaultValues.auton_climb_successful);
+						}
+					}}
 				/>
 
 				<div
@@ -717,6 +727,9 @@ function MatchScout(props: Props): React.ReactElement {
 					options={teleop_fuel_hoarded_amount}
 					onChange={(value) => {
 						setPrimaryHoardTypeIsVisible(value !== "None")
+						if (value === "None") {
+							accessor.setFieldValue('teleop_primary_hoard_type', formDefaultValues.teleop_primary_hoard_type);
+						}
 					}}
 				/>
 
@@ -751,7 +764,13 @@ function MatchScout(props: Props): React.ReactElement {
 				<Checkbox<FieldType>
 					name="endgame_climb_attempted"
 					title="Climb Attempted?"
-					onChange={setEndgameClimbAttempted}
+					onChange={(value) => {
+						setEndgameClimbAttempted(value)
+						if (!value) {
+							accessor.setFieldValue('endgame_climb_level', formDefaultValues.endgame_climb_level);
+							accessor.setFieldValue('endgame_climb_successful', formDefaultValues.endgame_climb_successful);
+						}
+					}}
 				/>
 
 				<div
@@ -798,13 +817,23 @@ function MatchScout(props: Props): React.ReactElement {
 					<Checkbox<FieldType>
 						title="Defended others?"
 						name="overall_defended_others"
-						onChange={setDefendedIsVisible}
+						onChange={(value) => {
+							setDefendedIsVisible(value)
+							if (!value) {
+								accessor.setFieldValue('overall_defended', formDefaultValues.overall_defended);
+							}
+						}}
 					/>
 
 					<Checkbox<FieldType>
 						title="Was Defended?"
 						name="overall_was_defended"
-						onChange={setWasDefendedIsVisible}
+						onChange={(value) => {
+							setWasDefendedIsVisible(value)
+							if (!value) {
+								accessor.setFieldValue('overall_defended_by', formDefaultValues.overall_defended_by);
+							}
+						}}
 					/>
 				</div>
 
