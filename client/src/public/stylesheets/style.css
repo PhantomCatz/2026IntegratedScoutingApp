@@ -48,6 +48,7 @@ a {
 
 footer {
 	margin-top: 0px;
+	margin-bottom: 7vh;
 }
 .tabButton, .submitButton {
 	width: 50%;
@@ -59,6 +60,7 @@ footer {
 	color: var(--font-color) !important;
 	text-align: center !important;
 	margin-top: 1%;
+	margin-bottom: 7vh;
 }
 .inputRow {
 	display: flex !important;
