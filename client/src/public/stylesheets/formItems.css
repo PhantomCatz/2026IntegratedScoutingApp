@@ -42,6 +42,9 @@
 		opacity: 1;
 		max-height: 4rem;
 	}
+	input[disabled] {
+		opacity: 1;
+	}
 }
 .input__text {
 	input[type=text] {
