@@ -18,6 +18,7 @@ function HomeRouter(props: Props): React.ReactElement {
 			<home-router>
 				<a className='homeButton' href='#scoutingapp'>Scouting App</a>
 				<a className='homeButton' href='#dtf'>DTF</a>
+				<a className='homeButton' href='#validation'>Match Validation</a>
 			</home-router>
 		</>
 	);

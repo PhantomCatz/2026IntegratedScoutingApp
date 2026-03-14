@@ -1,4 +1,4 @@
-// just get these from https://www.thebluealliance.com/apidocs/v4
+// just get these from https://www.thebluealliance.com/apidocs/v3
 export type Comp_Level = "ef" | "f" | "sf" | "qf" | "qm";
 export type AllianceColor = "blue" | "red";
 export type EventKey = `${number}${string}`;
@@ -21,7 +21,7 @@ export type Match = {
 	actual_time: number | null,
 	predicted_time: number | null,
 	post_result_time: number | null,
-	score_breakdown: Match_Score_Breakdown_2025,
+	score_breakdown: Match_Score_Breakdown_2026,
 	videos: {
 		type: "youtube" | "tba",
 		key: string,
@@ -29,69 +29,53 @@ export type Match = {
 };
 
 // TODO: change per year according to TBA "/match/{match_key}"
-export type Match_Score_Breakdown_2025 = {
-	blue: Match_Score_Breakdown_2025_Alliance,
-	red: Match_Score_Breakdown_2025_Alliance,
+export type Match_Score_Breakdown_2026 = {
+	blue: Match_Score_Breakdown_2026_Alliance,
+	red: Match_Score_Breakdown_2026_Alliance,
 }
-export type Match_Score_Breakdown_2025_Alliance = {
+export type Match_Score_Breakdown_2026_Alliance = {
 	adjustPoints: number,
-	algaePoints: number,
-	autoBonusAchieved: boolean,
-	autoCoralCount: number,
-	autoCoralPoints: number,
-	autoLineRobot1: string,
-	autoLineRobot2: string,
-	autoLineRobot3: string,
-	autoMobilityPoints: number,
-	autoPoints: number,
-	autoReef: ReefFill,
-	bargeBonusAchieved: boolean,
-	coopertitionCriteriaMet: boolean,
-	coralBonusAchieved: boolean,
-	endGameBargePoints: number,
-	endGameRobot1: CageType,
-	endGameRobot2: CageType,
-	endGameRobot3: CageType,
-	foulCount: number,
+	autoTowerPoints: number,
+	autoTowerRobot1: TowerLevel,
+	autoTowerRobot2: TowerLevel,
+	autoTowerRobot3: TowerLevel,
+	endGameTowerPoints: number,
+	endGameTowerRobot1: TowerLevel,
+	endGameTowerRobot2: TowerLevel,
+	endGameTowerRobot3: TowerLevel,
+	energizedAchieved: boolean,
 	foulPoints: number,
 	g206Penalty: boolean,
-	g410Penalty: boolean,
-	g418Penalty: boolean,
-	g428Penalty: boolean,
-	netAlgaeCount: number,
+	hubScore: {
+		autoCount: number,
+		autoPoints: number,
+		endgameCount: number,
+		endgamePoints: number,
+		shift1Count: number,
+		shift1Points: number,
+		shift2Count: number,
+		shift2Points: number,
+		shift3Count: number,
+		shift3Points: number,
+		shift4Count: number,
+		shift4Points: number,
+		teleopCount: number,
+		teleopPoints: number,
+		totalCount: number,
+		totalPoints: number,
+		transitionCount: number,
+		transitionPoints: number,
+	},
+	majorFoulCount: number,
+	minorFoulCount: number,
 	rp: number,
-	techFoulCount: number,
-	teleopCoralCount: number,
-	teleopCoralPoints: number,
-	teleopPoints: number
-	teleopReef: ReefFill,
-	totalPoints: number,
-	wallAlgaeCount: number,
+	superchargedAchieved: number,
+	totalAutoPoints: number,
+	totalTeleopPoints: number,
+	totalTowerPoints: number,
+	traversalAchieved: boolean,
 };
-export type CageType = "DeepCage" | "None" | "Parked" | "ShallowCage";
-export type ReefFill = {
-	botRow: ReefNodes,
-	midRow: ReefNodes,
-	topRow: ReefNodes,
-	trough: number,
-	tba_botRowCount: number,
-	tba_midRowCount: number,
-	tba_topRowCount: number,
-};
-export type ReefNodes = {
-	nodeA: boolean,
-	nodeB: boolean,
-	nodeC: boolean,
-	nodeD: boolean,
-	nodeE: boolean,
-	nodeF: boolean,
-	nodeG: boolean,
-	nodeH: boolean,
-	nodeI: boolean,
-	nodeJ: boolean,
-	nodeK: boolean,
-	nodeL: boolean,
-};
+export type TowerLevel = "Level1" | "Level2" | "Level3" | "None";
 export type MatchAlliance = {
 	score: number,
 	team_keys: TeamKey[],

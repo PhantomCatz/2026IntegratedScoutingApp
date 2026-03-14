@@ -13,6 +13,7 @@ import MatchLookup from './routes/matchLookup';
 import MatchData from './routes/matchData';
 import SettingsPage from './routes/settingsPage';
 import AllianceZone from './routes/allianceZone';
+import MatchValidation from './routes/matchValidation';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
 const rootElement = document.getElementById('root') as HTMLElement;
@@ -80,6 +81,7 @@ function App(): React.ReactElement {
 				<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
+				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
 			</Routes>
 		</HashRouter>
 	);

@@ -172,7 +172,12 @@ function MatchScout(props: Props): React.ReactElement {
 			fetchLink += "reqType=getTeamPitData";
 
 			const res = await fetch(fetchLink + `&team=${team_number}`);
-			const data = await res.json() as Database.PitDataEntry[];
+			const data = await res.json() as Database.PitDataEntry[] | null;
+
+			if(!data) {
+				return;
+			}
+
 			const max_fuel_capacity = data[data.length-1]?.max_fuel_capacity ?? 0;
 			setMaxFuelCapacity(max_fuel_capacity);
 

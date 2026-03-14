@@ -34,7 +34,7 @@ export function assertNumber(value: unknown): asserts value is number {
 	}
 }
 
-export function assertNonNull<T>(value: T): asserts value is NonNullable<T> {
+export function assertNonNull<T>(value: T | null | undefined): asserts value is T {
 	if(value === undefined) {
 		throw new Error(`Assertion Error: ${value} is undefined`);
 	}
