@@ -7,7 +7,7 @@ import QrCode from '../parts/qrCodeViewer';
 import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getOpposingAllianceColor, parseRobotPosition, getRobotPositionOptions } from '../utils/tbaRequest.ts';
 import { escapeUnicode, toTinyInt } from "../utils/utils";
 import Form, { NumberInput, Select, Checkbox, Input, TextArea, } from '../parts/formItems';
-import { getFieldAccessor, } from '../parts/formItems';
+import { getFieldAccessor, Slider} from '../parts/formItems';
 import { Tabs, } from "../parts/tabs";
 import Constants from '../utils/constants';
 
@@ -23,25 +23,24 @@ type Props = {
 };
 
 const formDefaultValues: MatchScoutTypes.All = {
+	
 	// Pre-match
 	"scouter_initials": "",
 	"comp_level": "qm",
 	"match_number": 0,
 	"robot_position": "B1",
 	// Auton
-	"auton_1x_multiplier": false,
-	"auton_2x_multiplier": false,
-	"auton_5x_multiplier": false,
 	"auton_shoot_location": [],
 	"auton_intake_location": [],
 	"auton_climb_attempted": false,
 	"auton_climb_successful": false,
+	"auton_multiplier": 0,
+
 	// Teleop
-	"teleop_1x_multiplier": false,
-	"teleop_2x_multiplier": false,
-	"teleop_5x_multiplier": false,
+	
 	"teleop_fuel_hoarded_amount": "",
 	"teleop_primary_hoard_type": "",
+	"teleop_multiplier" : 0,
 	// Endgame
 	"endgame_climb_attempted": false,
 	"endgame_climb_level": "",
@@ -108,7 +107,6 @@ function MatchScout(props: Props): React.ReactElement {
 	const [team_number, setTeamNumber] = useState(0);
 	const [auton_fuel_number, setAutonFuelNumber] = useState(0);
 	const [teleop_fuel_number, setTeleopFuelNumber] = useState(0);
-	const [fuel_multiplier, setFuelMultiplier] = useState(1);
 	const [primaryHoardTypeIsVisible, setPrimaryHoardTypeIsVisible] = useState(false);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
@@ -121,7 +119,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const [endgameClimbAttempted, setEndgameClimbAttempted] = useState(false);
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 	const [maxFuelCapacity,setMaxFuelCapacity] = useState(0);
-
+	const [multiplier, setMultiplier] = useState(1);
 	if(!_eventKey) {
 		throw new Error("Could not get event key");
 	}
@@ -301,7 +299,7 @@ function MatchScout(props: Props): React.ReactElement {
 			setAutonFuelNumber(0);
 			setAutonClimbAttempted(false);
 			setTeleopFuelNumber(0);
-			setFuelMultiplier(1);
+			setMultiplier(1);
 			setPrimaryHoardTypeIsVisible(false);
 			setEndgameClimbAttempted(false);
 			setDefendedIsVisible(false);
@@ -330,8 +328,7 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("comp_level", comp_level);
 			accessor.setFieldValue("match_number", match_number + 1);
 			accessor.setFieldValue("robot_position", robot_position);
-			accessor.setFieldValue("auton_1x_multiplier", true);
-			accessor.setFieldValue("teleop_1x_multiplier", true);
+			
 
 			await updateNumbers();
 		} catch (err) {
@@ -340,7 +337,7 @@ function MatchScout(props: Props): React.ReactElement {
 			setLoading(false);
 		}
 
-		defaultMultiplier();
+		
 	}
 
 	async function updateNumbers(): Promise<void> {
@@ -389,40 +386,10 @@ function MatchScout(props: Props): React.ReactElement {
 		setTeamNumber(teamNumber);
 	}
 
-	function OneXMultiplier (): void {
-		accessor.setFieldValue('auton_1x_multiplier', true);
-		accessor.setFieldValue('auton_2x_multiplier', false);
-		accessor.setFieldValue('auton_5x_multiplier', false);
-		accessor.setFieldValue('teleop_1x_multiplier', true);
-		accessor.setFieldValue('teleop_2x_multiplier', false);
-		accessor.setFieldValue('teleop_5x_multiplier', false);
+	
+	
 
-		setFuelMultiplier(1);
-	}
-
-	function TwoXMultiplier (): void {
-		accessor.setFieldValue('auton_1x_multiplier', false);
-		accessor.setFieldValue('auton_2x_multiplier', true);
-		accessor.setFieldValue('auton_5x_multiplier', false);
-		accessor.setFieldValue('teleop_1x_multiplier', false);
-		accessor.setFieldValue('teleop_2x_multiplier', true);
-		accessor.setFieldValue('teleop_5x_multiplier', false);
-
-		// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-		setFuelMultiplier(2);
-	}
-
-	function FiveXMultiplier (): void {
-		accessor.setFieldValue('auton_1x_multiplier', false);
-		accessor.setFieldValue('auton_2x_multiplier', false);
-		accessor.setFieldValue('auton_5x_multiplier', true);
-		accessor.setFieldValue('teleop_1x_multiplier', false);
-		accessor.setFieldValue('teleop_2x_multiplier', false);
-		accessor.setFieldValue('teleop_5x_multiplier', true);
-
-		// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-		setFuelMultiplier(5);
-	}
+	
 
 	function preMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.PreMatch;
@@ -530,7 +497,14 @@ function MatchScout(props: Props): React.ReactElement {
 		);
 	}
 
+
+
+
+	 
+		
+	
 	function autonMatch(): React.ReactElement {
+	//accessor.setFieldValue("auton_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.AutonMatch;
 		const shootLocation = [
 			{ label: "Tower", value: "Tower" },
@@ -545,6 +519,14 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Depot", value: "Depot" },
 			{ label: "None", value: "None"},
 		];
+// 		const slider = document.getElementById("myRange");
+// 		const output = document.getElementById("demo");
+// 		output.innerHTML = slider.value; // Display the default slider value
+
+// 		// Update the current slider value (each time you drag the slider handle)
+// 		slider.oninput = function() {
+//   		output.innerHTML = this.value;
+// }
 
 		return (
 			<div style={{ alignContent: 'center' }}>
@@ -559,50 +541,41 @@ function MatchScout(props: Props): React.ReactElement {
 					className="plusButton"
 					type="button"
 					onClick={() => {
-						if (!accessor.getFieldValue('auton_1x_multiplier') && !accessor.getFieldValue('auton_2x_multiplier') && !accessor.getFieldValue('auton_5x_multiplier')) {
-							window.alert("Please select one of the multipiers")
-						}
-						else {
-							setAutonFuelNumber(auton_fuel_number + fuel_multiplier);
-						}
+						
+					setAutonFuelNumber(auton_fuel_number + multiplier);
+						
 					}}
-				>+{fuel_multiplier}</button>
+				>+{multiplier}</button>
 
 				<button
 					className="minusButton"
 					type="button"
 					onClick={() => {
-						let new_fuel_number = auton_fuel_number - fuel_multiplier;
+						let new_fuel_number = auton_fuel_number - multiplier;
 						if(new_fuel_number < 0){
 							new_fuel_number = 0;
 						}
 						setAutonFuelNumber(new_fuel_number);
-					}}
-				>-{fuel_multiplier}</button>
+					}} 
+				>-{multiplier}</button>
 
 				<b>Fuel Score Multiplier</b>
 
-				<div className="inputRow multiplierButtons">
-					<Checkbox<FieldType>
-						name="auton_1x_multiplier"
-						title=""
-						onChange={OneXMultiplier}
-					/>
-
-
-					<Checkbox<FieldType>
-						name="auton_2x_multiplier"
-						title=""
-						onChange={TwoXMultiplier}
-					/>
-
-					<Checkbox<FieldType>
-						name="auton_5x_multiplier"
-						title=""
-						onChange={FiveXMultiplier}
-					/>
-				</div>
-
+				<Slider<FieldType>
+				title=""
+				name="auton_multiplier"
+				
+				defaultValue = {multiplier}
+				max={10}
+				min={1}
+				onChange = {(val : number) => {
+					
+					setMultiplier(val)
+				}
+				
+				}
+				/>
+				
 				<Select<FieldType>
 					title="Shoot Location"
 					name="auton_shoot_location"
@@ -640,19 +613,15 @@ function MatchScout(props: Props): React.ReactElement {
 				</div>
 			</div>
 		);
-	}
-	//function that reset the multiplliers in auton &teleop
-	function defaultMultiplier(): void {
-		accessor.setFieldValue("auton_1x_multiplier", false);
-		accessor.setFieldValue("auton_2x_multiplier", false);
-		accessor.setFieldValue("auton_5x_multiplier", false);
+		}
 
-		accessor.setFieldValue("teleop_1x_multiplier", false);
-		accessor.setFieldValue("teleop_2x_multiplier", false);
-		accessor.setFieldValue("teleop_5x_multiplier", false);
-	}
+	
+	
+	
+
 
 	function teleopMatch(): React.ReactElement {
+		//accessor.setFieldValue("teleop_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.TeleopMatch;
 		const teleop_fuel_hoarded_amount = [
 			{ label: "High", value: "High" },
@@ -679,47 +648,38 @@ function MatchScout(props: Props): React.ReactElement {
 					className="plusButton"
 					type="button"
 					onClick={() => {
-						if (!accessor.getFieldValue('auton_1x_multiplier') && !accessor.getFieldValue('auton_2x_multiplier') && !accessor.getFieldValue('auton_5x_multiplier')) {
-							window.alert("Please select one of the multipliers")
-						}
-						else {
-							setTeleopFuelNumber(teleop_fuel_number + fuel_multiplier);
-						}
-					}}>+{fuel_multiplier}</button>
+						
+							setTeleopFuelNumber(teleop_fuel_number + multiplier);
+							console.log(multiplier);
+					}}>+{multiplier}</button>
 
 				<button
 					className="minusButton"
 					type="button"
 					onClick={() => {
-						let new_fuel_number = teleop_fuel_number - fuel_multiplier;
+						let new_fuel_number = teleop_fuel_number - multiplier;
 						if(new_fuel_number < 0){
 							new_fuel_number = 0;
 						}
 						setTeleopFuelNumber(new_fuel_number);
 					}}
-				>-{fuel_multiplier}</button>
+				>-{multiplier}</button>
 
 				<b>Fuel Score Multiplier</b>
 
-				<div className="inputRow multiplierButtons">
-					<Checkbox<FieldType>
-						name="teleop_1x_multiplier"
-						title=""
-						onChange={OneXMultiplier}
-					/>
-
-					<Checkbox<FieldType>
-						name="teleop_2x_multiplier"
-						title=""
-						onChange={TwoXMultiplier}
-					/>
-
-					<Checkbox<FieldType>
-						name="teleop_5x_multiplier"
-						title=""
-						onChange={FiveXMultiplier}
-					/>
-				</div>
+				<Slider<FieldType>
+				title=""
+				name="teleop_multiplier"
+				
+				defaultValue = {multiplier}
+				max={10}
+				min={1}
+				
+				onChange = {(val : number) =>{		
+					setMultiplier(val)
+				}
+				}
+				/>
 
 				<Select<FieldType>
 					title="Fuel Hoarded Amount"
