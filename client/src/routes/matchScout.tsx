@@ -506,6 +506,9 @@ function MatchScout(props: Props): React.ReactElement {
 	function autonMatch(): React.ReactElement {
 	//accessor.setFieldValue("auton_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.AutonMatch;
+		console.log("hi")
+		
+
 		const shootLocation = [
 			{ label: "Tower", value: "Tower" },
 			{ label: "Outpost", value: "Outpost" },
@@ -559,10 +562,10 @@ function MatchScout(props: Props): React.ReactElement {
 					}} 
 				>-{multiplier}</button>
 
-				<b>Fuel Score Multiplier</b>
+				
 
 				<Slider<FieldType>
-				title=""
+				title="Fuel Score Multiplier"
 				name="auton_multiplier"
 				
 				defaultValue = {multiplier}
@@ -621,6 +624,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 
 	function teleopMatch(): React.ReactElement {
+		
 		//accessor.setFieldValue("teleop_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.TeleopMatch;
 		const teleop_fuel_hoarded_amount = [
@@ -665,10 +669,10 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>-{multiplier}</button>
 
-				<b>Fuel Score Multiplier</b>
+				
 
 				<Slider<FieldType>
-				title=""
+				title="Fuel Score Multiplier"
 				name="teleop_multiplier"
 				
 				defaultValue = {multiplier}
@@ -677,6 +681,7 @@ function MatchScout(props: Props): React.ReactElement {
 				
 				onChange = {(val : number) =>{		
 					setMultiplier(val)
+					accessor.setFieldValue("auton_multiplier", multiplier)
 				}
 				}
 				/>
