@@ -640,7 +640,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			for(let i = 0; i < Constants.NUM_ALLIANCES; i++) {
 				const averageScoresGroup: React.ReactElement[] = [];
 				let allianceTotalAverage = 0;
-
+				let alliance_teleop_total_score = 0;
 				for(let j = 0; j < Constants.TEAMS_PER_ALLIANCE; j++) {
 					const index = i * Constants.TEAMS_PER_ALLIANCE + j;
 					const teamNumber = teamList[index];
@@ -667,13 +667,15 @@ function DTFTeams(props: Props): React.ReactElement {
 							</div>
 						</div>
 					);
-
+					
+					alliance_teleop_total_score += team.total_teleop_score / team.match_count / Constants.TEAMS_PER_ALLIANCE;
 					allianceTotalAverage += team.average_score;
 				}
 
 				allianceAverageScores.push(
 					<div key={`allianceAverage${i + 1}`}>
 						<Input title={`Alliance ${i + 1} Total Score`} disabled defaultValue={allianceTotalAverage.toString()} />
+						<Input title={`Alliance ${i + 1} Teleop Average Score`}	disabled defaultValue={Math.round(alliance_teleop_total_score).toString()} />			
 						<h2>Alliance {i + 1} Robots</h2>
 						{averageScoresGroup}
 						<hr/>
