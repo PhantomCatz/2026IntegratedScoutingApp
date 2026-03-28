@@ -92,6 +92,20 @@ type RadioType<FieldType> = Disableable<{
 	defaultValue?: string,
 	checked?: boolean,
 }>;
+type SliderType<FieldType> = Disableable<{
+	title: string | React.ReactElement,
+	name: StringMap<FieldType>,
+	required?: boolean,
+	message?: string,
+	disabled?: boolean
+	onChange?: (val: number) => void,
+	align?: AlignOptions,
+	shown?: boolean,
+	defaultValue?: number,
+	checked?: boolean,
+	min: number,
+	max: number,
+}>;
 type FormAccessorType<FieldType> = {
 	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
 	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void,
@@ -576,6 +590,67 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 	);
 }
 
+function Slider<FieldType>(props: SliderType<NoInfer<FieldType>>): React.ReactElement {
+	const title = props.title;
+	const name = props.name;
+
+	const shown = props.shown ?? true;
+	const required = (props.required ?? true) && shown;
+	const min = props.min;
+	const max = props.max;
+	if((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name)
+	}
+	const disabled = props.disabled ?? false;
+	const onChange = props.onChange ?? (() => {});
+	const align = props.align ?? "center";
+	const defaultValue = props.defaultValue;
+	
+
+	const slider = useRef(null);
+
+	function handleChange(event: React.ChangeEvent): void {
+		const target = event.target;
+
+		assertInstanceOf(target, HTMLInputElement);
+
+		const newVal = Utils.toNumber(target.value);
+
+		onChange(newVal);
+	}
+
+	return (
+		<>
+			<div
+				className="input input__slider"
+				style={{
+					display: shown ? 'inherit' : 'none',
+				}}
+			>
+				<label
+					style={{
+						textAlign: align,
+					}}
+					htmlFor={name}
+				>{title}
+					<input
+						ref={slider}
+						type="range"
+						id={name}
+						name={name}
+						defaultValue={defaultValue}
+						min={min}
+						max={max}
+						onChange={handleChange}
+						required={required}
+						disabled={disabled}
+					/>
+				</label>
+			</div>
+		</>
+	);
+}
+
 // TODO: investigate opitonal generics
 // This was the best solution I had that could infer the key type qaq
 function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
@@ -672,6 +747,7 @@ function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
 					element.checked = newValue;
 					break;
 				case "number":
+				case "range":
 					assertNumber(newValue);
 					element.value = newValue.toString();
 					break;
@@ -698,6 +774,7 @@ function setFieldValueMultipleElements<K extends string & keyof FieldType, Field
 				assertInstanceOf(element, HTMLInputElement);
 				switch(element.type) {
 					case "radio":
+						
 						assertString(newValue);
 						if(newValue === element.value) {
 							element.checked = true;
@@ -706,6 +783,9 @@ function setFieldValueMultipleElements<K extends string & keyof FieldType, Field
 							element.checked = false;
 						}
 						break;
+					
+					
+
 					default:
 						throw new Error(`Could not use submit type ${element.type}`);
 				}
@@ -747,6 +827,7 @@ function getFieldValueSingleElement<K extends string & keyof FieldType, FieldTyp
 				case "checkbox":
 					return element.checked as ResultType;
 				case "number":
+				case "range":
 					return Number(element.value) as ResultType;
 				case "text":
 					return element.value as ResultType;
@@ -775,6 +856,7 @@ function getFieldValueMultipleElements<K extends string & keyof FieldType, Field
 						}
 						break;
 					}
+					
 					default:
 						throw new Error(`Could not use submit type ${element.type}`);
 				}
@@ -787,6 +869,6 @@ function getFieldValueMultipleElements<K extends string & keyof FieldType, Field
 	throw new Error(`Could not get value of ${id}`);
 }
 
-export { Input, NumberInput, Select, Checkbox, TextArea, Radio };
+export { Input, NumberInput, Select, Checkbox, TextArea, Radio, Slider };
 export { getFieldAccessor, };
 export default Form;

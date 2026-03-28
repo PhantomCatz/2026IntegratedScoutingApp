@@ -13,19 +13,16 @@ export type PreMatch = {
 };
 
 export type AutonMatch = {
-	auton_1x_multiplier: boolean,
-	auton_2x_multiplier: boolean,
-	auton_5x_multiplier: boolean,
+	
 	auton_shoot_location: string[]
 	auton_intake_location: string[]
 	auton_climb_attempted: boolean,
 	auton_climb_successful: boolean,
+	auton_multiplier: number,
 };
 
 export type TeleopMatch = {
-	teleop_1x_multiplier: boolean,
-	teleop_2x_multiplier: boolean,
-	teleop_5x_multiplier: boolean,
+	teleop_multiplier: number,
 	teleop_fuel_hoarded_amount: string,
 	teleop_primary_hoard_type: string,
 }
