@@ -506,7 +506,7 @@ function MatchScout(props: Props): React.ReactElement {
 	function autonMatch(): React.ReactElement {
 	//accessor.setFieldValue("auton_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.AutonMatch;
-		console.log("hi")
+		
 		
 
 		const shootLocation = [
@@ -654,8 +654,7 @@ function MatchScout(props: Props): React.ReactElement {
 					onClick={() => {
 						
 							setTeleopFuelNumber(teleop_fuel_number + multiplier);
-							console.log(multiplier);
-					}}>+{multiplier}</button>
+						}}>+{multiplier}</button>
 
 				<button
 					className="minusButton"

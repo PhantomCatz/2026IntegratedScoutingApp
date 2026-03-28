@@ -638,12 +638,10 @@ function Slider<FieldType>(props: SliderType<NoInfer<FieldType>>): React.ReactEl
 						type="range"
 						id={name}
 						name={name}
-						
 						defaultValue={defaultValue}
 						min={min}
 						max={max}
 						onChange={handleChange}
-						className="slider"
 						required={required}
 						disabled={disabled}
 					/>
