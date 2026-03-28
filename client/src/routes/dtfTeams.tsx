@@ -5,8 +5,7 @@ import { useParams } from "react-router-dom";
 import { Input, TextArea, Checkbox } from '../parts/formItems';
 import { Tabs } from '../parts/tabs';
 import Header from '../parts/header';
-import { DTFChartComponent, DTFAutonChartComponent, DTFTeleopChartComponent } from '../parts/dtfChart';
-import StrategicTabs from '../parts/strategicTabs';
+import { DTFAutonChartComponent, DTFTeleopChartComponent } from '../parts/dtfChart';
 import Constants from '../utils/constants';
 import * as Utils from '../utils/utils';
 
@@ -43,6 +42,8 @@ type AggregateData = {
 	"match_count": number;
 	"robot_comments": string;
 	"total_score": number;
+	"total_auton_score": number;
+	"total_teleop_score": number;
 	"average_score": number;
 
 	"trench_capability": boolean;
@@ -394,6 +395,8 @@ function DTFTeams(props: Props): React.ReactElement {
 			"match_count": 0,
 			"robot_comments": "",
 			"total_score": 0,
+			"total_auton_score": 0,
+			"total_teleop_score": 0,
 			"average_score": 0,
 
 			"trench_capability": false,
@@ -419,8 +422,14 @@ function DTFTeams(props: Props): React.ReactElement {
 				data.total_score += getScore(k as keyof AggregateData, v, match);
 			}
 
+			data.total_auton_score += getScore('auton_climb_successful', match.auton_climb_successful, match);
+			data.total_auton_score += getScore('auton_fuel_scored', match.auton_fuel_scored, match);
+
+			data.total_teleop_score += getScore('endgame_climb_level', match.endgame_climb_level, match);
+			data.total_teleop_score += getScore('teleop_fuel_scored', match.teleop_fuel_scored, match);
+
 			data.average_climb_score += getScore('auton_climb_successful', match.auton_climb_successful, match) / data.match_count || 0;
-			data.average_climb_score += getScore('endgame_climb_level', match.auton_climb_successful, match) / data.match_count || 0;
+			data.average_climb_score += getScore('endgame_climb_level', match.endgame_climb_level, match) / data.match_count || 0;
 		}
 		data.average_fuel_count += data.auton_fuel_scored + data.teleop_fuel_scored;
 		data.average_auton_fuel_count += data.auton_fuel_scored;
@@ -428,6 +437,7 @@ function DTFTeams(props: Props): React.ReactElement {
 
 		for(const [k, v] of Object.entries(data)) {
 			if(typeof v === "number") {
+				// TODO: does this need to be modified?
 				// :eyes:
 				data[k as PermittedKey<number>] = Math.round(v);
 			}
@@ -505,6 +515,7 @@ function DTFTeams(props: Props): React.ReactElement {
 						</>
 				});
 
+				// TODO: remove legacy ordering
 				const teleop_primary_hoard_type_ordering = {
 					"Shoot_Hoard": 2,
 					"Shoot Hoard": 2,
