@@ -1,5 +1,5 @@
-import '../public/stylesheets/dtfTeams.css';
 import '../public/stylesheets/style.css';
+import '../public/stylesheets/dtfTeams.css';
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Input, TextArea, Checkbox } from '../parts/formItems';
@@ -67,8 +67,8 @@ enum ActionMapping {
 };
 const KEY_MAPPINGS: { [key: string]: ActionMapping | undefined } = {
 	"auton_fuel_scored": ActionMapping.AVERAGE,
-	// "auton_shoot_location": ActionMapping.SELECT_OPTIONS,
-	// "auton_intake_location": ActionMapping.SELECT_OPTIONS,
+	"auton_shoot_location": ActionMapping.SELECT_OPTIONS,
+	"auton_intake_location": ActionMapping.SELECT_OPTIONS,
 	"auton_climb_attempted": ActionMapping.ADD,
 	"auton_climb_successful": ActionMapping.ADD,
 
@@ -107,16 +107,22 @@ const ACTIONS = {
 			data[key] = new Set<string>();
 		}
 
-		data[key].add(value);
+		// value can be comma-separated list
+		value.split(',').filter(item => item).forEach(item => {
+			data[key].add(item);
+		});
 	},
 	[ActionMapping.COUNT_OPTIONS]: function(key: PermittedKey<Map<string, number>>, value: string, data: AggregateData): void {
 		if(!Object.hasOwn(data, key)) {
 			data[key] = new Map<string, number>();
 		}
 
-		data[key].set(value,
-			(data[key].get(value) ?? 0) + 1
-		);
+		// value can be comma-separated list
+		value.split(',').filter(item => item).forEach(item => {
+			data[key].set(item,
+				(data[key].get(item) ?? 0) + 1
+			);
+		});
 	},
 	[ActionMapping.COUNT_BOOLEAN]: function(key: PermittedKey<Map<Database.Tinyint, number>>, value: Database.Tinyint, data: AggregateData): void {
 		if(!Object.hasOwn(data, key)) {
@@ -407,16 +413,19 @@ function DTFTeams(props: Props): React.ReactElement {
 			"average_auton_fuel_count": 0,
 			"average_climb_score": 0,
 		};
+
 		data.match_count = matches.filter((x) => x.robot_appeared).length;
 		const l = matches.length;
 
 		if(l === 0) {
 			return data;
 		}
+
 		for(const match of matches) {
 			if(!match.robot_appeared) {
 				continue;
 			}
+
 			for(const [k, v] of Object.entries(match)) {
 				dispatchValueAction(k as keyof AggregateData, v, data, match);
 				data.total_score += getScore(k as keyof AggregateData, v, match);
@@ -431,8 +440,11 @@ function DTFTeams(props: Props): React.ReactElement {
 			data.average_climb_score += getScore('auton_climb_successful', match.auton_climb_successful, match) / data.match_count || 0;
 			data.average_climb_score += getScore('endgame_climb_level', match.endgame_climb_level, match) / data.match_count || 0;
 		}
-		data.average_fuel_count += data.auton_fuel_scored + data.teleop_fuel_scored;
-		data.average_auton_fuel_count += data.auton_fuel_scored;
+
+		// TODO: rename AggregateData keys to match average/summative expectations
+		// fuel scored counts are averages already, no need to divide by match count
+		data.average_fuel_count = data.auton_fuel_scored + data.teleop_fuel_scored;
+		data.average_auton_fuel_count = data.auton_fuel_scored;
 		data.average_score = data.total_score / data.match_count || 0;
 
 		for(const [k, v] of Object.entries(data)) {
@@ -527,7 +539,7 @@ function DTFTeams(props: Props): React.ReactElement {
 				teamTabs.push({ key: "OA", label: "OA", children:
 						<>
 							<Input title="Robot Died (counter: matches)" disabled defaultValue={data.overall_robot_died.toString()} />
-							<Input title="Intake Fuel Type" disabled defaultValue={data.intake_type.entries().toArray().join(', ')} />
+							<Input title="Intake Fuel Type" disabled defaultValue={data.intake_type.values().toArray().join(', ')} />
 							<div className="inputRow">
 								<Checkbox title="Trench" align="center" disabled defaultValue={data.trench_capability} />
 								<Input title="Fuel Capacity" disabled defaultValue={data.fuel_capacity.toString()} />
@@ -573,9 +585,9 @@ function DTFTeams(props: Props): React.ReactElement {
 				continue;
 			}
 
-			totalAverageFuelCount = team.average_fuel_count;
-			totalAverageClimbScore = team.average_climb_score;
-			totalAverageAutonFuelCount = team.average_auton_fuel_count;
+			totalAverageFuelCount += team.average_fuel_count;
+			totalAverageClimbScore += team.average_climb_score;
+			totalAverageAutonFuelCount += team.average_auton_fuel_count;
 
 			averageScores.push(
 				<div key={`${teamNumber}AverageScoreSkill`}>
@@ -667,7 +679,7 @@ function DTFTeams(props: Props): React.ReactElement {
 							</div>
 						</div>
 					);
-					
+
 					alliance_teleop_total_score += team.total_teleop_score / team.match_count / Constants.TEAMS_PER_ALLIANCE;
 					allianceTotalAverage += team.average_score;
 				}
@@ -675,7 +687,7 @@ function DTFTeams(props: Props): React.ReactElement {
 				allianceAverageScores.push(
 					<div key={`allianceAverage${i + 1}`}>
 						<Input title={`Alliance ${i + 1} Total Score`} disabled defaultValue={allianceTotalAverage.toString()} />
-						<Input title={`Alliance ${i + 1} Teleop Average Score`}	disabled defaultValue={Math.round(alliance_teleop_total_score).toString()} />			
+						<Input title={`Alliance ${i + 1} Teleop Average Score`}	disabled defaultValue={Math.round(alliance_teleop_total_score).toString()} />
 						<h2>Alliance {i + 1} Robots</h2>
 						{averageScoresGroup}
 						<hr/>
