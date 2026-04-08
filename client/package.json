@@ -5,27 +5,36 @@
 		"antd": "^6.2.1",
 		"chart.js": "^4.5.1",
 		"dotenv": "^17.2.3",
+		"react": "^19.2.3",
 		"react-dom": "^19.2.3",
 		"react-router-dom": "^7.12.0",
-		"react-use": "^17.6.0",
-		"react": "^19.2.3"
+		"react-use": "^17.6.0"
 	},
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
 		"typecheck": "tsc --build --noEmit --watch",
-		"lint": "eslint"
+		"lint": "eslint",
+		"test": "jest"
 	},
 	"devDependencies": {
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.1",
 		"@types/chart.js": "^2.9.41",
-		"@types/react-dom": "^19.2.3",
+		"@types/jest": "^30.0.0",
 		"@types/react": "^19.2.9",
+		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^5.1.2",
-		"eslint-plugin-react": "^7.37.5",
 		"eslint": "^9.39.2",
-		"typescript-eslint": "^8.53.1",
+		"eslint-plugin-react": "^7.37.5",
+		"identity-obj-proxy": "^3.0.0",
+		"jest": "^30.3.0",
+		"jest-environment-jsdom": "^30.3.0",
+		"ts-jest": "^29.4.6",
 		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.53.1",
 		"vite": "^7.3.1"
 	}
 }

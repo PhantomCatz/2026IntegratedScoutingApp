@@ -3,7 +3,7 @@ import { useLocalStorage, } from 'react-use';
 import { useState, useEffect, useRef } from 'react';
 import Header from '../parts/header';
 import QrCode from '../parts/qrCodeViewer';
-import { getTeamsNotScouted, } from '../utils/tbaRequest.ts';
+import { getTeamsNotScouted, } from '../utils/tbaRequest';
 import { readImage, escapeUnicode } from '../utils/utils';
 import Form, { NumberInput, Select, Input, Checkbox, TextArea } from '../parts/formItems';
 import { getFieldAccessor } from '../parts/formItems';
