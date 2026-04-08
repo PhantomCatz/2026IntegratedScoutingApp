@@ -67,7 +67,7 @@ function Header(props: Props): React.ReactElement {
 	return (
 		<header className="header">
 			{backLink &&
-				<a href={backLink}><img className={"backImg"} src={iconSet.back} alt='Go back'/></a>
+				<a href={backLink} className="backContainer"><img className={"backImg"} src={iconSet.back} alt='Go back'/></a>
 			}
 
 			<img
@@ -80,6 +80,7 @@ function Header(props: Props): React.ReactElement {
 
 			{props.settingsPage ?
 				<div className="settingsContainer"><img className={"menuImg"} src={iconSet.menu} onClick={() => { history.go(-1) }} alt='Settings'></img></div>
+				
 				:
 				<a href={"#settings"} className="settingsContainer"><img className={"menuImg"} src={iconSet.menu} alt='' /></a>
 			}
