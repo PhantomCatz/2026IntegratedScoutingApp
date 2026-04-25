@@ -14,6 +14,7 @@ import MatchData from './routes/matchData';
 import SettingsPage from './routes/settingsPage';
 import AllianceZone from './routes/allianceZone';
 import MatchValidation from './routes/matchValidation';
+import EasterEgg from './routes/easterEgg';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
 const rootElement = document.getElementById('root') as HTMLElement;
@@ -64,6 +65,7 @@ return originalFetch(link, options);
 
 function App(): React.ReactElement {
 	//TODO: refactor titles
+	//hi
 	return (
 		<HashRouter>
 			<Routes>
@@ -82,6 +84,7 @@ function App(): React.ReactElement {
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
 				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
+				<Route path="/easterEgg" element={<EasterEgg title="Easter Egg" />} />
 			</Routes>
 		</HashRouter>
 	);
@@ -98,7 +101,7 @@ root.render(
 
 window.addEventListener("error", (event) => {
 	window.alert(event.message);
-});
+});+
 
 window.addEventListener("unhandledrejection", (event) => {
 	window.alert(event);

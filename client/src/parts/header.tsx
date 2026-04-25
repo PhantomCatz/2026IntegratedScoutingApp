@@ -5,9 +5,10 @@ import blackLogo from '../public/images/blackLogo.png';
 import whiteMenu from '../public/images/whiteMenu.png';
 import blackMenu from '../public/images/blackMenu.png';
 import '../public/stylesheets/header.css';
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {useLocalStorage, } from 'react-use';
 import { parseHexColor } from "../utils/utils";
+import { href } from 'react-router-dom';
 
 type Props = {
 	name: string;
@@ -21,6 +22,7 @@ function Header(props: Props): React.ReactElement {
 
 	const [backgroundColor, _setBackgroundColor] = useLocalStorage<string>('backgroundColor', '#ffffff');
 	const [fontColor, _setFontColor] = useLocalStorage<string>('fontColor', '#000000');
+	const [easterEggNumber, setEasterEggNumber] = useState(0);
 	// console.log(`backgroundColor=`, backgroundColor);
 	// console.log(`fontColor=`, fontColor);
 
@@ -70,11 +72,23 @@ function Header(props: Props): React.ReactElement {
 				<a href={backLink} className="backContainer"><img className={"backImg"} src={iconSet.back} alt='Go back'/></a>
 			}
 
-			<img
-				className={"logoImg"}
-				src={iconSet.icon}
-				alt="2637 Logo"
-			/>
+			<a
+			className='mainButton' 
+			onClick={() => {
+				const next = easterEggNumber + 1;
+				setEasterEggNumber(next);
+
+				if (next === 10) {
+					window.location.href = '#easterEgg/';
+					setEasterEggNumber(0);
+				}
+			}}>
+				<img
+					className={"logoImg"}
+					src={iconSet.icon}
+					alt="2637 Logo"
+				/>
+			</a>
 
 			<h1 className={"pageTitle"}>{name}</h1>
 
