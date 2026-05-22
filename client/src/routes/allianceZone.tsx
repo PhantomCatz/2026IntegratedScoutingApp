@@ -25,18 +25,17 @@ const formDefaultValues: AllianceZoneTypes.Alliance = {
 	"comments": "",
 	"red_alliance": "",
 	"blue_alliance": "",
-	"team1Value": "best",  // default selected radio
+	"team1Value": "best", // default selected radio
 	"team2Value": "best",
 	"team3Value": "best",
 } as const;
-
 
 type Props = {
 	title: string,
 };
 
 function AllianceZone(props: Props): React.ReactElement {
-	const [tabNum, setTabNum] = useState("1");
+	const [tabNumber, setTabNumber] = useState("1");
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
 	const [inPlayoffs, setInPlayoffs] = useState(false);
@@ -158,7 +157,7 @@ function AllianceZone(props: Props): React.ReactElement {
 				body[access] = newVal as unknown as never;
 			});
 
-		void tryFetch(body)
+		void tryOnlineSubmit(body)
 			.then((successful) => {
 				if (successful) {
 					window.alert("Submit successful.");
@@ -170,22 +169,20 @@ function AllianceZone(props: Props): React.ReactElement {
 		setQrValue(body);
 	}
 
-	async function tryFetch(body: AllianceZoneTypes.SubmitBody): Promise<boolean> {
-		let fetchLink = Constants.SERVER_ADDRESS;
-
-		if (!fetchLink) {
+	async function tryOnlineSubmit(body: AllianceZoneTypes.SubmitBody): Promise<boolean> {
+		if (!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return false;
 		}
 
-		fetchLink += "reqType=submitAllianceZoneData";
+		const fetchLink = Constants.SERVER_ADDRESS + "allianceZone/match";
 
 		const submitBody = {
 			...body,
 		};
 
 		try {
-			const res = await fetch(fetchLink, {
+			const response = await fetch(fetchLink, {
 				method: "POST",
 				body: JSON.stringify(submitBody),
 				headers: {
@@ -193,7 +190,7 @@ function AllianceZone(props: Props): React.ReactElement {
 				},
 			});
 
-			return res.ok;
+			return response.ok;
 		} catch (_) {
 			return false;
 		}
@@ -270,7 +267,7 @@ function AllianceZone(props: Props): React.ReactElement {
 
 				<button
 					type="button"
-					onClick={() => { setTabNum("2"); }}
+					onClick={() => { setTabNumber("2"); }}
 					className='tabButton'
 				>
 					Next
@@ -319,7 +316,7 @@ function AllianceZone(props: Props): React.ReactElement {
 
 				<button
 					type='button'
-					onClick={() => { setTabNum("1"); }}
+					onClick={() => { setTabNumber("1"); }}
 					className='tabButton'
 				>
 					Back
@@ -366,9 +363,9 @@ function AllianceZone(props: Props): React.ReactElement {
 				>
 					<Tabs
 						defaultActiveKey="1"
-						activeKey={tabNum}
+						activeKey={tabNumber}
 						items={items}
-						onChange={(key) => { setTabNum(key); }}
+						onChange={(key) => { setTabNumber(key); }}
 					/>
 				</Form>
 

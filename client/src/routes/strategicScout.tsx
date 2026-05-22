@@ -31,7 +31,7 @@ type Props = {
 };
 
 function StrategicScout(props: Props): React.ReactElement {
-	const [tabNum, setTabNum] = useState("1");
+	const [tabNumber, setTabNumber] = useState("1");
 	const [team_number, setTeamNumber] = useState(0);
 	const [teamsInMatch, setTeamsInMatch] = useState<ResultTypes.TeamsInMatch | null>(null);
 	const [qrValue, setQrValue] = useState<unknown>();
@@ -52,24 +52,20 @@ function StrategicScout(props: Props): React.ReactElement {
 	}, [props.title]);
 	useEffect(() => {
 		void (async function() {
-			let fetchLink = Constants.SERVER_ADDRESS;
-
 			if(!team_number) {
 				return;
 			}
 
-			if(!fetchLink) {
+			if(!Constants.SERVER_ADDRESS) {
 				console.error("Could not get fetch link. Check .env");
 				return;
 			}
 
-			fetchLink += "reqType=getTeamStrategic";
-
-			fetchLink += `&team=${team_number}`;
+			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/strategic/team/" + team_number.toString();
 
 			try {
-				const request = await fetch(fetchLink);
-				const data = await request.json() as Database.StrategicEntry[] | null;
+				const response = await fetch(fetchLink);
+				const data = await response.json() as Database.StrategicEntry[] | null;
 				if(!data?.length) {
 					console.error(`No data for team ${team_number}`);
 					setTeamData(null);
@@ -146,7 +142,7 @@ function StrategicScout(props: Props): React.ReactElement {
 				body[access] = newVal as unknown as never;
 			});
 
-		void tryFetch(body)
+		void tryOnlineSubmission(body)
 			.then((successful) => {
 				if(successful) {
 					window.alert("Submit successful.");
@@ -157,22 +153,20 @@ function StrategicScout(props: Props): React.ReactElement {
 
 		setQrValue(body);
 	}
-	async function tryFetch(body: StrategicScoutTypes.SubmitBody): Promise<boolean> {
-		let fetchLink = Constants.SERVER_ADDRESS;
-
-		if(!fetchLink) {
+	async function tryOnlineSubmission(body: StrategicScoutTypes.SubmitBody): Promise<boolean> {
+		if(!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return false;
 		}
 
-		fetchLink += "reqType=submitStrategicData";
+		const fetchLink = Constants.SERVER_ADDRESS + "strategic/team/";
 
 		const submitBody = {
 			...body,
 		};
 
 		try {
-			const res = await fetch(fetchLink, {
+			const response = await fetch(fetchLink, {
 				method: "POST",
 				body: JSON.stringify(submitBody),
 				headers: {
@@ -180,7 +174,7 @@ function StrategicScout(props: Props): React.ReactElement {
 				},
 			});
 
-			return res.ok;
+			return response.ok;
 		} catch (_) {
 			return false;
 		}
@@ -293,7 +287,7 @@ function StrategicScout(props: Props): React.ReactElement {
 					onChange={() => { updateTeamNumber(teamsInMatch); }}
 				/>
 
-				<button type="button" onClick={() => { setTabNum("2"); }} className='tabButton'>Next</button>
+				<button type="button" onClick={() => { setTabNumber("2"); }} className='tabButton'>Next</button>
 
 			</>
 		);
@@ -347,7 +341,7 @@ function StrategicScout(props: Props): React.ReactElement {
 					message="Please input some comments!"
 				/>
 
-				<button type='button' onClick={() => { setTabNum("1"); }} className='tabButton'>Back</button>
+				<button type='button' onClick={() => { setTabNumber("1"); }} className='tabButton'>Back</button>
 				<button type='submit' className='submitButton'>Submit</button>
 			</div>
 		);
@@ -381,7 +375,7 @@ function StrategicScout(props: Props): React.ReactElement {
 						window.alert(errorMessage);
 					}}
 				>
-					<Tabs defaultActiveKey="1" activeKey={tabNum} items={items} onChange={(key) => { setTabNum(key); }} />
+					<Tabs defaultActiveKey="1" activeKey={tabNumber} items={items} onChange={(key) => { setTabNumber(key); }} />
 				</Form>
 				<QrCode value={qrValue} />
 			</strategic-scout>

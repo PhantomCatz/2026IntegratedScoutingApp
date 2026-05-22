@@ -127,14 +127,12 @@ async function getAllTeams(eventKey: TbaApi.EventKey): Promise<ResultTypes.AllTe
 }
 async function getTeamsNotScouted(eventKey: TbaApi.EventKey): Promise<ResultTypes.TeamsNotScouted | null> {
 	try {
-		let fetchLink = Constants.SERVER_ADDRESS;
-
-		if(!fetchLink) {
+		if(!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link. Check .env");
 			return null;
 		}
 
-		fetchLink += "reqType=teamsScouted";
+		const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/teamsScouted";
 
 		const response = await fetch(fetchLink);
 		const teamsScouted: ResultTypes.TeamsNotScouted = await response.json() as ResultTypes.TeamsNotScouted;

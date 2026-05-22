@@ -46,24 +46,9 @@ window.alert = (function() {
 	}
 })();
 
-/*
-globalThis.fetch = (() => {
-const originalFetch = globalThis.fetch;
-
-return async function(link: any, args : any) {
-const rest = args || {};
-const options = {
-mode: "no-cors",
-...rest
-};
-
-return originalFetch(link, options);
-}
-})();
-//*/
-
 function App(): React.ReactElement {
-	//TODO: refactor titles
+	// TODO: refactor titles
+	// TODO: add single header object for all pages
 	return (
 		<HashRouter>
 			<Routes>
@@ -88,13 +73,6 @@ function App(): React.ReactElement {
 }
 
 root.render(<App />);
-/*
-root.render(
-<React.StrictMode>
-<App />
-</React.StrictMode>
-);
-*/
 
 window.addEventListener("error", (event) => {
 	window.alert(event.message);

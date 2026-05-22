@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		// File Layout
+		"rootDir": "./src",
+		"outDir": "./dist",
+
+		"module": "nodenext",
+		"target": "esnext",
+		"types": [],
+		"lib": ["esnext"],
+		"types": ["node"],
+
+		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true,
+
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+
+		"noUnusedLocals": false,
+
+		"strict": true,
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"noUncheckedSideEffectImports": true,
+		"moduleDetection": "force",
+		"skipLibCheck": true
+	}
+}

@@ -141,14 +141,12 @@ function PitScout(props: Props): React.ReactElement {
 		setQrValue(body);
 	}
 	async function tryOnlineSubmission(body: PitScoutTypes.SubmitBody, robot_image_uri: string[]): Promise<boolean> {
-		let fetchLink = Constants.SERVER_ADDRESS;
-
-		if(!fetchLink) {
+		if(!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return false;
 		}
 
-		fetchLink += "reqType=submitPitData";
+		const fetchLink = Constants.SERVER_ADDRESS + "pit/team/full/";
 
 		const imageData = robot_image_uri.join(IMAGE_DELIMITER);
 
@@ -158,7 +156,7 @@ function PitScout(props: Props): React.ReactElement {
 		};
 
 		try {
-			const res = await fetch(fetchLink, {
+			const response = await fetch(fetchLink, {
 				method: "POST",
 				body: JSON.stringify(submitBody),
 				headers: {
@@ -166,7 +164,7 @@ function PitScout(props: Props): React.ReactElement {
 				},
 			});
 
-			return res.ok;
+			return response.ok;
 		} catch (err) {
 			console.error(`Failed to submit data:`, err);
 
