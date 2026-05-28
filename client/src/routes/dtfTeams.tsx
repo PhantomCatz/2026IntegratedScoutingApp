@@ -1,162 +1,176 @@
-import '../public/stylesheets/style.css';
-import '../public/stylesheets/dtfTeams.css';
+import "../public/stylesheets/style.css";
+import "../public/stylesheets/dtfTeams.css";
 import { useEffect, useState } from "react";
-import { useLocalStorage, } from 'react-use';
+import { useLocalStorage } from "react-use";
 import { useParams } from "react-router-dom";
-import { Input, TextArea, Checkbox } from '../parts/formItems';
-import { Tabs } from '../parts/tabs';
-import Header from '../parts/header';
-import { DTFAutonChartComponent, DTFTeleopChartComponent } from '../parts/dtfChart';
-import Constants from '../utils/constants';
-import * as Utils from '../utils/utils';
+import { Input, TextArea, Checkbox } from "../parts/formItems";
+import { Tabs } from "../parts/tabs";
+import Header from "../parts/header";
+import { DTFAutonChartComponent, DTFTeleopChartComponent } from "../parts/dtfChart";
+import Constants from "../utils/constants";
+import * as Utils from "../utils/utils";
 
-import type { TabItems, } from '../parts/tabs';
-import type * as Database from '../types/database';
-import type * as TbaApi from '../types/tbaApi';
-import type { TypedKey } from '../types/utilityTypes';
-import { assertNumber, assertString, assertNonNull, assertEquals, assertTinyInt } from '../types/assertions';
+import type { TabItems } from "../parts/tabs";
+import type * as Database from "../types/database";
+import type * as TbaApi from "../types/tbaApi";
+import type { TypedKey } from "../types/utilityTypes";
+import { assertNumber, assertString, assertNonNull, assertEquals, assertTinyInt } from "../types/assertions";
 
 type Props = {
 	title: string;
 };
 type MatchData = {
-	[team_index: number]: Database.MatchEntry[]
+	[team_index: number]: Database.MatchEntry[];
 };
 type AggregateData = {
-	"auton_fuel_scored": number;
-	"auton_shoot_location": Set<string>;
-	"auton_intake_location": Set<string>;
-	"auton_climb_attempted": number;
-	"auton_climb_successful": number;
+	auton_fuel_scored: number;
+	auton_shoot_location: Set<string>;
+	auton_intake_location: Set<string>;
+	auton_climb_attempted: number;
+	auton_climb_successful: number;
 
-	"teleop_fuel_scored": number;
-	"teleop_fuel_hoarded_amount": Map<string, number>;
-	"teleop_primary_hoard_type": Map<string, number>;
+	teleop_fuel_scored: number;
+	teleop_fuel_hoarded_amount: Map<string, number>;
+	teleop_primary_hoard_type: Map<string, number>;
 
-	"endgame_climb_attempted": Map<string, number>;
-	"endgame_climb_level": Map<string, number>; //TODO: stronger typing for form options? so that we can type maps at compile time
-	"endgame_climb_successful": Map<string, number>;
+	endgame_climb_attempted: Map<string, number>;
+	endgame_climb_level: Map<string, number>; //TODO: stronger typing for form options? so that we can type maps at compile time
+	endgame_climb_successful: Map<string, number>;
 
-	"overall_robot_died": number;
-	"overall_shot_while_moving": Map<Database.Tinyint, number>;
+	overall_robot_died: number;
+	overall_shot_while_moving: Map<Database.Tinyint, number>;
 
-	"match_count": number;
-	"robot_comments": string;
-	"total_score": number;
-	"total_auton_score": number;
-	"total_teleop_score": number;
-	"average_score": number;
+	match_count: number;
+	robot_comments: string;
+	total_score: number;
+	total_auton_score: number;
+	total_teleop_score: number;
+	average_score: number;
 
-	"trench_capability": boolean;
-	"intake_type": Set<string>;
-	"fuel_capacity": number;
+	trench_capability: boolean;
+	intake_type: Set<string>;
+	fuel_capacity: number;
 
-	"average_fuel_count": number,
-	"average_auton_fuel_count": number,
-	"average_climb_score": number,
+	average_fuel_count: number;
+	average_auton_fuel_count: number;
+	average_climb_score: number;
 };
 
 enum ActionMapping {
-	ADD = 'add',
-	AVERAGE = 'average',
-	STRING_ADD = 'string_add',
-	SELECT_OPTIONS = 'select_options',
-	COUNT_OPTIONS = 'count_options',
-	COUNT_BOOLEAN = 'count_boolean',
+	ADD = "add",
+	AVERAGE = "average",
+	STRING_ADD = "string_add",
+	SELECT_OPTIONS = "select_options",
+	COUNT_OPTIONS = "count_options",
+	COUNT_BOOLEAN = "count_boolean",
 
-	ENDGAME_CLIMB = 'endgame_climb',
-};
+	ENDGAME_CLIMB = "endgame_climb",
+}
 const KEY_MAPPINGS: { [key: string]: ActionMapping | undefined } = {
-	"auton_fuel_scored": ActionMapping.AVERAGE,
-	"auton_shoot_location": ActionMapping.SELECT_OPTIONS,
-	"auton_intake_location": ActionMapping.SELECT_OPTIONS,
-	"auton_climb_attempted": ActionMapping.ADD,
-	"auton_climb_successful": ActionMapping.ADD,
+	auton_fuel_scored: ActionMapping.AVERAGE,
+	auton_shoot_location: ActionMapping.SELECT_OPTIONS,
+	auton_intake_location: ActionMapping.SELECT_OPTIONS,
+	auton_climb_attempted: ActionMapping.ADD,
+	auton_climb_successful: ActionMapping.ADD,
 
-	"teleop_fuel_scored": ActionMapping.AVERAGE,
-	"teleop_fuel_hoarded_amount": ActionMapping.COUNT_OPTIONS,
-	"teleop_primary_hoard_type": ActionMapping.COUNT_OPTIONS,
+	teleop_fuel_scored: ActionMapping.AVERAGE,
+	teleop_fuel_hoarded_amount: ActionMapping.COUNT_OPTIONS,
+	teleop_primary_hoard_type: ActionMapping.COUNT_OPTIONS,
 
-	"endgame_climb_level": ActionMapping.ENDGAME_CLIMB, //TODO: stronger typing for form options? so that we can type maps at compile time
+	endgame_climb_level: ActionMapping.ENDGAME_CLIMB, //TODO: stronger typing for form options? so that we can type maps at compile time
 
-	"overall_robot_died": ActionMapping.AVERAGE,
-	"overall_shot_while_moving": ActionMapping.COUNT_BOOLEAN,
+	overall_robot_died: ActionMapping.AVERAGE,
+	overall_shot_while_moving: ActionMapping.COUNT_BOOLEAN,
 } as const;
 
-type PermittedKey<T> = TypedKey<AggregateData, T>
+type PermittedKey<T> = TypedKey<AggregateData, T>;
 const ACTIONS = {
-	[ActionMapping.ADD]: function(key: PermittedKey<number>, value: number, data: AggregateData): void {
-		if(!Object.hasOwn(data, key)) {
+	[ActionMapping.ADD]: function (key: PermittedKey<number>, value: number, data: AggregateData): void {
+		if (!Object.hasOwn(data, key)) {
 			data[key] = 0;
 		}
 		data[key] += value;
 	},
-	[ActionMapping.AVERAGE]: function(key: PermittedKey<number>, value: number, data: AggregateData): void {
-		if(!Object.hasOwn(data, key)) {
+	[ActionMapping.AVERAGE]: function (key: PermittedKey<number>, value: number, data: AggregateData): void {
+		if (!Object.hasOwn(data, key)) {
 			data[key] = 0;
 		}
 		data[key] += value / data.match_count;
 	},
-	[ActionMapping.STRING_ADD]: function(key: PermittedKey<string>, value: string, data: AggregateData): void {
-		if(!Object.hasOwn(data, key)) {
+	[ActionMapping.STRING_ADD]: function (key: PermittedKey<string>, value: string, data: AggregateData): void {
+		if (!Object.hasOwn(data, key)) {
 			data[key] = "";
 		}
 		data[key] += value.replace("\\n", "\n") + "\n";
 	},
-	[ActionMapping.SELECT_OPTIONS]: function(key: PermittedKey<Set<string>>, value: string, data: AggregateData): void {
-		if(!Object.hasOwn(data, key)) {
+	[ActionMapping.SELECT_OPTIONS]: function (key: PermittedKey<Set<string>>, value: string, data: AggregateData): void {
+		if (!Object.hasOwn(data, key)) {
 			data[key] = new Set<string>();
 		}
 
 		// value can be comma-separated list
-		value.split(',').filter(item => item).forEach(item => {
-			data[key].add(item);
-		});
+		value
+			.split(",")
+			.filter((item) => item)
+			.forEach((item) => {
+				data[key].add(item);
+			});
 	},
-	[ActionMapping.COUNT_OPTIONS]: function(key: PermittedKey<Map<string, number>>, value: string, data: AggregateData): void {
-		if(!Object.hasOwn(data, key)) {
+	[ActionMapping.COUNT_OPTIONS]: function (
+		key: PermittedKey<Map<string, number>>,
+		value: string,
+		data: AggregateData,
+	): void {
+		if (!Object.hasOwn(data, key)) {
 			data[key] = new Map<string, number>();
 		}
 
 		// value can be comma-separated list
-		value.split(',').filter(item => item).forEach(item => {
-			data[key].set(item,
-				(data[key].get(item) ?? 0) + 1
-			);
-		});
+		value
+			.split(",")
+			.filter((item) => item)
+			.forEach((item) => {
+				data[key].set(item, (data[key].get(item) ?? 0) + 1);
+			});
 	},
-	[ActionMapping.COUNT_BOOLEAN]: function(key: PermittedKey<Map<Database.Tinyint, number>>, value: Database.Tinyint, data: AggregateData): void {
-		if(!Object.hasOwn(data, key)) {
+	[ActionMapping.COUNT_BOOLEAN]: function (
+		key: PermittedKey<Map<Database.Tinyint, number>>,
+		value: Database.Tinyint,
+		data: AggregateData,
+	): void {
+		if (!Object.hasOwn(data, key)) {
 			data[key] = new Map<Database.Tinyint, number>();
 		}
 
-		data[key].set(value,
-			(data[key].get(value) ?? 0) + 1
-		);
+		data[key].set(value, (data[key].get(value) ?? 0) + 1);
 	},
 
 	// idk...
-	[ActionMapping.ENDGAME_CLIMB]: function(_key: 'endgame_climb_level', value: string, data: AggregateData, match: Database.MatchEntry): void {
-		if(!Object.hasOwn(data, 'endgame_climb_level')) {
-			data['endgame_climb_level'] = new Map<string, number>();
+	[ActionMapping.ENDGAME_CLIMB]: function (
+		_key: "endgame_climb_level",
+		value: string,
+		data: AggregateData,
+		match: Database.MatchEntry,
+	): void {
+		if (!Object.hasOwn(data, "endgame_climb_level")) {
+			data["endgame_climb_level"] = new Map<string, number>();
 		}
-		if(!Object.hasOwn(data, 'endgame_climb_attempted')) {
-			data['endgame_climb_attempted'] = new Map<string, number>();
+		if (!Object.hasOwn(data, "endgame_climb_attempted")) {
+			data["endgame_climb_attempted"] = new Map<string, number>();
 		}
-		if(!Object.hasOwn(data, 'endgame_climb_successful')) {
-			data['endgame_climb_successful'] = new Map<string, number>();
+		if (!Object.hasOwn(data, "endgame_climb_successful")) {
+			data["endgame_climb_successful"] = new Map<string, number>();
 		}
 
-		if(!match.endgame_climb_attempted) {
+		if (!match.endgame_climb_attempted) {
 			return;
 		}
 
-		data['endgame_climb_level'].set(value, (data['endgame_climb_level'].get(value) ?? 0) + 1);
-		data['endgame_climb_attempted'].set(value,
-			(data['endgame_climb_attempted'].get(value) ?? 0) + 1
-		);
-		data['endgame_climb_successful'].set(value,
-			(data['endgame_climb_successful'].get(value) ?? 0) + match.endgame_climb_successful
+		data["endgame_climb_level"].set(value, (data["endgame_climb_level"].get(value) ?? 0) + 1);
+		data["endgame_climb_attempted"].set(value, (data["endgame_climb_attempted"].get(value) ?? 0) + 1);
+		data["endgame_climb_successful"].set(
+			value,
+			(data["endgame_climb_successful"].get(value) ?? 0) + match.endgame_climb_successful,
 		);
 	},
 } as const;
@@ -166,12 +180,16 @@ function DTFTeams(props: Props): React.ReactElement {
 	const [isLoading, setIsLoading] = useState(false);
 	const [tabItems, setTabItems] = useState<TabItems>([]);
 	const [teamList, setTeamList] = useState<number[]>([]);
-	const [teamsMatchData, setTeamsMatchData] = useState<{[index: number]: Database.MatchEntry[] | undefined} | null>(null);
-	const [teamsStrategicData, setTeamsStrategicData] = useState<{[index: string]: Database.StrategicEntry[]} | null>(null);
-	const [teamsPitData, setTeamsPitData] = useState<{[index: string]: Database.PitDataEntry[]} | null>(null);
-	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [teamsMatchData, setTeamsMatchData] = useState<{ [index: number]: Database.MatchEntry[] | undefined } | null>(
+		null,
+	);
+	const [teamsStrategicData, setTeamsStrategicData] = useState<{ [index: string]: Database.StrategicEntry[] } | null>(
+		null,
+	);
+	const [teamsPitData, setTeamsPitData] = useState<{ [index: string]: Database.PitDataEntry[] } | null>(null);
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
 
-	if(!_eventKey) {
+	if (!_eventKey) {
 		throw new Error("Could not get event key");
 	}
 
@@ -187,11 +205,11 @@ function DTFTeams(props: Props): React.ReactElement {
 	}, [teamParams]);
 	useEffect(() => {
 		const teams = teamList;
-		if(!teams.some(x => x)) {
+		if (!teams.some((x) => x)) {
 			return;
 		}
 
-		if(!Constants.SERVER_ADDRESS) {
+		if (!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return;
 		}
@@ -211,23 +229,29 @@ function DTFTeams(props: Props): React.ReactElement {
 				const pitData: { [teamIndex: number]: Database.PitDataEntry[] } = {};
 
 				// so that all requests (hopefully) run in parallel
-				await Promise.all(teams.filter(team => team).map((team) => Promise.all([
-					(async () => {
-						const response = await fetch(matchDataFetchLink + team.toString());
-						const data = await response.json() as Database.MatchEntry[];
-						matchData[team] = data;
-					})(),
-					(async () => {
-						const response = await fetch(strategicDataFetchLink + team.toString());
-						const data = await response.json() as Database.StrategicEntry[];
-						strategicData[team] = data;
-					})(),
-					(async () => {
-						const response = await fetch(pitDataFetchLink + team.toString());
-						const data = await response.json() as Database.PitDataEntry[];
-						pitData[team] = data;
-					})()
-				])));
+				await Promise.all(
+					teams
+						.filter((team) => team)
+						.map((team) =>
+							Promise.all([
+								(async () => {
+									const response = await fetch(matchDataFetchLink + team.toString());
+									const data = (await response.json()) as Database.MatchEntry[];
+									matchData[team] = data;
+								})(),
+								(async () => {
+									const response = await fetch(strategicDataFetchLink + team.toString());
+									const data = (await response.json()) as Database.StrategicEntry[];
+									strategicData[team] = data;
+								})(),
+								(async () => {
+									const response = await fetch(pitDataFetchLink + team.toString());
+									const data = (await response.json()) as Database.PitDataEntry[];
+									pitData[team] = data;
+								})(),
+							]),
+						),
+				);
 
 				sortByMatches(matchData);
 				setTeamsMatchData(matchData);
@@ -239,8 +263,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			} catch (err: unknown) {
 				console.error("Error fetching data. Is server on?", err);
 			}
-		})()
-		.finally(() => {
+		})().finally(() => {
 			setIsLoading(false);
 		});
 	}, [teamList]);
@@ -248,38 +271,42 @@ function DTFTeams(props: Props): React.ReactElement {
 		getDTF(teamList);
 	}, [teamsMatchData, teamsStrategicData, teamsPitData]);
 
-	function sortByMatches(data: { [teamIndex: string]: { comp_level: TbaApi.Comp_Level, match_number: number}[]}): void {
+	function sortByMatches(data: {
+		[teamIndex: string]: { comp_level: TbaApi.Comp_Level; match_number: number }[];
+	}): void {
 		const matchLevelOrder = {
-			"qm": 0,
-			"qf": 1,
-			"sf": 2,
-			"f": 3,
-			"ef": 4,
+			qm: 0,
+			qf: 1,
+			sf: 2,
+			f: 3,
+			ef: 4,
 		} as const;
 
-		for(const teamIndex in data) {
-			data[teamIndex].sort(function(a, b) {
+		for (const teamIndex in data) {
+			data[teamIndex].sort(function (a, b) {
 				const matchLevelComp = matchLevelOrder[a.comp_level] - matchLevelOrder[b.comp_level];
-				if(matchLevelComp !== 0) {
+				if (matchLevelComp !== 0) {
 					return matchLevelComp;
 				}
 				return a.match_number - b.match_number;
 			});
 		}
 	}
-	function dispatchValueAction(k: keyof AggregateData,
-			v: Database.MatchEntry[keyof Database.MatchEntry],
-			data: AggregateData,
-			match: Database.MatchEntry): void {
+	function dispatchValueAction(
+		k: keyof AggregateData,
+		v: Database.MatchEntry[keyof Database.MatchEntry],
+		data: AggregateData,
+		match: Database.MatchEntry,
+	): void {
 		assertNonNull(v);
 
 		const action = KEY_MAPPINGS[k];
 
-		if(!action) {
+		if (!action) {
 			return;
 		}
 
-		switch(action) {
+		switch (action) {
 			case ActionMapping.ADD: {
 				assertNumber(v);
 
@@ -317,7 +344,7 @@ function DTFTeams(props: Props): React.ReactElement {
 				break;
 			}
 			case ActionMapping.ENDGAME_CLIMB: {
-				assertEquals('endgame_climb_level', k);
+				assertEquals("endgame_climb_level", k);
 				assertString(v);
 
 				ACTIONS[ActionMapping.ENDGAME_CLIMB](k, v, data, match);
@@ -329,28 +356,28 @@ function DTFTeams(props: Props): React.ReactElement {
 	}
 	function getScore(k: keyof AggregateData, v: AggregateData[keyof AggregateData], match: Database.MatchEntry): number {
 		const map: { [key: string]: number | undefined } = {
-			"auton_fuel_scored": 1,
-			"teleop_fuel_scored": 1,
-			"auton_climb_successful": 15, // works because booleans are stored as tinyints
+			auton_fuel_scored: 1,
+			teleop_fuel_scored: 1,
+			auton_climb_successful: 15, // works because booleans are stored as tinyints
 		} as const;
 
 		let score = 0;
 
-		if(map[k]) {
+		if (map[k]) {
 			assertNumber(v);
 
 			score = map[k] * v;
-		} else if(k === "endgame_climb_level" && match.endgame_climb_successful) {
-			switch(v) {
-				case 'Level_3':
+		} else if (k === "endgame_climb_level" && match.endgame_climb_successful) {
+			switch (v) {
+				case "Level_3":
 					// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-					score =  30;
+					score = 30;
 					break;
-				case 'Level_2':
+				case "Level_2":
 					// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 					score = 20;
 					break;
-				case 'Level_1':
+				case "Level_1":
 					// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 					score = 10;
 					break;
@@ -362,64 +389,66 @@ function DTFTeams(props: Props): React.ReactElement {
 	}
 	function mergeTeamMatches(matches: Database.MatchEntry[]): AggregateData {
 		const data: AggregateData = {
-			"auton_fuel_scored": 0,
-			"auton_shoot_location": new Set<string>(),
-			"auton_intake_location": new Set<string>(),
-			"auton_climb_attempted": 0,
-			"auton_climb_successful": 0,
+			auton_fuel_scored: 0,
+			auton_shoot_location: new Set<string>(),
+			auton_intake_location: new Set<string>(),
+			auton_climb_attempted: 0,
+			auton_climb_successful: 0,
 
-			"teleop_fuel_scored": 0,
-			"teleop_fuel_hoarded_amount": new Map<string, number>(),
-			"teleop_primary_hoard_type": new Map<string, number>(),
+			teleop_fuel_scored: 0,
+			teleop_fuel_hoarded_amount: new Map<string, number>(),
+			teleop_primary_hoard_type: new Map<string, number>(),
 
-			"endgame_climb_attempted": new Map<string, number>(),
-			"endgame_climb_level": new Map<string, number>(), //TODO: stronger typing for form options? so that we can type maps at compile time
-			"endgame_climb_successful": new Map<string, number>(),
+			endgame_climb_attempted: new Map<string, number>(),
+			endgame_climb_level: new Map<string, number>(), //TODO: stronger typing for form options? so that we can type maps at compile time
+			endgame_climb_successful: new Map<string, number>(),
 
-			"overall_robot_died": 0,
-			"overall_shot_while_moving": new Map<Database.Tinyint, number>(),
+			overall_robot_died: 0,
+			overall_shot_while_moving: new Map<Database.Tinyint, number>(),
 
-			"match_count": 0,
-			"robot_comments": "",
-			"total_score": 0,
-			"total_auton_score": 0,
-			"total_teleop_score": 0,
-			"average_score": 0,
+			match_count: 0,
+			robot_comments: "",
+			total_score: 0,
+			total_auton_score: 0,
+			total_teleop_score: 0,
+			average_score: 0,
 
-			"trench_capability": false,
-			"intake_type": new Set<string>(),
-			"fuel_capacity": 0,
+			trench_capability: false,
+			intake_type: new Set<string>(),
+			fuel_capacity: 0,
 
-			"average_fuel_count": 0,
-			"average_auton_fuel_count": 0,
-			"average_climb_score": 0,
+			average_fuel_count: 0,
+			average_auton_fuel_count: 0,
+			average_climb_score: 0,
 		};
 
 		data.match_count = matches.filter((x) => x.robot_appeared).length;
 		const l = matches.length;
 
-		if(l === 0) {
+		if (l === 0) {
 			return data;
 		}
 
-		for(const match of matches) {
-			if(!match.robot_appeared) {
+		for (const match of matches) {
+			if (!match.robot_appeared) {
 				continue;
 			}
 
-			for(const [k, v] of Object.entries(match)) {
+			for (const [k, v] of Object.entries(match)) {
 				dispatchValueAction(k as keyof AggregateData, v, data, match);
 				data.total_score += getScore(k as keyof AggregateData, v, match);
 			}
 
-			data.total_auton_score += getScore('auton_climb_successful', match.auton_climb_successful, match);
-			data.total_auton_score += getScore('auton_fuel_scored', match.auton_fuel_scored, match);
+			data.total_auton_score += getScore("auton_climb_successful", match.auton_climb_successful, match);
+			data.total_auton_score += getScore("auton_fuel_scored", match.auton_fuel_scored, match);
 
-			data.total_teleop_score += getScore('endgame_climb_level', match.endgame_climb_level, match);
-			data.total_teleop_score += getScore('teleop_fuel_scored', match.teleop_fuel_scored, match);
+			data.total_teleop_score += getScore("endgame_climb_level", match.endgame_climb_level, match);
+			data.total_teleop_score += getScore("teleop_fuel_scored", match.teleop_fuel_scored, match);
 
-			data.average_climb_score += getScore('auton_climb_successful', match.auton_climb_successful, match) / data.match_count || 0;
-			data.average_climb_score += getScore('endgame_climb_level', match.endgame_climb_level, match) / data.match_count || 0;
+			data.average_climb_score +=
+				getScore("auton_climb_successful", match.auton_climb_successful, match) / data.match_count || 0;
+			data.average_climb_score +=
+				getScore("endgame_climb_level", match.endgame_climb_level, match) / data.match_count || 0;
 		}
 
 		// TODO: rename AggregateData keys to match average/summative expectations
@@ -428,8 +457,8 @@ function DTFTeams(props: Props): React.ReactElement {
 		data.average_auton_fuel_count = data.auton_fuel_scored;
 		data.average_score = data.total_score / data.match_count || 0;
 
-		for(const [k, v] of Object.entries(data)) {
-			if(typeof v === "number") {
+		for (const [k, v] of Object.entries(data)) {
+			if (typeof v === "number") {
 				// TODO: does this need to be modified?
 				// :eyes:
 				data[k as PermittedKey<number>] = Math.round(v);
@@ -438,18 +467,22 @@ function DTFTeams(props: Props): React.ReactElement {
 		return data;
 	}
 
-	function getAllianceTabItems(teams: number[], persistentData: { [team: string]: AggregateData | undefined }, index: number): TabItems {
+	function getAllianceTabItems(
+		teams: number[],
+		persistentData: { [team: string]: AggregateData | undefined },
+		index: number,
+	): TabItems {
 		const tabs: TabItems = [];
 		const alliancePersistentData: AggregateData[] = [];
 
-		if(!teamsMatchData || !teamsStrategicData || !teamsPitData) {
+		if (!teamsMatchData || !teamsStrategicData || !teamsPitData) {
 			return tabs;
 		}
 
 		let teamCount = (index - 1) * Constants.TEAMS_PER_ALLIANCE;
 		for (const team of teams) {
 			teamCount++;
-			if(!team) {
+			if (!team) {
 				continue;
 			}
 
@@ -460,12 +493,12 @@ function DTFTeams(props: Props): React.ReactElement {
 
 			const pitData = teamsPitData[team];
 
-			if(teamMatches && teamMatches.length) {
+			if (teamMatches && teamMatches.length) {
 				const data = mergeTeamMatches(teamMatches);
 
-				strategicData.forEach(row => {
+				strategicData.forEach((row) => {
 					// :eyes:
-					dispatchValueAction('robot_comments', row.comments, data, null as never);
+					dispatchValueAction("robot_comments", row.comments, data, null as never);
 				});
 
 				const latestPitMatch = pitData[pitData.length - 1] as Database.PitDataEntry | undefined;
@@ -476,71 +509,121 @@ function DTFTeams(props: Props): React.ReactElement {
 				persistentData[team] = data;
 				alliancePersistentData.push(data);
 
-				teamTabs.push({ key: "Auton", label: "Auton", children:
+				teamTabs.push({
+					key: "Auton",
+					label: "Auton",
+					children: (
 						<>
 							<div className="inputRow">
 								<Input title="Avg Fuel Scored" disabled defaultValue={data.auton_fuel_scored.toString()} />
-								<Input title="Climb Percentage" disabled defaultValue={Utils.toPercentageString(data.auton_climb_successful/data.auton_climb_attempted)} />
+								<Input
+									title="Climb Percentage"
+									disabled
+									defaultValue={Utils.toPercentageString(data.auton_climb_successful / data.auton_climb_attempted)}
+								/>
 							</div>
-							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData}/>
+							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
 						</>
+					),
 				});
 
 				const teleop_fuel_hoarded_amount_ordering = {
-					"High": 3,
-					"Medium": 2,
-					"Low": 1,
-					"None": 0,
+					High: 3,
+					Medium: 2,
+					Low: 1,
+					None: 0,
 				} as const;
-				teamTabs.push({ key: "Teleop/End", label: "Teleop/End", children:
+				teamTabs.push({
+					key: "Teleop/End",
+					label: "Teleop/End",
+					children: (
 						<>
 							<div className="inputRow">
 								<Input title="Fuel Scored" disabled defaultValue={data.teleop_fuel_scored.toString()} />
-								<Input title="Fuel Hoard" disabled defaultValue={Utils.maximumOfMap(data.teleop_fuel_hoarded_amount, teleop_fuel_hoarded_amount_ordering)} />
+								<Input
+									title="Fuel Hoard"
+									disabled
+									defaultValue={Utils.maximumOfMap(
+										data.teleop_fuel_hoarded_amount,
+										teleop_fuel_hoarded_amount_ordering,
+									)}
+								/>
 							</div>
-							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData}/>
+							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
 							<div className="inputRow">
-								<Input title="Climb L1" disabled defaultValue={`${data.endgame_climb_successful.get('L1') ?? 0}/${data.endgame_climb_attempted.get('L1') ?? 0}`} />
-								<Input title="Climb L2" disabled defaultValue={`${data.endgame_climb_successful.get('L2') ?? 0}/${data.endgame_climb_attempted.get('L2') ?? 0}`} />
-								<Input title="Climb L3" disabled defaultValue={`${data.endgame_climb_successful.get('L3') ?? 0}/${data.endgame_climb_attempted.get('L3') ?? 0}`} />
+								<Input
+									title="Climb L1"
+									disabled
+									defaultValue={`${data.endgame_climb_successful.get("L1") ?? 0}/${data.endgame_climb_attempted.get("L1") ?? 0}`}
+								/>
+								<Input
+									title="Climb L2"
+									disabled
+									defaultValue={`${data.endgame_climb_successful.get("L2") ?? 0}/${data.endgame_climb_attempted.get("L2") ?? 0}`}
+								/>
+								<Input
+									title="Climb L3"
+									disabled
+									defaultValue={`${data.endgame_climb_successful.get("L3") ?? 0}/${data.endgame_climb_attempted.get("L3") ?? 0}`}
+								/>
 							</div>
 						</>
+					),
 				});
 
 				// TODO: remove legacy ordering
 				const teleop_primary_hoard_type_ordering = {
-					"Shoot_Hoard": 2,
+					Shoot_Hoard: 2,
 					"Shoot Hoard": 2,
-					"Push_Hoard": 1,
+					Push_Hoard: 1,
 					"Push Hoard": 1,
-					"Dump_Hoard": 0,
+					Dump_Hoard: 0,
 					"Dump Hoard": 0,
 				} as const;
-				teamTabs.push({ key: "OA", label: "OA", children:
+				teamTabs.push({
+					key: "OA",
+					label: "OA",
+					children: (
 						<>
 							<Input title="Robot Died (counter: matches)" disabled defaultValue={data.overall_robot_died.toString()} />
-							<Input title="Intake Fuel Type" disabled defaultValue={data.intake_type.values().toArray().join(', ')} />
+							<Input title="Intake Fuel Type" disabled defaultValue={data.intake_type.values().toArray().join(", ")} />
 							<div className="inputRow">
 								<Checkbox title="Trench" align="center" disabled defaultValue={data.trench_capability} />
 								<Input title="Fuel Capacity" disabled defaultValue={data.fuel_capacity.toString()} />
 							</div>
 							<div className="inputRow">
-								<Checkbox title="Shoot While Moving" align="center" disabled defaultValue={(data.overall_shot_while_moving.get(1) ?? 0) > 0} />
-								<Input title="Hoard Type" disabled defaultValue={Utils.maximumOfMap(data.teleop_primary_hoard_type, teleop_primary_hoard_type_ordering)} />
+								<Checkbox
+									title="Shoot While Moving"
+									align="center"
+									disabled
+									defaultValue={(data.overall_shot_while_moving.get(1) ?? 0) > 0}
+								/>
+								<Input
+									title="Hoard Type"
+									disabled
+									defaultValue={Utils.maximumOfMap(data.teleop_primary_hoard_type, teleop_primary_hoard_type_ordering)}
+								/>
 							</div>
 							<TextArea title="Robot Comments" disabled defaultValue={data.robot_comments} />
 						</>
+					),
 				});
 			} else {
-				teamTabs.push({ key: "NoData", label: "No Data", children:
-						<p className={"errorLabel"}>No Data for team {team}</p>,
+				teamTabs.push({
+					key: "NoData",
+					label: "No Data",
+					children: <p className={"errorLabel"}>No Data for team {team}</p>,
 				});
 			}
 
-			tabs.push({ key: `${team}|${teamCount}`, label: team.toString(), children:
+			tabs.push({
+				key: `${team}|${teamCount}`,
+				label: team.toString(),
+				children: (
 					<>
 						<Tabs items={teamTabs} />
 					</>
+				),
 			});
 		}
 
@@ -551,17 +634,17 @@ function DTFTeams(props: Props): React.ReactElement {
 		let totalAverageClimbScore = 0;
 		let totalAverageAutonFuelCount = 0;
 
-		for(let i = 0; i < Constants.TEAMS_PER_ALLIANCE; i++) {
+		for (let i = 0; i < Constants.TEAMS_PER_ALLIANCE; i++) {
 			const team = alliancePersistentData[i] as AggregateData | null;
 
-			if(!team) {
+			if (!team) {
 				continue;
 			}
 
 			const teamNumber = teams[i];
 			const shouldDisplay = team.match_count > i;
 
-			if(!shouldDisplay) {
+			if (!shouldDisplay) {
 				continue;
 			}
 
@@ -573,38 +656,45 @@ function DTFTeams(props: Props): React.ReactElement {
 				<div key={`${teamNumber}AverageScoreSkill`}>
 					<h2>Team {teamNumber} Avg Score</h2>
 					<Input disabled defaultValue={team.average_score.toString()} />
-				</div>
+				</div>,
 			);
 
 			const ACTIVE_SECONDS_PER_MATCH = 75;
 
 			averageFuelPerSecondItems.push(
-				<Input key={teamNumber} title={`Team ${teamNumber}`} disabled defaultValue={Utils.round(team.teleop_fuel_scored / ACTIVE_SECONDS_PER_MATCH, 2).toString()} />
+				<Input
+					key={teamNumber}
+					title={`Team ${teamNumber}`}
+					disabled
+					defaultValue={Utils.round(team.teleop_fuel_scored / ACTIVE_SECONDS_PER_MATCH, 2).toString()}
+				/>,
 			);
 		}
 
-		tabs.push({ key: "Summary", label: "Summary", children:
+		tabs.push({
+			key: "Summary",
+			label: "Summary",
+			children: (
 				<>
 					<Input title="Alliance Avg Fuel Count" disabled defaultValue={totalAverageFuelCount.toString()} />
 					<Input title="Alliance Avg Climb Score" disabled defaultValue={totalAverageClimbScore.toString()} />
 					<Input title="Alliance Avg Auton Fuel Count" disabled defaultValue={totalAverageAutonFuelCount.toString()} />
 					<h2>Average Fuel Per Second</h2>
 
-					<div className="inputRow">
-						{averageFuelPerSecondItems}
-					</div>
+					<div className="inputRow">{averageFuelPerSecondItems}</div>
 				</>
+			),
 		});
 
 		return tabs;
 	}
 	function getDTF(teams: number[]): void {
-		if(isLoading) {
+		if (isLoading) {
 			return;
 		}
 		setIsLoading(true);
 
-		if(!teamsMatchData || !teamsStrategicData || !teamsPitData) {
+		if (!teamsMatchData || !teamsStrategicData || !teamsPitData) {
 			console.error("Could not load DTF. No data found");
 			setIsLoading(false);
 			return;
@@ -615,35 +705,39 @@ function DTFTeams(props: Props): React.ReactElement {
 			const persistentData: { [teamNumber: number]: AggregateData | undefined } = {};
 			const allianceTabs: TabItems = [];
 
-			for(let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
+			for (let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
 				const alliance = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
 
 				const allianceTabItems = getAllianceTabItems(alliance, persistentData, i);
 
-				allianceTabs.push({ key: `Alliance${i}`, label: `Alliance ${i}`, children:
+				allianceTabs.push({
+					key: `Alliance${i}`,
+					label: `Alliance ${i}`,
+					children: (
 						<>
 							<Tabs items={allianceTabItems} />
 						</>
+					),
 				});
 			}
 
 			const allianceAverageScores: React.ReactElement[] = [];
 
-			for(let i = 0; i < Constants.NUM_ALLIANCES; i++) {
+			for (let i = 0; i < Constants.NUM_ALLIANCES; i++) {
 				const averageScoresGroup: React.ReactElement[] = [];
 				let allianceTotalAverage = 0;
 				let alliance_teleop_total_score = 0;
-				for(let j = 0; j < Constants.TEAMS_PER_ALLIANCE; j++) {
+				for (let j = 0; j < Constants.TEAMS_PER_ALLIANCE; j++) {
 					const index = i * Constants.TEAMS_PER_ALLIANCE + j;
 					const teamNumber = teamList[index];
 
-					if(!teamNumber) {
+					if (!teamNumber) {
 						continue;
 					}
 
 					const team = persistentData[teamNumber];
 
-					if(!team) {
+					if (!team) {
 						continue;
 					}
 
@@ -652,12 +746,12 @@ function DTFTeams(props: Props): React.ReactElement {
 					averageScoresGroup.push(
 						<div key={`${i}|${j}`}>
 							<h2>Team {teamNumber}</h2>
-							<div className='inputRow'>
+							<div className="inputRow">
 								<Input title="Average Score" disabled defaultValue={team.average_score.toString()} />
 								<Input title="Climb Score" disabled defaultValue={team.average_climb_score.toString()} />
 								<Input title="Fuel Score" disabled defaultValue={team.average_fuel_count.toString()} />
 							</div>
-						</div>
+						</div>,
 					);
 
 					alliance_teleop_total_score += team.total_teleop_score / team.match_count / Constants.TEAMS_PER_ALLIANCE;
@@ -667,20 +761,19 @@ function DTFTeams(props: Props): React.ReactElement {
 				allianceAverageScores.push(
 					<div key={`allianceAverage${i + 1}`}>
 						<Input title={`Alliance ${i + 1} Total Score`} disabled defaultValue={allianceTotalAverage.toString()} />
-						<Input title={`Alliance ${i + 1} Teleop Average Score`}	disabled defaultValue={Math.round(alliance_teleop_total_score).toString()} />
+						<Input
+							title={`Alliance ${i + 1} Teleop Average Score`}
+							disabled
+							defaultValue={Math.round(alliance_teleop_total_score).toString()}
+						/>
 						<h2>Alliance {i + 1} Robots</h2>
 						{averageScoresGroup}
-						<hr/>
-					</div>
+						<hr />
+					</div>,
 				);
-
 			}
 
-			allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children:
-					<>
-						{allianceAverageScores}
-					</>
-			});
+			allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children: <>{allianceAverageScores}</> });
 
 			setTabItems(allianceTabs);
 		} catch (error) {
@@ -694,12 +787,8 @@ function DTFTeams(props: Props): React.ReactElement {
 			<Header name={"Drive Team Feeder"} back={"#dtf"} />
 
 			<dtf-teams>
-				<h2 style={{ display: isLoading ? 'inherit' : 'none' }}>Loading data...</h2>
-				{ tabItems.length ?
-					<Tabs items={tabItems} />
-					:
-					<h1>No Data QAQ</h1>
-				}
+				<h2 style={{ display: isLoading ? "inherit" : "none" }}>Loading data...</h2>
+				{tabItems.length ? <Tabs items={tabItems} /> : <h1>No Data QAQ</h1>}
 			</dtf-teams>
 		</>
 	);

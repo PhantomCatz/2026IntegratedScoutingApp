@@ -23,7 +23,7 @@ body {
 }
 @media (aspect-ratio >= 1/1) and (width >= 80vh) and (height >= 800px) {
 	body {
-		max-width: 80vh
+		max-width: 80vh;
 	}
 }
 
@@ -50,7 +50,8 @@ footer {
 	margin-top: 0px;
 	margin-bottom: 7vh;
 }
-.tabButton, .submitButton {
+.tabButton,
+.submitButton {
 	width: 50%;
 	height: auto;
 	border: 2px solid var(--font-color) !important;
@@ -70,51 +71,51 @@ footer {
 }
 
 .fuelScoreSection {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
 }
 
 .allianceZoneHeader {
-  display: grid;
-  grid-template-columns: 80px repeat(1, 100000px);
-  align-items: left;
-  font-size: 18px;
-  margin-left: 6px;
+	display: grid;
+	grid-template-columns: 80px repeat(1, 100000px);
+	align-items: left;
+	font-size: 18px;
+	margin-left: 6px;
 }
 
 /* header row: Best Middle Worst */
 .fuelHeader {
-  display: grid;
-  grid-template-columns: 90px repeat(3, 65px);
-  align-items: left;
-  font-size: 18px;
-  margin-left: 6px;
+	display: grid;
+	grid-template-columns: 90px repeat(3, 65px);
+	align-items: left;
+	font-size: 18px;
+	margin-left: 6px;
 }
 
 /* each team row */
 .fuelRow {
-  display: grid;
-  grid-template-columns: 80px repeat(3, 70px);
-  align-items: center;
+	display: grid;
+	grid-template-columns: 80px repeat(3, 70px);
+	align-items: center;
 }
 
 /* team number box */
 .teamNumber {
-  border: 2px solid white;
-  border-radius: 10px;
-  padding: 6px 10px;
-  width: 60px;
-  text-align: center;
-  font-size: 18px;
+	border: 2px solid white;
+	border-radius: 10px;
+	padding: 6px 10px;
+	width: 60px;
+	text-align: center;
+	font-size: 18px;
 }
 
 .fuelRow input[type="radio"] {
-  width: 26px;
-  height: 26px;
-  accent-color: black;
+	width: 26px;
+	height: 26px;
+	accent-color: black;
 
-  justify-self: end;   /* pushes radio to the right edge of the grid cell */
-  margin: 0;           /* remove centering */
+	justify-self: end; /* pushes radio to the right edge of the grid cell */
+	margin: 0; /* remove centering */
 }

@@ -1,117 +1,117 @@
-import '../public/stylesheets/formItems.css';
-import { useRef, useEffect } from 'react';
-import * as Utils from '../utils/utils';
+import "../public/stylesheets/formItems.css";
+import { useRef, useEffect } from "react";
+import * as Utils from "../utils/utils";
 
-import type { StringMap } from '../types/utilityTypes';
-import { assertInstanceOf, assertBoolean, assertNumber, assertString, assertEquals } from '../types/assertions';
+import type { StringMap } from "../types/utilityTypes";
+import { assertInstanceOf, assertBoolean, assertNumber, assertString, assertEquals } from "../types/assertions";
 
 type AlignOptions = "left" | "center" | "right";
 
-type Disableable<T> = Partial<T> & { disabled: true } | T & { disabled?: false };
+type Disableable<T> = (Partial<T> & { disabled: true }) | (T & { disabled?: false });
 
 type FormType<FieldType> = {
-	onFinish?: (values: FieldType) => void,
-	onFinishFailed?: ( values: FieldType, errorFields: { [key: string]: string } ) => void,
-	accessor: FormAccessorType<FieldType>,
-	children?: React.ReactNode,
-	initialValues?: Partial<FieldType>,
+	onFinish?: (values: FieldType) => void;
+	onFinishFailed?: (values: FieldType, errorFields: { [key: string]: string }) => void;
+	accessor: FormAccessorType<FieldType>;
+	children?: React.ReactNode;
+	initialValues?: Partial<FieldType>;
 };
 type InputType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	required?: boolean,
-	message?: string,
-	onChange?: (val: string) => void,
-	onBlur?: (val: string) => void,
-	onInput?: React.InputEventHandler,
-	align?: AlignOptions,
-	shown?: boolean,
-	pattern?: string,
-	disabled?: boolean,
-	defaultValue?: string,
-	minLength?: number,
-	maxLength?: number,
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	required?: boolean;
+	message?: string;
+	onChange?: (val: string) => void;
+	onBlur?: (val: string) => void;
+	onInput?: React.InputEventHandler;
+	align?: AlignOptions;
+	shown?: boolean;
+	pattern?: string;
+	disabled?: boolean;
+	defaultValue?: string;
+	minLength?: number;
+	maxLength?: number;
 }>;
 type NumberInputType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	required?: boolean,
-	message?: string,
-	min?: number,
-	max?: number,
-	disabled?: boolean,
-	onChange?: (val: number) => void,
-	align?: AlignOptions,
-	shown?: boolean,
-	buttons?: boolean,
-	defaultValue?: number,
-	value?: number,
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	required?: boolean;
+	message?: string;
+	min?: number;
+	max?: number;
+	disabled?: boolean;
+	onChange?: (val: number) => void;
+	align?: AlignOptions;
+	shown?: boolean;
+	buttons?: boolean;
+	defaultValue?: number;
+	value?: number;
 }>;
 type SelectType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	required?: boolean,
-	message?: string,
-	options: { label: string, value: string}[],
-	onChange?: (val: string) => void,
-	align?: AlignOptions,
-	shown?: boolean,
-	multiple?: boolean,
-	defaultValue?: string | string[],
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	required?: boolean;
+	message?: string;
+	options: { label: string; value: string }[];
+	onChange?: (val: string) => void;
+	align?: AlignOptions;
+	shown?: boolean;
+	multiple?: boolean;
+	defaultValue?: string | string[];
 }>;
 type CheckboxType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	onChange?: (val: boolean) => void,
-	align?: AlignOptions,
-	shown?: boolean,
-	defaultValue?: boolean,
-	value?: boolean,
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	onChange?: (val: boolean) => void;
+	align?: AlignOptions;
+	shown?: boolean;
+	defaultValue?: boolean;
+	value?: boolean;
 }>;
 type TextAreaType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	required?: boolean,
-	message?: string,
-	disabled?: boolean
-	onChange?: (val: string) => void,
-	align?: AlignOptions,
-	shown?: boolean,
-	defaultValue?: string,
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	required?: boolean;
+	message?: string;
+	disabled?: boolean;
+	onChange?: (val: string) => void;
+	align?: AlignOptions;
+	shown?: boolean;
+	defaultValue?: string;
 }>;
 type RadioType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	value: string,
-	required?: boolean,
-	message?: string,
-	disabled?: boolean
-	onChange?: (val: boolean) => void,
-	align?: AlignOptions,
-	shown?: boolean,
-	defaultValue?: string,
-	checked?: boolean,
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	value: string;
+	required?: boolean;
+	message?: string;
+	disabled?: boolean;
+	onChange?: (val: boolean) => void;
+	align?: AlignOptions;
+	shown?: boolean;
+	defaultValue?: string;
+	checked?: boolean;
 }>;
 type SliderType<FieldType> = Disableable<{
-	title: string | React.ReactElement,
-	name: StringMap<FieldType>,
-	required?: boolean,
-	message?: string,
-	disabled?: boolean
-	onChange?: (val: number) => void,
-	align?: AlignOptions,
-	shown?: boolean,
-	defaultValue?: number,
-	checked?: boolean,
-	min: number,
-	max: number,
+	title: string | React.ReactElement;
+	name: StringMap<FieldType>;
+	required?: boolean;
+	message?: string;
+	disabled?: boolean;
+	onChange?: (val: number) => void;
+	align?: AlignOptions;
+	shown?: boolean;
+	defaultValue?: number;
+	checked?: boolean;
+	min: number;
+	max: number;
 }>;
 type FormAccessorType<FieldType> = {
-	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K],
-	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void,
-	setFormValues(values: Partial<FieldType>): void,
+	getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K];
+	setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void;
+	setFormValues(values: Partial<FieldType>): void;
 
-	resetFields(): void,
+	resetFields(): void;
 };
 
 // TODO: implement onFinishFailed
@@ -129,16 +129,16 @@ function Form<FieldType extends object>(props: FormType<NoInfer<FieldType>>): Re
 
 		assertInstanceOf(target, HTMLFormElement);
 
-		for(const input of target) {
+		for (const input of target) {
 			// :eyes:
-			const name = (input as {name?: string}).name;
-			if(!name) {
+			const name = (input as { name?: string }).name;
+			if (!name) {
 				continue;
 			}
 
 			const key = name as string & keyof FieldType;
 
-			if(Object.hasOwn(formValues, key)) {
+			if (Object.hasOwn(formValues, key)) {
 				assertEquals(formValues[key], accessor.getFieldValue(key));
 				continue;
 			}
@@ -152,7 +152,7 @@ function Form<FieldType extends object>(props: FormType<NoInfer<FieldType>>): Re
 	const children = props.children;
 
 	useEffect(() => {
-		if(!initialValues) {
+		if (!initialValues) {
 			return;
 		}
 
@@ -163,13 +163,7 @@ function Form<FieldType extends object>(props: FormType<NoInfer<FieldType>>): Re
 		}, DELAY);
 	}, []);
 
-	return (
-		<form
-			onSubmit={onSubmit}
-		>
-			{children}
-		</form>
-	);
+	return <form onSubmit={onSubmit}>{children}</form>;
 }
 // TODO: implement required fields
 function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElement {
@@ -177,8 +171,8 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 	const name = props.name;
 	const shown = props.shown ?? true;
 	const required = (props.required ?? true) && shown;
-	if((props.required ?? true) && !shown) {
-		console.error("Required and not shown for", name)
+	if ((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name);
 	}
 	const message = props.message ?? "";
 	const onChange = props.onChange ?? (() => {});
@@ -215,17 +209,19 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 				className="input input__text"
 				style={{
 					textAlign: align,
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
-				{title &&
+				{title && (
 					<label
 						style={{
 							textAlign: align,
 						}}
 						htmlFor={name}
-					>{title}</label>
-				}
+					>
+						{title}
+					</label>
+				)}
 				<input
 					id={name}
 					name={name}
@@ -238,11 +234,7 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 					disabled={disabled}
 					defaultValue={defaultValue}
 				/>
-				<p
-					className="message"
-				>
-					{message}
-				</p>
+				<p className="message">{message}</p>
 			</div>
 		</>
 	);
@@ -253,8 +245,8 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const name = props.name;
 	const shown = props.shown ?? true;
 	const required = (props.required ?? true) && shown;
-	if((props.required ?? true) && !shown) {
-		console.error("Required and not shown for", name)
+	if ((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name);
 	}
 	const message = props.message;
 
@@ -264,21 +256,21 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const align = props.align ?? "center";
 	const buttons = props.buttons ?? true;
 	const disabled = props.disabled;
-	const defaultValue = props.defaultValue ?? props.min !== undefined ? min : undefined;
+	const defaultValue = (props.defaultValue ?? props.min !== undefined) ? min : undefined;
 	const value = props.value;
 
 	const input = useRef<HTMLInputElement>(null);
 
 	function updateInputValue(delta: number): void {
-		if(!input.current) {
+		if (!input.current) {
 			return;
 		}
 
 		const parsedValue = Utils.toNumber(input.current.value) + delta;
 		let newValue: number;
-		if(parsedValue > max) {
+		if (parsedValue > max) {
 			newValue = max;
-		} else if(parsedValue < min) {
+		} else if (parsedValue < min) {
 			newValue = min;
 		} else {
 			newValue = parsedValue;
@@ -287,9 +279,9 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 		input.current.value = newValue.toString();
 
 		// if we didn't have to clamp it
-		if(parsedValue === newValue) {
+		if (parsedValue === newValue) {
 			// :eyes:
-			handleChange({target: input.current} as unknown as React.ChangeEvent);
+			handleChange({ target: input.current } as unknown as React.ChangeEvent);
 		}
 	}
 	function handleChange(e: React.ChangeEvent): void {
@@ -308,19 +300,21 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 				className="input input__number"
 				style={{
 					textAlign: align,
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
-				{title &&
+				{title && (
 					<label
 						style={{
 							textAlign: align,
 						}}
 						htmlFor={name}
-					>{title}</label>
-				}
+					>
+						{title}
+					</label>
+				)}
 				<div>
-					{ buttons &&
+					{buttons && (
 						<button
 							type="button"
 							className="changeButton changeButton__decrement"
@@ -328,8 +322,10 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 								updateInputValue(-1);
 							}}
 							disabled={disabled}
-						>-</button>
-					}
+						>
+							-
+						</button>
+					)}
 					<input
 						ref={input}
 						id={name}
@@ -343,7 +339,7 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						value={value}
 						disabled={disabled}
 					/>
-					{ buttons &&
+					{buttons && (
 						<button
 							type="button"
 							className="changeButton changeButton__increment"
@@ -351,14 +347,12 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 								updateInputValue(1);
 							}}
 							disabled={disabled}
-						>+</button>
-					}
+						>
+							+
+						</button>
+					)}
 				</div>
-				<p
-					className="message"
-				>
-					{message}
-				</p>
+				<p className="message">{message}</p>
 			</div>
 		</>
 	);
@@ -368,8 +362,8 @@ function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 	const name = props.name;
 	const shown = props.shown ?? true;
 	const required = (props.required ?? true) && shown;
-	if((props.required ?? true) && !shown) {
-		console.error("Required and not shown for", name)
+	if ((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name);
 	}
 	// TODO: remove?
 	// const message = props.message ?? `Please input ${title}`;
@@ -381,12 +375,9 @@ function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 
 	const select = useRef(null);
 
-	const optionElements = options.map(function(item: { label: string, value: string }, index) {
+	const optionElements = options.map(function (item: { label: string; value: string }, index) {
 		return (
-			<option
-				value={item.value}
-				key={item.value}
-			>
+			<option value={item.value} key={item.value}>
 				{item.label}
 			</option>
 		);
@@ -406,17 +397,19 @@ function Select<FieldType>(props: SelectType<FieldType>): React.ReactElement {
 				className="input input__select"
 				style={{
 					textAlign: align,
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
-				{title &&
+				{title && (
 					<label
 						style={{
 							textAlign: align,
 						}}
 						htmlFor={name}
-					>{title}</label>
-				}
+					>
+						{title}
+					</label>
+				)}
 				<select
 					ref={select}
 					id={name}
@@ -457,17 +450,19 @@ function Checkbox<FieldType>(props: CheckboxType<NoInfer<FieldType>>): React.Rea
 			<div
 				className="input input__checkbox"
 				style={{
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
-				{title &&
+				{title && (
 					<label
 						style={{
 							textAlign: align,
 						}}
 						htmlFor={name}
-					>{title}</label>
-				}
+					>
+						{title}
+					</label>
+				)}
 				<input
 					ref={checkbox}
 					id={name}
@@ -486,8 +481,8 @@ function TextArea<FieldType>(props: TextAreaType<NoInfer<FieldType>>): React.Rea
 	const name = props.name;
 	const shown = props.shown ?? true;
 	const required = (props.required ?? true) && shown;
-	if((props.required ?? true) && !shown) {
-		console.error("Required and not shown for", name)
+	if ((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name);
 	}
 	const disabled = props.required;
 	const onChange = props.onChange ?? (() => {});
@@ -509,17 +504,19 @@ function TextArea<FieldType>(props: TextAreaType<NoInfer<FieldType>>): React.Rea
 			<div
 				className="input input__textarea"
 				style={{
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
-				{title &&
+				{title && (
 					<label
 						style={{
 							textAlign: align,
 						}}
 						htmlFor={name}
-					>{title}</label>
-				}
+					>
+						{title}
+					</label>
+				)}
 				<textarea
 					ref={textbox}
 					id={name}
@@ -539,8 +536,8 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 	const value = props.value;
 	const shown = props.shown ?? true;
 	const required = (props.required ?? true) && shown;
-	if((props.required ?? true) && !shown) {
-		console.error("Required and not shown for", name)
+	if ((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name);
 	}
 	const disabled = props.required;
 	const onChange = props.onChange ?? (() => {});
@@ -563,7 +560,7 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 			<div
 				className="input input__radio"
 				style={{
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
 				<label
@@ -571,7 +568,8 @@ function Radio<FieldType>(props: RadioType<NoInfer<FieldType>>): React.ReactElem
 						textAlign: align,
 					}}
 					htmlFor={`${name}-${value}`}
-				>{title}
+				>
+					{title}
 					<input
 						ref={radio}
 						type="radio"
@@ -598,14 +596,13 @@ function Slider<FieldType>(props: SliderType<NoInfer<FieldType>>): React.ReactEl
 	const required = (props.required ?? true) && shown;
 	const min = props.min;
 	const max = props.max;
-	if((props.required ?? true) && !shown) {
-		console.error("Required and not shown for", name)
+	if ((props.required ?? true) && !shown) {
+		console.error("Required and not shown for", name);
 	}
 	const disabled = props.disabled ?? false;
 	const onChange = props.onChange ?? (() => {});
 	const align = props.align ?? "center";
 	const defaultValue = props.defaultValue;
-	
 
 	const slider = useRef(null);
 
@@ -624,7 +621,7 @@ function Slider<FieldType>(props: SliderType<NoInfer<FieldType>>): React.ReactEl
 			<div
 				className="input input__slider"
 				style={{
-					display: shown ? 'inherit' : 'none',
+					display: shown ? "inherit" : "none",
 				}}
 			>
 				<label
@@ -632,7 +629,8 @@ function Slider<FieldType>(props: SliderType<NoInfer<FieldType>>): React.ReactEl
 						textAlign: align,
 					}}
 					htmlFor={name}
-				>{title}
+				>
+					{title}
 					<input
 						ref={slider}
 						type="range"
@@ -654,16 +652,16 @@ function Slider<FieldType>(props: SliderType<NoInfer<FieldType>>): React.ReactEl
 // TODO: investigate opitonal generics
 // This was the best solution I had that could infer the key type qaq
 function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
-	const accessor =  {
+	const accessor = {
 		getFieldValue<K extends string & keyof FieldType>(id: K): FieldType[K] {
 			const elements = document.querySelectorAll(`[name=${id}]`);
 
-			if(!elements.length) {
+			if (!elements.length) {
 				throw new Error(`Could not find element ${id}`);
 			}
 
 			try {
-				if(elements.length === 1) {
+				if (elements.length === 1) {
 					return getFieldValueSingleElement<K, FieldType>(elements[0]);
 				} else {
 					return getFieldValueMultipleElements<K, FieldType>(elements, id);
@@ -679,12 +677,12 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 		setFieldValue<K extends string & keyof FieldType>(id: K, newValue: FieldType[K]): void {
 			const elements = document.querySelectorAll(`[name=${id}]`);
 
-			if(!elements.length) {
+			if (!elements.length) {
 				throw new Error(`Could not find element ${id}`);
 			}
 
 			try {
-				if(elements.length === 1) {
+				if (elements.length === 1) {
 					setFieldValueSingleElement(elements[0], newValue);
 				} else {
 					setFieldValueMultipleElements<K, FieldType>(elements, newValue, id);
@@ -699,7 +697,7 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 			}
 		},
 		setFormValues(values: Partial<FieldType>): void {
-			for(const [k, v] of Object.entries(values)) {
+			for (const [k, v] of Object.entries(values)) {
 				type Key = string & keyof FieldType;
 
 				accessor.setFieldValue(k as Key, v as FieldType[Key]);
@@ -707,13 +705,13 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 		},
 		resetFields(): void {
 			const form = document.querySelector("form");
-			if(!form) {
+			if (!form) {
 				console.error(`No form: form=`, form);
 				return;
 			}
 			form.reset();
-		}
-	}
+		},
+	};
 
 	return accessor;
 }
@@ -722,10 +720,10 @@ function getFieldAccessor<FieldType>(): FormAccessorType<FieldType> {
 function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
 	const tag = element.nodeName;
 
-	switch(tag) {
+	switch (tag) {
 		case "SELECT":
 			assertInstanceOf(element, HTMLSelectElement);
-			if(element.multiple) {
+			if (element.multiple) {
 				for (const option of element) {
 					option.selected = (newValue as unknown[]).indexOf(option.value) >= 0;
 				}
@@ -741,7 +739,7 @@ function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
 			break;
 		case "INPUT":
 			assertInstanceOf(element, HTMLInputElement);
-			switch(element.type) {
+			switch (element.type) {
 				case "checkbox":
 					assertBoolean(newValue);
 					element.checked = newValue;
@@ -763,28 +761,29 @@ function setFieldValueSingleElement<T>(element: Element, newValue: T): void {
 			throw new Error(`Could not use element tag ${tag}`);
 	}
 }
-function setFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(elementList: NodeListOf<Element>, newValue: FieldType[K], id: K): void {
+function setFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(
+	elementList: NodeListOf<Element>,
+	newValue: FieldType[K],
+	id: K,
+): void {
 	let done = false;
 
-	for(const element of elementList) {
+	for (const element of elementList) {
 		const tag = element.nodeName;
 
-		switch(tag) {
+		switch (tag) {
 			case "INPUT":
 				assertInstanceOf(element, HTMLInputElement);
-				switch(element.type) {
+				switch (element.type) {
 					case "radio":
-						
 						assertString(newValue);
-						if(newValue === element.value) {
+						if (newValue === element.value) {
 							element.checked = true;
 							done = true;
 						} else {
 							element.checked = false;
 						}
 						break;
-					
-					
 
 					default:
 						throw new Error(`Could not use submit type ${element.type}`);
@@ -795,7 +794,7 @@ function setFieldValueMultipleElements<K extends string & keyof FieldType, Field
 		}
 	}
 
-	if(done) {
+	if (done) {
 		return;
 	}
 	throw new Error(`Could not set value of ${id}`);
@@ -806,12 +805,12 @@ function getFieldValueSingleElement<K extends string & keyof FieldType, FieldTyp
 
 	const tag = element.nodeName;
 
-	switch(tag) {
+	switch (tag) {
 		case "SELECT":
 			assertInstanceOf(element, HTMLSelectElement);
-			if(element.multiple) {
+			if (element.multiple) {
 				const options: string[] = [];
-				for(const option of element.selectedOptions) {
+				for (const option of element.selectedOptions) {
 					options.push(option.value);
 				}
 				return options as ResultType;
@@ -823,7 +822,7 @@ function getFieldValueSingleElement<K extends string & keyof FieldType, FieldTyp
 			return element.value as ResultType;
 		case "INPUT":
 			assertInstanceOf(element, HTMLInputElement);
-			switch(element.type) {
+			switch (element.type) {
 				case "checkbox":
 					return element.checked as ResultType;
 				case "number":
@@ -839,24 +838,27 @@ function getFieldValueSingleElement<K extends string & keyof FieldType, FieldTyp
 			throw new Error(`Could not use element tag ${tag}`);
 	}
 }
-function getFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(elementList: NodeListOf<Element>, id: K): FieldType[K] {
+function getFieldValueMultipleElements<K extends string & keyof FieldType, FieldType>(
+	elementList: NodeListOf<Element>,
+	id: K,
+): FieldType[K] {
 	type ResultType = FieldType[K];
 
-	for(const element of elementList) {
+	for (const element of elementList) {
 		const tag = element.nodeName;
 
-		switch(tag) {
+		switch (tag) {
 			case "INPUT":
 				assertInstanceOf(element, HTMLInputElement);
-				switch(element.type) {
+				switch (element.type) {
 					case "radio": {
-						if(element.checked) {
+						if (element.checked) {
 							const value = element.value;
 							return value as ResultType;
 						}
 						break;
 					}
-					
+
 					default:
 						throw new Error(`Could not use submit type ${element.type}`);
 				}
@@ -870,5 +872,5 @@ function getFieldValueMultipleElements<K extends string & keyof FieldType, Field
 }
 
 export { Input, NumberInput, Select, Checkbox, TextArea, Radio, Slider };
-export { getFieldAccessor, };
+export { getFieldAccessor };
 export default Form;

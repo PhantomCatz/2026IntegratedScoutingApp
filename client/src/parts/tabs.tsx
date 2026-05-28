@@ -1,28 +1,24 @@
-import React, { useState, useEffect, } from 'react';
-import '../public/stylesheets/tabs.css';
+import React, { useState, useEffect } from "react";
+import "../public/stylesheets/tabs.css";
 
 type Props = {
-	items?: TabItems,
-	onChange?: (key: string) => void,
-	defaultActiveKey?: string,
-	activeKey?: string,
+	items?: TabItems;
+	onChange?: (key: string) => void;
+	defaultActiveKey?: string;
+	activeKey?: string;
 };
 
 function Tabs(props: Props): React.ReactElement {
 	const items = props.items ?? [];
 	const onChange = props.onChange ?? (() => {});
 
-	const defaultActiveKey = props.defaultActiveKey ??
-		(items.length ?
-			items[0].key :
-			""
-		);
+	const defaultActiveKey = props.defaultActiveKey ?? (items.length ? items[0].key : "");
 
 	const activeKey = props.activeKey;
 
 	const [currentKey, _setCurrentKey] = useState<string>(defaultActiveKey);
 
-	if(!currentKey && currentKey !== defaultActiveKey) {
+	if (!currentKey && currentKey !== defaultActiveKey) {
 		_setCurrentKey(defaultActiveKey);
 	}
 
@@ -32,7 +28,7 @@ function Tabs(props: Props): React.ReactElement {
 	}
 
 	useEffect(() => {
-		if(activeKey && activeKey !== currentKey) {
+		if (activeKey && activeKey !== currentKey) {
 			setCurrentKey(activeKey);
 		}
 	}, [activeKey, currentKey]);
@@ -41,22 +37,19 @@ function Tabs(props: Props): React.ReactElement {
 		return (
 			<nav-label
 				key={item.key}
-				{...(item.key === currentKey ? {selected: true} : {})}
-				onClick={function(_) {
+				{...(item.key === currentKey ? { selected: true } : {})}
+				onClick={function (_) {
 					setCurrentKey(item.key);
 				}}
 			>
-				{ item.label }
+				{item.label}
 			</nav-label>
 		);
 	});
 
 	const tabItems = items.map((item) => {
 		return (
-			<tab-page
-				key={item.key}
-				{...(item.key === currentKey ? {activetab: true} : {})}
-			>
+			<tab-page key={item.key} {...(item.key === currentKey ? { activetab: true } : {})}>
 				{item.children}
 			</tab-page>
 		);
@@ -64,9 +57,7 @@ function Tabs(props: Props): React.ReactElement {
 
 	return (
 		<tabs-container>
-			<tabs-nav-container>
-				{...navigationItems}
-			</tabs-nav-container>
+			<tabs-nav-container>{...navigationItems}</tabs-nav-container>
 			{...tabItems}
 		</tabs-container>
 	);
@@ -74,5 +65,5 @@ function Tabs(props: Props): React.ReactElement {
 
 export { Tabs };
 
-export type TabItem = { label: string, key: string, children: React.ReactElement };
+export type TabItem = { label: string; key: string; children: React.ReactElement };
 export type TabItems = TabItem[];

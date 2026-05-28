@@ -1,7 +1,8 @@
 .qrCode {
 	.qrCodeHolder {
 		display: flex;
-		.ant-qrcode, .ant-qrcode > svg {
+		.ant-qrcode,
+		.ant-qrcode > svg {
 			width: 100% !important;
 			height: 100% !important;
 		}

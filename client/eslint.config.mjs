@@ -1,7 +1,7 @@
 import eslint from "@eslint/js";
 import pluginReact from "eslint-plugin-react";
 import tseslint from "typescript-eslint";
-import { defineConfig } from 'eslint/config';
+import { defineConfig } from "eslint/config";
 
 export default defineConfig(
 	eslint.configs.recommended,
@@ -22,8 +22,8 @@ export default defineConfig(
 		rules: {
 			"no-unused-vars": "off", // we have it on for @typescript-eslint/no-unused-vars
 			"no-control-regex": "off",
-			"eqeqeq": "error",
-			"curly": ["error", "all"],
+			eqeqeq: "error",
+			curly: ["error", "all"],
 			"default-case": "error",
 			"no-template-curly-in-string": "error",
 			"no-useless-assignment": "warn",
@@ -31,10 +31,13 @@ export default defineConfig(
 			"no-promise-executor-return": "error",
 			"no-await-in-loop": "error",
 			"array-callback-return": "error",
-			"no-use-before-define": ["error", {
-				"functions": false,
-			}],
-			"yoda": "warn",
+			"no-use-before-define": [
+				"error",
+				{
+					functions: false,
+				},
+			],
+			yoda: "warn",
 			"prefer-promise-reject-errors": "error",
 			"prefer-const": "error",
 			"prefer-exponentiation-operator": "warn",
@@ -56,45 +59,62 @@ export default defineConfig(
 			"max-depth": "error",
 			"id-match": "error",
 			"default-param-last": "error",
-			"no-fallthrough": ["error", {
-				"commentPattern": "fall[\\s\\w]*through",
-				"allowEmptyCase": true,
-				"reportUnusedFallthroughComment": true,
-			}],
+			"no-fallthrough": [
+				"error",
+				{
+					commentPattern: "fall[\\s\\w]*through",
+					allowEmptyCase: true,
+					reportUnusedFallthroughComment: true,
+				},
+			],
 
-
-			"@typescript-eslint/no-unused-vars": ["warn", {
-				"args": "all",
-				"caughtErrors": "all",
-				"argsIgnorePattern": "^_",
-				"caughtErrorsIgnorePattern": "^_",
-				"destructuredArrayIgnorePattern": "^_",
-				"varsIgnorePattern": "^_",
-				"ignoreRestSiblings": true
-			}],
+			"@typescript-eslint/no-unused-vars": [
+				"warn",
+				{
+					args: "all",
+					caughtErrors: "all",
+					argsIgnorePattern: "^_",
+					caughtErrorsIgnorePattern: "^_",
+					destructuredArrayIgnorePattern: "^_",
+					varsIgnorePattern: "^_",
+					ignoreRestSiblings: true,
+				},
+			],
 			"@typescript-eslint/no-explicit-any": "error",
 			"@typescript-eslint/no-namespace": "off", // see https://github.com/microsoft/TypeScript/issues/30994
 			"@typescript-eslint/default-param-last": "warn",
-			"@typescript-eslint/explicit-function-return-type": ["error", {
-				allowExpressions: true
-			}],
-			"@typescript-eslint/no-magic-numbers": ["warn", {
-				ignore: [0, 1, -1], // i hope i don't regret this...
-				ignoreDefaultValues: true,
-				enforceConst: false,
-				ignoreEnums: true,
-				ignoreNumericLiteralTypes: true,
-				ignoreTypeIndexes: true,
-			}],
+			"@typescript-eslint/explicit-function-return-type": [
+				"error",
+				{
+					allowExpressions: true,
+				},
+			],
+			"@typescript-eslint/no-magic-numbers": [
+				"warn",
+				{
+					ignore: [0, 1, -1], // i hope i don't regret this...
+					ignoreDefaultValues: true,
+					enforceConst: false,
+					ignoreEnums: true,
+					ignoreNumericLiteralTypes: true,
+					ignoreTypeIndexes: true,
+				},
+			],
 			"@typescript-eslint/no-unnecessary-condition": "error",
-			"@typescript-eslint/no-inferrable-types": ["warn", {
-				ignoreParameters: true,
-				ignoreProperties: true
-			}],
+			"@typescript-eslint/no-inferrable-types": [
+				"warn",
+				{
+					ignoreParameters: true,
+					ignoreProperties: true,
+				},
+			],
 			"@typescript-eslint/restrict-template-expressions": "off",
-			"@typescript-eslint/no-misused-promises": ["error", {
-				checksVoidReturn: false
-			}],
-		}
-	}
+			"@typescript-eslint/no-misused-promises": [
+				"error",
+				{
+					checksVoidReturn: false,
+				},
+			],
+		},
+	},
 );

@@ -1,25 +1,21 @@
 import Constants from "./constants";
 
-import type * as TbaApi from '../types/tbaApi';
-import type { RequestTypes, ResultTypes, } from '../types/tbaRequest';
-import type * as TbaRequest from '../types/tbaRequest';
-import type * as LocalStorage from '../types/localStorage';
+import type * as TbaApi from "../types/tbaApi";
+import type { RequestTypes, ResultTypes } from "../types/tbaRequest";
+import type * as TbaRequest from "../types/tbaRequest";
+import type * as LocalStorage from "../types/localStorage";
 
 function isInPlayoffs(compLevel: TbaApi.Comp_Level): boolean {
-	return compLevel === "qm" ?
-		false :
-		true;
+	return compLevel === "qm" ? false : true;
 }
 // TODO: remove?
 function isRoundNumberVisible(matchLevel: TbaApi.Comp_Level): boolean {
-	return matchLevel === "f" ?
-		true :
-		false;
+	return matchLevel === "f" ? true : false;
 }
 function getOpposingAllianceColor(allianceName: TbaApi.AllianceColor): TbaApi.AllianceColor {
 	const alliances = {
 		red: "blue",
-		blue: "red"
+		blue: "red",
 	} as const;
 
 	return alliances[allianceName];
@@ -34,8 +30,8 @@ function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch | null):
 	// TODO: fix
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
-function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
-	if(teamsInMatch?.blue) {
+function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string; value: string }[] {
+	if (teamsInMatch?.blue) {
 		const blueTeams = teamsInMatch.blue.map((team, index) => {
 			const positionNumber = index + 1;
 			return {
@@ -57,15 +53,15 @@ function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null):
 		return [
 			{ label: "B1", value: "B1" },
 			{ label: "B2", value: "B2" },
-			{ label: "B3", value: 'B3' },
+			{ label: "B3", value: "B3" },
 			{ label: "R1", value: "R1" },
 			{ label: "R2", value: "R2" },
-			{ label: "R3", value: 'R3' },
+			{ label: "R3", value: "R3" },
 		];
 	}
 }
-function getRobotAllianceOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string, value: string }[] {
-	if(teamsInMatch?.blue) {
+function getRobotAllianceOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string; value: string }[] {
+	if (teamsInMatch?.blue) {
 		return [
 			{ label: `Blue: ${teamsInMatch.blue.join(", ")}`, value: "blue" },
 			{ label: `Red: ${teamsInMatch.red.join(", ")}`, value: "red" },
@@ -79,8 +75,8 @@ function getRobotAllianceOptions(teamsInMatch: ResultTypes.TeamsInMatch | null):
 }
 function parseRobotPosition(robotPosition: TbaRequest.RobotPosition): [TbaApi.AllianceColor, number] {
 	const allianceColors: { [colorString: string]: TbaApi.AllianceColor } = {
-		"B": "blue",
-		"R": "red",
+		B: "blue",
+		R: "red",
 	} as const;
 
 	const colorString = robotPosition[0];
@@ -94,8 +90,8 @@ function parseRobotPosition(robotPosition: TbaRequest.RobotPosition): [TbaApi.Al
 // abstracting these three functions more was too hard...
 async function getAllTeams(eventKey: TbaApi.EventKey): Promise<ResultTypes.AllTeams | null> {
 	try {
-		const response = await request('event/' + eventKey + '/teams/simple');
-		const teams: RequestTypes.Event_Teams_Simple  = await response.json() as RequestTypes.Event_Teams_Simple;
+		const response = await request("event/" + eventKey + "/teams/simple");
+		const teams: RequestTypes.Event_Teams_Simple = (await response.json()) as RequestTypes.Event_Teams_Simple;
 
 		const numbers = teams.map((x) => x.team_number);
 
@@ -110,15 +106,15 @@ async function getAllTeams(eventKey: TbaApi.EventKey): Promise<ResultTypes.AllTe
 		localStorage.setItem("tbaTeams", JSON.stringify(data));
 
 		return numbers;
-	} catch(_) {
+	} catch (_) {
 		const tbaTeams = localStorage.getItem("tbaTeams");
 
-		if(tbaTeams === null) {
+		if (tbaTeams === null) {
 			return null;
 		}
 		const data = JSON.parse(tbaTeams) as LocalStorage.TbaTeams | null;
 
-		if(!data) {
+		if (!data) {
 			return null;
 		}
 
@@ -127,7 +123,7 @@ async function getAllTeams(eventKey: TbaApi.EventKey): Promise<ResultTypes.AllTe
 }
 async function getTeamsNotScouted(eventKey: TbaApi.EventKey): Promise<ResultTypes.TeamsNotScouted | null> {
 	try {
-		if(!Constants.SERVER_ADDRESS) {
+		if (!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link. Check .env");
 			return null;
 		}
@@ -135,7 +131,7 @@ async function getTeamsNotScouted(eventKey: TbaApi.EventKey): Promise<ResultType
 		const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/teamsScouted";
 
 		const response = await fetch(fetchLink);
-		const teamsScouted: ResultTypes.TeamsNotScouted = await response.json() as ResultTypes.TeamsNotScouted;
+		const teamsScouted: ResultTypes.TeamsNotScouted = (await response.json()) as ResultTypes.TeamsNotScouted;
 
 		const allTeams = await getAllTeams(eventKey);
 
@@ -155,21 +151,22 @@ async function getTeamsNotScouted(eventKey: TbaApi.EventKey): Promise<ResultType
 	}
 }
 // TODO: add information to return to show which function it returned from: Promise<[ResultTypes.TeamsInMatch | null, ENUM]>?
-async function getTeamsInMatch(eventKey: TbaApi.EventKey,
+async function getTeamsInMatch(
+	eventKey: TbaApi.EventKey,
 	compLevel: TbaApi.Comp_Level,
 	matchNumber: number,
 	blueAllianceNumber: number,
-	redAllianceNumber: number): Promise<ResultTypes.TeamsInMatch | null> {
-
+	redAllianceNumber: number,
+): Promise<ResultTypes.TeamsInMatch | null> {
 	async function normalFetch(): Promise<ResultTypes.TeamsInMatch | null> {
 		const matchId = getMatchId(eventKey, compLevel, matchNumber);
 
-		const response = await request('match/' + matchId);
+		const response = await request("match/" + matchId);
 
-		const match: RequestTypes.Match = await response.json() as RequestTypes.Match;
+		const match: RequestTypes.Match = (await response.json()) as RequestTypes.Match;
 
-		const result: ResultTypes.TeamsInMatch = { blue: [], red: []};
-		for(const color of ["red", "blue"] as TbaApi.AllianceColor[]) {
+		const result: ResultTypes.TeamsInMatch = { blue: [], red: [] };
+		for (const color of ["red", "blue"] as TbaApi.AllianceColor[]) {
 			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 			result[color] = match.alliances[color].team_keys.map((team) => Number(team.substring(3)));
 		}
@@ -178,7 +175,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 
 		const data = (JSON.parse(tbaData) as LocalStorage.TbaData | null) ?? {};
 
-		if(!data[eventKey]) {
+		if (!data[eventKey]) {
 			data[eventKey] = {};
 		}
 
@@ -191,48 +188,47 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 	function fromLocalStorage(): ResultTypes.TeamsInMatch | null {
 		const tbaData = localStorage.getItem("tbaData");
 
-		if(tbaData === null) {
+		if (tbaData === null) {
 			return null;
 		}
 		const data = JSON.parse(tbaData) as LocalStorage.TbaData | null;
 
-		if(!data || !data[eventKey]) {
+		if (!data || !data[eventKey]) {
 			return null;
 		}
 		const matchId = getMatchId(eventKey, compLevel, matchNumber);
 
 		const alliances = data[eventKey][matchId]?.alliances;
 
-		if(!alliances) {
+		if (!alliances) {
 			return null;
 		}
 
 		const result = {
 			blue: teamKeysToNumbers(alliances.blue.team_keys),
 			red: teamKeysToNumbers(alliances.red.team_keys),
-		}
+		};
 
 		return result;
 	}
 
 	function fromEliminationAllianceNumbers(): ResultTypes.TeamsInMatch | null {
 		const playoffAlliances = localStorage.getItem("tbaPlayoffAlliances");
-		if(playoffAlliances === null) {
+		if (playoffAlliances === null) {
 			return null;
 		}
 		const data = JSON.parse(playoffAlliances) as LocalStorage.PlayoffAlliances | null;
 
-		if(!data || !data[eventKey]) {
+		if (!data || !data[eventKey]) {
 			return null;
 		}
 
-
 		const result = {
 			//eslint-disable-next-line @typescript-eslint/no-magic-numbers
-			blue: teamKeysToNumbers(data[eventKey][blueAllianceNumber].picks.slice(0,3)),
+			blue: teamKeysToNumbers(data[eventKey][blueAllianceNumber].picks.slice(0, 3)),
 			//eslint-disable-next-line @typescript-eslint/no-magic-numbers
-			red: teamKeysToNumbers(data[eventKey][redAllianceNumber].picks.slice(0,3)),
-		}
+			red: teamKeysToNumbers(data[eventKey][redAllianceNumber].picks.slice(0, 3)),
+		};
 
 		return result;
 	}
@@ -241,7 +237,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 	try {
 		const result = await normalFetch();
 
-		if(!result) {
+		if (!result) {
 			throw new Error();
 		}
 
@@ -250,7 +246,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 		try {
 			const result = fromLocalStorage();
 
-			if(!result) {
+			if (!result) {
 				throw new Error();
 			}
 
@@ -259,7 +255,7 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 			try {
 				const result = fromEliminationAllianceNumbers();
 
-				if(!result) {
+				if (!result) {
 					throw new Error();
 				}
 
@@ -271,67 +267,68 @@ async function getTeamsInMatch(eventKey: TbaApi.EventKey,
 	}
 }
 
-function getMatchId(eventKey: TbaApi.EventKey,
-	compLevel: TbaApi.Comp_Level,
-	matchNumber: number): TbaApi.MatchKey {
-	const matchId: TbaApi.MatchKey = compLevel === 'qf' || compLevel === 'sf' ?
-		`${eventKey}_${compLevel}${matchNumber}m1` :
-		compLevel === "f" ?
-		`${eventKey}_${compLevel}1m${matchNumber}` :
-		`${eventKey}_${compLevel}${matchNumber}`;
+function getMatchId(eventKey: TbaApi.EventKey, compLevel: TbaApi.Comp_Level, matchNumber: number): TbaApi.MatchKey {
+	const matchId: TbaApi.MatchKey =
+		compLevel === "qf" || compLevel === "sf"
+			? `${eventKey}_${compLevel}${matchNumber}m1`
+			: compLevel === "f"
+				? `${eventKey}_${compLevel}1m${matchNumber}`
+				: `${eventKey}_${compLevel}${matchNumber}`;
 	return matchId;
 }
 // TODO: remove?
 function getMatchLevel(name: string): TbaApi.Comp_Level {
-	const levels: {[matchLevel: string]: TbaApi.Comp_Level} = {
-		"Qualifications": "qm",
-		"Playoffs": "sf",
-		"Finals": "f",
+	const levels: { [matchLevel: string]: TbaApi.Comp_Level } = {
+		Qualifications: "qm",
+		Playoffs: "sf",
+		Finals: "f",
 	};
 
 	return levels[name];
 }
 
 async function request(query: string): Promise<Response> {
-	const response = await fetch('https://www.thebluealliance.com/api/v3/' + query, {
+	const response = await fetch("https://www.thebluealliance.com/api/v3/" + query, {
 		method: "GET",
 		headers: {
-			'X-TBA-Auth-Key': Constants.TBA_AUTH_KEY,
-		}
+			"X-TBA-Auth-Key": Constants.TBA_AUTH_KEY,
+		},
 	});
 
-	if(response.ok) {
+	if (response.ok) {
 		return response;
 	}
-	throw new Error(`Could not fetch to ${query}:\nResponse code: ${response.status}\nError message: ${await response.text()}`);
+	throw new Error(
+		`Could not fetch to ${query}:\nResponse code: ${response.status}\nError message: ${await response.text()}`,
+	);
 }
 
-function getAllianceTags(eventKey: TbaApi.EventKey): { label: string, value: string }[] {
-	function fromLocalStorage(): { label: string, value: string }[] | null {
+function getAllianceTags(eventKey: TbaApi.EventKey): { label: string; value: string }[] {
+	function fromLocalStorage(): { label: string; value: string }[] | null {
 		const playoffAlliances = localStorage.getItem("tbaPlayoffAlliances");
 
-		if(playoffAlliances === null) {
+		if (playoffAlliances === null) {
 			return null;
 		}
 		const data = JSON.parse(playoffAlliances) as LocalStorage.PlayoffAlliances | null;
 
-		if(!data || !data[eventKey]) {
+		if (!data || !data[eventKey]) {
 			return null;
 		}
 
 		const allianceTeamNumbers = data[eventKey].map((alliance) => {
 			//eslint-disable-next-line @typescript-eslint/no-magic-numbers
-			return teamKeysToNumbers(alliance.picks.slice(0,3)).map(x => x.toString());
+			return teamKeysToNumbers(alliance.picks.slice(0, 3)).map((x) => x.toString());
 		});
 
-		const result = allianceTeamNumbers.map((teams, index) => ({ label: teams.join(', '), value: index.toString() }));
+		const result = allianceTeamNumbers.map((teams, index) => ({ label: teams.join(", "), value: index.toString() }));
 
 		return result;
 	}
 	try {
 		const result = fromLocalStorage();
 
-		if(!result) {
+		if (!result) {
 			throw new Error();
 		}
 

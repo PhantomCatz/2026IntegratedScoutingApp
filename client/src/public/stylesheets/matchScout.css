@@ -50,19 +50,19 @@ match-scout {
 			cursor: pointer;
 		}
 	}
-	.multiplierButtons > :nth-child(1) input{
+	.multiplierButtons > :nth-child(1) input {
 		&::after {
-			content: '1x' !important;
+			content: "1x" !important;
 		}
 	}
-	.multiplierButtons > :nth-child(2) input{
+	.multiplierButtons > :nth-child(2) input {
 		&::after {
-			content: '2x' !important;
+			content: "2x" !important;
 		}
 	}
-	.multiplierButtons > :nth-child(3) input{
+	.multiplierButtons > :nth-child(3) input {
 		&::after {
-			content: '5x' !important;
+			content: "5x" !important;
 		}
 	}
 }

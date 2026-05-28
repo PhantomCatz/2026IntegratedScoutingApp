@@ -1,9 +1,9 @@
-import '../public/stylesheets/scoutingAppRouter.css';
-import { useEffect } from 'react';
-import Header from '../parts/header';
+import "../public/stylesheets/scoutingAppRouter.css";
+import { useEffect } from "react";
+import Header from "../parts/header";
 
 type Props = {
-	title: string,
+	title: string;
 };
 
 function ScoutingAppRouter(props: Props): React.ReactElement {
@@ -13,14 +13,24 @@ function ScoutingAppRouter(props: Props): React.ReactElement {
 
 	return (
 		<>
-			<Header name={"Scouting App"} back={"#"}/>
+			<Header name={"Scouting App"} back={"#"} />
 
 			<scouting-app-router>
-				<a className='mainButton' href='#scoutingapp/match'>Match</a>
-				<a className='mainButton' href='#scoutingapp/strategic'>Strategic</a>
-				<a className='mainButton' href='#scoutingapp/pit'>Pit</a>
-				<a className='mainButton' href='#scoutingapp/lookup'>Data Lookup</a>
-				<a className='mainButton' href='#scoutingapp/alliance'>Alliance Zone</a>
+				<a className="mainButton" href="#scoutingapp/match">
+					Match
+				</a>
+				<a className="mainButton" href="#scoutingapp/strategic">
+					Strategic
+				</a>
+				<a className="mainButton" href="#scoutingapp/pit">
+					Pit
+				</a>
+				<a className="mainButton" href="#scoutingapp/lookup">
+					Data Lookup
+				</a>
+				<a className="mainButton" href="#scoutingapp/alliance">
+					Alliance Zone
+				</a>
 			</scouting-app-router>
 		</>
 	);

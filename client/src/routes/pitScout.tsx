@@ -1,57 +1,57 @@
-import '../public/stylesheets/pitScout.css';
-import { useLocalStorage, } from 'react-use';
-import { useState, useEffect, useRef } from 'react';
-import Header from '../parts/header';
-import QrCode from '../parts/qrCodeViewer';
-import { getTeamsNotScouted, } from '../utils/tbaRequest.ts';
-import { readImage, escapeUnicode } from '../utils/utils';
-import Form, { NumberInput, Select, Input, Checkbox, TextArea } from '../parts/formItems';
-import { getFieldAccessor } from '../parts/formItems';
-import Constants from '../utils/constants';
+import "../public/stylesheets/pitScout.css";
+import { useLocalStorage } from "react-use";
+import { useState, useEffect, useRef } from "react";
+import Header from "../parts/header";
+import QrCode from "../parts/qrCodeViewer";
+import { getTeamsNotScouted } from "../utils/tbaRequest.ts";
+import { readImage, escapeUnicode } from "../utils/utils";
+import Form, { NumberInput, Select, Input, Checkbox, TextArea } from "../parts/formItems";
+import { getFieldAccessor } from "../parts/formItems";
+import Constants from "../utils/constants";
 
-import type * as TbaApi from '../types/tbaApi';
-import type * as PitScoutTypes from '../types/pitScout';
+import type * as TbaApi from "../types/tbaApi";
+import type * as PitScoutTypes from "../types/pitScout";
 
 type Props = {
-	title: string,
+	title: string;
 };
 
 const formDefaultValues: Partial<PitScoutTypes.Pit> = {
-	"team_number": 0,
-	"scouter_initials": "",
-	"robot_weight": 0,
-	"drive_train_type": "",
-	"driving_motor_type": "",
-	"number_of_driving_motors": 0,
-	"wheel_type": "",
-	"fuel_intake_location": "",
-	"intake_type": [],
-	"intake_width": "",
-	"max_fuel_capacity": 0,
-	"max_shot_range": "",
-	"auto_aim": false,
-	"trench_capability": false,
-	"climb_during_auto": false,
-	"can_climb_l1": false,
-	"can_climb_l2": false,
-	"can_climb_l3": false,
-	"pit_organization": 4,
-	"team_safety": 4,
-	"team_workmanship": 4,
-	"gracious_professionalism": 4,
-	"comments": "",
+	team_number: 0,
+	scouter_initials: "",
+	robot_weight: 0,
+	drive_train_type: "",
+	driving_motor_type: "",
+	number_of_driving_motors: 0,
+	wheel_type: "",
+	fuel_intake_location: "",
+	intake_type: [],
+	intake_width: "",
+	max_fuel_capacity: 0,
+	max_shot_range: "",
+	auto_aim: false,
+	trench_capability: false,
+	climb_during_auto: false,
+	can_climb_l1: false,
+	can_climb_l2: false,
+	can_climb_l3: false,
+	pit_organization: 4,
+	team_safety: 4,
+	team_workmanship: 4,
+	gracious_professionalism: 4,
+	comments: "",
 } as const;
 
 const IMAGE_DELIMITER = "$";
 
 function PitScout(props: Props): React.ReactElement {
-	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
 	const [isLoading, setLoading] = useState(false);
 	const [qrValue, setQrValue] = useState<unknown>();
 	const robotImageInput = useRef<HTMLInputElement>(null);
 	const [refresh, setRefresh] = useState(false);
 
-	if(!_eventKey) {
+	if (!_eventKey) {
 		throw new Error("Could not get event key");
 	}
 	const eventKey = _eventKey;
@@ -62,14 +62,14 @@ function PitScout(props: Props): React.ReactElement {
 		document.title = props.title;
 	}, [props.title]);
 	useEffect(() => {
-		void (async function() {
+		void (async function () {
 			const initialMessage = "Teams not scouted:";
 			let message = initialMessage;
 
 			try {
 				const teamsNotScouted = await getTeamsNotScouted(eventKey);
 
-				if(teamsNotScouted === null) {
+				if (teamsNotScouted === null) {
 					throw new Error("Could not access teams");
 				}
 
@@ -77,71 +77,70 @@ function PitScout(props: Props): React.ReactElement {
 
 				message += teamsNotScouted.join("\n");
 
-				if(message === initialMessage) {
+				if (message === initialMessage) {
 					window.alert("All teams have been scouted.");
 				} else {
 					window.alert(message);
 				}
 			} catch (err) {
 				console.error("Error in fetching teams: ", err);
-			}})();
+			}
+		})();
 	}, [eventKey]);
 
 	function submitData(event: PitScoutTypes.Pit, robot_image_uri: string[]): void {
 		const body: PitScoutTypes.SubmitBody = {
-			"event_key": eventKey,
-			"team_number": event.team_number,
-			"scouter_initials": event.scouter_initials.toLowerCase(),
-			"robot_weight": event.robot_weight,
-			"drive_train_type": event.drive_train_type,
-			"driving_motor_type": event.driving_motor_type,
-			"number_of_driving_motors": event.number_of_driving_motors,
-			"wheel_type": event.wheel_type,
-			"fuel_intake_location": event.fuel_intake_location,
-			"intake_width": event.intake_width,
-			"intake_type": event.intake_type.join(','),
-			"max_fuel_capacity": event.max_fuel_capacity,
-			"max_shot_range": event.max_shot_range,
-			"auto_aim": event.auto_aim,
-			"trench_capability": event.trench_capability,
-			"climb_during_auto": event.climb_during_auto,
-			"can_climb_l1": event.can_climb_l1,
-			"can_climb_l2": event.can_climb_l2,
-			"can_climb_l3": event.can_climb_l3,
-			"pit_organization": event.pit_organization,
-			"team_safety": event.team_safety,
-			"team_workmanship": event.team_workmanship,
-			"gracious_professionalism": event.gracious_professionalism,
-			"comments": event.comments,
-			"robot_image_uri": "",
+			event_key: eventKey,
+			team_number: event.team_number,
+			scouter_initials: event.scouter_initials.toLowerCase(),
+			robot_weight: event.robot_weight,
+			drive_train_type: event.drive_train_type,
+			driving_motor_type: event.driving_motor_type,
+			number_of_driving_motors: event.number_of_driving_motors,
+			wheel_type: event.wheel_type,
+			fuel_intake_location: event.fuel_intake_location,
+			intake_width: event.intake_width,
+			intake_type: event.intake_type.join(","),
+			max_fuel_capacity: event.max_fuel_capacity,
+			max_shot_range: event.max_shot_range,
+			auto_aim: event.auto_aim,
+			trench_capability: event.trench_capability,
+			climb_during_auto: event.climb_during_auto,
+			can_climb_l1: event.can_climb_l1,
+			can_climb_l2: event.can_climb_l2,
+			can_climb_l3: event.can_climb_l3,
+			pit_organization: event.pit_organization,
+			team_safety: event.team_safety,
+			team_workmanship: event.team_workmanship,
+			gracious_professionalism: event.gracious_professionalism,
+			comments: event.comments,
+			robot_image_uri: "",
 		};
-		Object.entries(body)
-			.forEach((item) => {
-				const [field, value] = item;
+		Object.entries(body).forEach((item) => {
+			const [field, value] = item;
 
-				const newVal = typeof value === "string" ?
-					escapeUnicode(value) :
-					value;
+			const newVal = typeof value === "string" ? escapeUnicode(value) : value;
 
-				// :eyes: :eyes: :eyes:
-				const access = field as keyof typeof body;
-				// :eyes: :eyes: :eyes:
-				body[access] = newVal as unknown as never;
-			});
+			// :eyes: :eyes: :eyes:
+			const access = field as keyof typeof body;
+			// :eyes: :eyes: :eyes:
+			body[access] = newVal as unknown as never;
+		});
 
-		void tryOnlineSubmission(body, robot_image_uri)
-			.then((successful) => {
-				if(successful) {
-					window.alert("Submit successful.");
-				} else {
-					window.alert("Submit was not successful. Please show the QR to WebDev. You will have to manually submit pictures.");
-				}
-			});
+		void tryOnlineSubmission(body, robot_image_uri).then((successful) => {
+			if (successful) {
+				window.alert("Submit successful.");
+			} else {
+				window.alert(
+					"Submit was not successful. Please show the QR to WebDev. You will have to manually submit pictures.",
+				);
+			}
+		});
 
 		setQrValue(body);
 	}
 	async function tryOnlineSubmission(body: PitScoutTypes.SubmitBody, robot_image_uri: string[]): Promise<boolean> {
-		if(!Constants.SERVER_ADDRESS) {
+		if (!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return false;
 		}
@@ -311,32 +310,14 @@ function PitScout(props: Props): React.ReactElement {
 					message="Please input the max shot range"
 					options={max_shot_range_options}
 				/>
-				<Checkbox<FieldType>
-					name="auto_aim"
-					title="Auto Aim"
-				/>
-				<Checkbox<FieldType>
-					name="trench_capability"
-					title="Trench Capability"
-				/>
-				<Checkbox<FieldType>
-					name="climb_during_auto"
-					title="Climb during auto?"
-				/>
+				<Checkbox<FieldType> name="auto_aim" title="Auto Aim" />
+				<Checkbox<FieldType> name="trench_capability" title="Trench Capability" />
+				<Checkbox<FieldType> name="climb_during_auto" title="Climb during auto?" />
 
 				<h1>Climbing Capability</h1>
-				<Checkbox<FieldType>
-					title="L1"
-					name="can_climb_l1"
-				/>
-				<Checkbox<FieldType>
-					title="L2"
-					name="can_climb_l2"
-				/>
-				<Checkbox<FieldType>
-					title="L3"
-					name="can_climb_l3"
-				/>
+				<Checkbox<FieldType> title="L1" name="can_climb_l1" />
+				<Checkbox<FieldType> title="L2" name="can_climb_l2" />
+				<Checkbox<FieldType> title="L3" name="can_climb_l3" />
 				<NumberInput<FieldType>
 					title="Pit Organization(0-4)"
 					name="pit_organization"
@@ -373,20 +354,19 @@ function PitScout(props: Props): React.ReactElement {
 					align="left"
 				/>
 
-				<TextArea<FieldType>
-					name="comments"
-					title="Comments"
-				/>
-				<h2 style={{ display: isLoading ? 'inherit' : 'none' }}>Submitting data...</h2>
+				<TextArea<FieldType> name="comments" title="Comments" />
+				<h2 style={{ display: isLoading ? "inherit" : "none" }}>Submitting data...</h2>
 
-				<label className="robotImageLabel" htmlFor="robotImageInput">Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}</label>
+				<label className="robotImageLabel" htmlFor="robotImageInput">
+					Select Image {`(${robotImageInput.current?.files?.length ?? 0} images)`}
+				</label>
 				<input
 					ref={robotImageInput}
 					id="robotImageInput"
 					type="file"
 					accept="image/*"
 					multiple
-					onChange={function() {
+					onChange={function () {
 						setRefresh(!refresh);
 					}}
 				/>
@@ -396,14 +376,14 @@ function PitScout(props: Props): React.ReactElement {
 	}
 	return (
 		<>
-			<Header name="Pit Scout" back="#scoutingapp"/>
+			<Header name="Pit Scout" back="#scoutingapp" />
 
 			<pit-scout>
 				<Form<PitScoutTypes.Pit>
 					accessor={accessor}
 					initialValues={formDefaultValues}
 					onFinish={async (event) => {
-						if(isLoading) {
+						if (isLoading) {
 							return;
 						}
 						try {
@@ -411,7 +391,7 @@ function PitScout(props: Props): React.ReactElement {
 
 							let parsedFiles: string[] = [];
 
-							if(robotImageInput.current?.files) {
+							if (robotImageInput.current?.files) {
 								try {
 									const fileList: FileList = robotImageInput.current.files;
 
@@ -421,7 +401,9 @@ function PitScout(props: Props): React.ReactElement {
 								}
 								try {
 									robotImageInput.current.value = "";
-								} catch (_) { /* empty */ }
+								} catch (_) {
+									/* empty */
+								}
 							}
 
 							submitData(event, parsedFiles);
@@ -430,19 +412,19 @@ function PitScout(props: Props): React.ReactElement {
 
 							accessor.resetFields();
 
-							accessor.setFormValues({...formDefaultValues, "scouter_initials": initials});
-						}
-						catch (err) {
+							accessor.setFormValues({ ...formDefaultValues, scouter_initials: initials });
+						} catch (err) {
 							console.error(err);
 							window.alert("Error occured, please do not leave this message and notify a Webdev member immediately.");
 							window.alert(err);
-						}
-						finally {
+						} finally {
 							setLoading(false);
 						}
 					}}
 					onFinishFailed={(_values, errorFields) => {
-						const errorMessage = Object.entries(errorFields).map((x) => x[0]).join("\n");
+						const errorMessage = Object.entries(errorFields)
+							.map((x) => x[0])
+							.join("\n");
 						window.alert(errorMessage);
 					}}
 				>

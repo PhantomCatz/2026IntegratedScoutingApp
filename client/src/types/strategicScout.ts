@@ -1,5 +1,5 @@
-import * as TbaApi from './tbaApi';
-import * as TbaRequest from './tbaRequest';
+import * as TbaApi from "./tbaApi";
+import * as TbaRequest from "./tbaRequest";
 
 export type PreMatch = {
 	scouter_initials: string;
@@ -27,4 +27,3 @@ export type SubmitBody = {
 	blue_alliance: string;
 	comments: string;
 };
-

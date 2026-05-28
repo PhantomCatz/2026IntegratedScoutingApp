@@ -1,66 +1,72 @@
-import '../public/stylesheets/matchScout.css';
-import '../public/stylesheets/style.css';
-import { useEffect, useState } from 'react';
-import { useLocalStorage, } from 'react-use';
-import Header from '../parts/header';
-import QrCode from '../parts/qrCodeViewer';
-import { isInPlayoffs, getTeamsInMatch, getAllianceTags, getOpposingAllianceColor, parseRobotPosition, getRobotPositionOptions } from '../utils/tbaRequest.ts';
+import "../public/stylesheets/matchScout.css";
+import "../public/stylesheets/style.css";
+import { useEffect, useState } from "react";
+import { useLocalStorage } from "react-use";
+import Header from "../parts/header";
+import QrCode from "../parts/qrCodeViewer";
+import {
+	isInPlayoffs,
+	getTeamsInMatch,
+	getAllianceTags,
+	getOpposingAllianceColor,
+	parseRobotPosition,
+	getRobotPositionOptions,
+} from "../utils/tbaRequest.ts";
 import { escapeUnicode, toTinyInt } from "../utils/utils";
-import Form, { NumberInput, Select, Checkbox, Input, TextArea, } from '../parts/formItems';
-import { getFieldAccessor, Slider} from '../parts/formItems';
-import { Tabs, } from "../parts/tabs";
-import Constants from '../utils/constants';
+import Form, { NumberInput, Select, Checkbox, Input, TextArea } from "../parts/formItems";
+import { getFieldAccessor, Slider } from "../parts/formItems";
+import { Tabs } from "../parts/tabs";
+import Constants from "../utils/constants";
 
-import type * as TbaApi from '../types/tbaApi';
-import type { ResultTypes } from '../types/tbaRequest';
-import type * as TbaRequest from '../types/tbaRequest';
-import type * as MatchScoutTypes from '../types/matchScout';
-import type { TabItems } from '../parts/tabs';
-import type * as Database from '../types/database.ts';
+import type * as TbaApi from "../types/tbaApi";
+import type { ResultTypes } from "../types/tbaRequest";
+import type * as TbaRequest from "../types/tbaRequest";
+import type * as MatchScoutTypes from "../types/matchScout";
+import type { TabItems } from "../parts/tabs";
+import type * as Database from "../types/database.ts";
 
 type Props = {
-	title: string,
+	title: string;
 };
 
 const formDefaultValues: MatchScoutTypes.All = {
-
 	// Pre-match
-	"scouter_initials": "",
-	"comp_level": "qm",
-	"match_number": 0,
-	"robot_position": "B1",
+	scouter_initials: "",
+	comp_level: "qm",
+	match_number: 0,
+	robot_position: "B1",
 	// Auton
-	"auton_shoot_location": [],
-	"auton_intake_location": [],
-	"auton_climb_attempted": false,
-	"auton_climb_successful": false,
-	"auton_multiplier": 0,
+	auton_shoot_location: [],
+	auton_intake_location: [],
+	auton_climb_attempted: false,
+	auton_climb_successful: false,
+	auton_multiplier: 0,
 
 	// Teleop
 
-	"teleop_fuel_hoarded_amount": "",
-	"teleop_primary_hoard_type": "",
-	"teleop_multiplier" : 0,
+	teleop_fuel_hoarded_amount: "",
+	teleop_primary_hoard_type: "",
+	teleop_multiplier: 0,
 	// Endgame
-	"endgame_climb_attempted": false,
-	"endgame_climb_level": "",
-	"endgame_climb_successful": false,
+	endgame_climb_attempted: false,
+	endgame_climb_level: "",
+	endgame_climb_successful: false,
 	// Overall
-	"overall_robot_died": false,
-	"overall_defended_others": false,
-	"overall_was_defended": false,
-	"overall_defended": [],
-	"overall_defended_by": [],
-	"overall_path_to_neutral_zone": "",
-	"overall_shot_while_moving": false,
-	"overall_shot_hoarded_pieces": false,
-	"overall_comments": "",
+	overall_robot_died: false,
+	overall_defended_others: false,
+	overall_was_defended: false,
+	overall_defended: [],
+	overall_defended_by: [],
+	overall_path_to_neutral_zone: "",
+	overall_shot_while_moving: false,
+	overall_shot_hoarded_pieces: false,
+	overall_comments: "",
 
 	// Playoffs
-	"red_alliance": "0",
-	"blue_alliance": "0",
+	red_alliance: "0",
+	blue_alliance: "0",
 
-	"team_override": 0,
+	team_override: 0,
 } as const;
 const noShowValues: Partial<MatchScoutTypes.All> = {
 	// Pre-match
@@ -73,29 +79,29 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	// Auton
 	// "auton_fuel_scored": 0,
 	//"auton_fuel_score_multiplier": "1x",
-	"auton_shoot_location": ["None"],
-	"auton_intake_location": ["None"],
-	"auton_climb_attempted": false,
-	"auton_climb_successful": false,
+	auton_shoot_location: ["None"],
+	auton_intake_location: ["None"],
+	auton_climb_attempted: false,
+	auton_climb_successful: false,
 	// Teleop
 	// "teleop_fuel_scored": 0,
 	//"teleop_fuel_score_multiplier": "1x",
-	"teleop_fuel_hoarded_amount": "None",
-	"teleop_primary_hoard_type": "",
+	teleop_fuel_hoarded_amount: "None",
+	teleop_primary_hoard_type: "",
 	// Endgame
-	"endgame_climb_attempted": false,
-	"endgame_climb_level": "",
-	"endgame_climb_successful": false,
+	endgame_climb_attempted: false,
+	endgame_climb_level: "",
+	endgame_climb_successful: false,
 	// Overall
-	"overall_robot_died": false,
-	"overall_defended_others": false,
-	"overall_was_defended": false,
-	"overall_defended": [],
-	"overall_defended_by": [],
-	"overall_path_to_neutral_zone": "None",
-	"overall_shot_while_moving": false,
-	"overall_shot_hoarded_pieces": false,
-	"overall_comments": "Robot did not appear",
+	overall_robot_died: false,
+	overall_defended_others: false,
+	overall_was_defended: false,
+	overall_defended: [],
+	overall_defended_by: [],
+	overall_path_to_neutral_zone: "None",
+	overall_shot_while_moving: false,
+	overall_shot_hoarded_pieces: false,
+	overall_comments: "Robot did not appear",
 	// Playoffs
 	//"red_alliance": "",
 	//"blue_alliance": "",
@@ -117,11 +123,11 @@ function MatchScout(props: Props): React.ReactElement {
 	const [inPlayoffs, setInPlayoffs] = useState(false);
 	const [robot_appeared, setRobot_appeared] = useState(true);
 	const [endgameClimbAttempted, setEndgameClimbAttempted] = useState(false);
-	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
-	const [maxFuelCapacity,setMaxFuelCapacity] = useState(0);
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
+	const [maxFuelCapacity, setMaxFuelCapacity] = useState(0);
 	const [multiplier, setMultiplier] = useState(1);
 
-	if(!_eventKey) {
+	if (!_eventKey) {
 		throw new Error("Could not get event key");
 	}
 
@@ -135,16 +141,16 @@ function MatchScout(props: Props): React.ReactElement {
 
 	let currentRobotPosition: TbaRequest.RobotPosition | null = null;
 	try {
-		currentRobotPosition = accessor.getFieldValue('robot_position');
+		currentRobotPosition = accessor.getFieldValue("robot_position");
 	} catch (err) {
 		void err;
 	}
 	useEffect(() => {
-		if(!teamsInMatch) {
+		if (!teamsInMatch) {
 			return;
 		}
 
-		if(!currentRobotPosition) {
+		if (!currentRobotPosition) {
 			return;
 		}
 
@@ -158,11 +164,11 @@ function MatchScout(props: Props): React.ReactElement {
 
 	useEffect(() => {
 		void (async () => {
-			if(!team_number) {
+			if (!team_number) {
 				return;
 			}
 
-			if(!Constants.SERVER_ADDRESS) {
+			if (!Constants.SERVER_ADDRESS) {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
@@ -170,12 +176,11 @@ function MatchScout(props: Props): React.ReactElement {
 			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/team/data/" + team_number.toString();
 
 			const response = await fetch(fetchLink);
-			const data = await response.json() as Database.PitDataEntry[];
-			const max_fuel_capacity = data[data.length-1]?.max_fuel_capacity ?? 0;
+			const data = (await response.json()) as Database.PitDataEntry[];
+			const max_fuel_capacity = data[data.length - 1]?.max_fuel_capacity ?? 0;
 			setMaxFuelCapacity(max_fuel_capacity);
 		})();
 	}, [team_number]);
-
 
 	function submitData(event: MatchScoutTypes.All): void {
 		if (team_number === 0) {
@@ -185,67 +190,63 @@ function MatchScout(props: Props): React.ReactElement {
 
 		const body: MatchScoutTypes.SubmitBody = {
 			// Pre-match
-			"event_key": eventKey,
-			"team_number": team_number,
-			"scouter_initials": event.scouter_initials.toLowerCase(),
-			"comp_level": event.comp_level,
-			"match_number": event.match_number,
-			"robot_position": event.robot_position,
+			event_key: eventKey,
+			team_number: team_number,
+			scouter_initials: event.scouter_initials.toLowerCase(),
+			comp_level: event.comp_level,
+			match_number: event.match_number,
+			robot_position: event.robot_position,
 			// Auton
-			"auton_fuel_scored": auton_fuel_number,
-			"auton_shoot_location": event.auton_shoot_location.sort().join(","),
-			"auton_intake_location": event.auton_intake_location.sort().join(","),
-			"auton_climb_attempted": toTinyInt(event.auton_climb_attempted),
-			"auton_climb_successful": toTinyInt(event.auton_climb_successful),
+			auton_fuel_scored: auton_fuel_number,
+			auton_shoot_location: event.auton_shoot_location.sort().join(","),
+			auton_intake_location: event.auton_intake_location.sort().join(","),
+			auton_climb_attempted: toTinyInt(event.auton_climb_attempted),
+			auton_climb_successful: toTinyInt(event.auton_climb_successful),
 			// Teleop
-			"teleop_fuel_scored": teleop_fuel_number,
-			"teleop_fuel_hoarded_amount": event.teleop_fuel_hoarded_amount,
-			"teleop_primary_hoard_type": event.teleop_primary_hoard_type,
+			teleop_fuel_scored: teleop_fuel_number,
+			teleop_fuel_hoarded_amount: event.teleop_fuel_hoarded_amount,
+			teleop_primary_hoard_type: event.teleop_primary_hoard_type,
 			// Endgame
-			"endgame_climb_attempted": toTinyInt(event.endgame_climb_attempted),
-			"endgame_climb_level": event.endgame_climb_level,
-			"endgame_climb_successful": toTinyInt(event.endgame_climb_successful),
+			endgame_climb_attempted: toTinyInt(event.endgame_climb_attempted),
+			endgame_climb_level: event.endgame_climb_level,
+			endgame_climb_successful: toTinyInt(event.endgame_climb_successful),
 			// Overall
-			"overall_robot_died": toTinyInt(event.overall_robot_died),
-			"overall_defended_others": toTinyInt(event.overall_defended_others),
-			"overall_was_defended": toTinyInt(event.overall_was_defended),
-			"overall_defended": event.overall_defended.sort().join(","),
-			"overall_defended_by": event.overall_defended_by.sort().join(","),
-			"overall_path_to_neutral_zone": event.overall_path_to_neutral_zone,
-			"overall_shot_while_moving": toTinyInt(event.overall_shot_while_moving),
-			"overall_shot_hoarded_pieces": toTinyInt(event.overall_shot_hoarded_pieces),
-			"overall_comments": event.overall_comments,
-			"robot_appeared": toTinyInt(robot_appeared),
+			overall_robot_died: toTinyInt(event.overall_robot_died),
+			overall_defended_others: toTinyInt(event.overall_defended_others),
+			overall_was_defended: toTinyInt(event.overall_was_defended),
+			overall_defended: event.overall_defended.sort().join(","),
+			overall_defended_by: event.overall_defended_by.sort().join(","),
+			overall_path_to_neutral_zone: event.overall_path_to_neutral_zone,
+			overall_shot_while_moving: toTinyInt(event.overall_shot_while_moving),
+			overall_shot_hoarded_pieces: toTinyInt(event.overall_shot_hoarded_pieces),
+			overall_comments: event.overall_comments,
+			robot_appeared: toTinyInt(robot_appeared),
 		};
-		Object.entries(body)
-			.forEach((k) => {
-				const [field, val] = k
+		Object.entries(body).forEach((k) => {
+			const [field, val] = k;
 
-				const newVal = typeof val === "string" ?
-					escapeUnicode(val) :
-					val;
+			const newVal = typeof val === "string" ? escapeUnicode(val) : val;
 
-				// :eyes: :eyes: :eyes:
-				const access = field as keyof typeof body;
-				// :eyes: :eyes: :eyes:
-				body[access] = newVal as unknown as never;
-			});
+			// :eyes: :eyes: :eyes:
+			const access = field as keyof typeof body;
+			// :eyes: :eyes: :eyes:
+			body[access] = newVal as unknown as never;
+		});
 
 		// Do not block
-		void tryOnlineSubmit(body)
-			.then((successful) => {
-				if(successful) {
-					window.alert("Submit successful.");
-				} else {
-					window.alert("Submit was not successful. Please show the QR to WebDev.");
-				}
-			});
+		void tryOnlineSubmit(body).then((successful) => {
+			if (successful) {
+				window.alert("Submit successful.");
+			} else {
+				window.alert("Submit was not successful. Please show the QR to WebDev.");
+			}
+		});
 
 		setQrValue(body);
 	}
 
 	async function tryOnlineSubmit(body: MatchScoutTypes.SubmitBody): Promise<boolean> {
-		if(!Constants.SERVER_ADDRESS) {
+		if (!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return false;
 		}
@@ -272,7 +273,7 @@ function MatchScout(props: Props): React.ReactElement {
 	}
 
 	async function onSubmit(event: MatchScoutTypes.All): Promise<void> {
-		if(isLoading) {
+		if (isLoading) {
 			return;
 		}
 
@@ -298,28 +299,27 @@ function MatchScout(props: Props): React.ReactElement {
 
 			accessor.resetFields();
 			/// reset the boolean fields on the overall tab
-			accessor.setFieldValue('auton_climb_attempted', false);
-			accessor.setFieldValue('auton_climb_successful', false);
+			accessor.setFieldValue("auton_climb_attempted", false);
+			accessor.setFieldValue("auton_climb_successful", false);
 
-			accessor.setFieldValue('teleop_fuel_hoarded_amount', formDefaultValues.teleop_fuel_hoarded_amount);
-			accessor.setFieldValue('teleop_primary_hoard_type', formDefaultValues.teleop_primary_hoard_type);
+			accessor.setFieldValue("teleop_fuel_hoarded_amount", formDefaultValues.teleop_fuel_hoarded_amount);
+			accessor.setFieldValue("teleop_primary_hoard_type", formDefaultValues.teleop_primary_hoard_type);
 
-			accessor.setFieldValue('endgame_climb_attempted', false);
-			accessor.setFieldValue('endgame_climb_level', formDefaultValues.endgame_climb_level);
-			accessor.setFieldValue('endgame_climb_successful', false);
+			accessor.setFieldValue("endgame_climb_attempted", false);
+			accessor.setFieldValue("endgame_climb_level", formDefaultValues.endgame_climb_level);
+			accessor.setFieldValue("endgame_climb_successful", false);
 
-			accessor.setFieldValue('overall_robot_died', false);
-			accessor.setFieldValue('overall_defended_others', false);
-			accessor.setFieldValue('overall_was_defended', false);
-			accessor.setFieldValue('overall_path_to_neutral_zone', formDefaultValues.overall_path_to_neutral_zone);
-			accessor.setFieldValue('overall_shot_while_moving', false);
-			accessor.setFieldValue('overall_shot_hoarded_pieces', false);
+			accessor.setFieldValue("overall_robot_died", false);
+			accessor.setFieldValue("overall_defended_others", false);
+			accessor.setFieldValue("overall_was_defended", false);
+			accessor.setFieldValue("overall_path_to_neutral_zone", formDefaultValues.overall_path_to_neutral_zone);
+			accessor.setFieldValue("overall_shot_while_moving", false);
+			accessor.setFieldValue("overall_shot_hoarded_pieces", false);
 
 			accessor.setFieldValue("scouter_initials", scouter_initials);
 			accessor.setFieldValue("comp_level", comp_level);
 			accessor.setFieldValue("match_number", match_number + 1);
 			accessor.setFieldValue("robot_position", robot_position);
-
 
 			await updateNumbers();
 		} catch (err) {
@@ -327,12 +327,10 @@ function MatchScout(props: Props): React.ReactElement {
 		} finally {
 			setLoading(false);
 		}
-
-
 	}
 
 	async function updateNumbers(): Promise<void> {
-		const compLevel = accessor.getFieldValue('comp_level');
+		const compLevel = accessor.getFieldValue("comp_level");
 
 		const inPlayoffs = isInPlayoffs(compLevel);
 
@@ -342,18 +340,24 @@ function MatchScout(props: Props): React.ReactElement {
 	}
 	async function updateTeamsInMatch(): Promise<void> {
 		try {
-			const compLevel = accessor.getFieldValue('comp_level');
-			const matchNumber = accessor.getFieldValue('match_number');
-			const blueAllianceNumber = Number(accessor.getFieldValue('blue_alliance'));
-			const redAllianceNumber = Number(accessor.getFieldValue('red_alliance'));
+			const compLevel = accessor.getFieldValue("comp_level");
+			const matchNumber = accessor.getFieldValue("match_number");
+			const blueAllianceNumber = Number(accessor.getFieldValue("blue_alliance"));
+			const redAllianceNumber = Number(accessor.getFieldValue("red_alliance"));
 
-			if(matchNumber <= 0) {
+			if (matchNumber <= 0) {
 				return;
 			}
 
-			const teamsInMatch = await getTeamsInMatch(eventKey, compLevel, matchNumber, blueAllianceNumber, redAllianceNumber);
+			const teamsInMatch = await getTeamsInMatch(
+				eventKey,
+				compLevel,
+				matchNumber,
+				blueAllianceNumber,
+				redAllianceNumber,
+			);
 
-			if(!teamsInMatch) {
+			if (!teamsInMatch) {
 				console.error("Failed to get teams playing: teams is empty");
 				return;
 			}
@@ -366,10 +370,10 @@ function MatchScout(props: Props): React.ReactElement {
 		}
 	}
 	function updateTeamNumber(teamsInMatch: ResultTypes.TeamsInMatch | null): void {
-		if(!teamsInMatch) {
+		if (!teamsInMatch) {
 			return;
 		}
-		const robotPosition = accessor.getFieldValue('robot_position');
+		const robotPosition = accessor.getFieldValue("robot_position");
 
 		const [color, index] = parseRobotPosition(robotPosition);
 		const teamNumber = teamsInMatch[color][index];
@@ -380,7 +384,7 @@ function MatchScout(props: Props): React.ReactElement {
 	function preMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.PreMatch;
 
-		const compLevelOptions: { label: string, value: TbaApi.Comp_Level }[] = [
+		const compLevelOptions: { label: string; value: TbaApi.Comp_Level }[] = [
 			{ label: "Qualifications", value: "qm" },
 			{ label: "Playoffs", value: "sf" },
 			{ label: "Finals", value: "f" },
@@ -402,14 +406,9 @@ function MatchScout(props: Props): React.ReactElement {
 					required
 				/>
 
-				<Select<FieldType>
-					title="Match Level"
-					name="comp_level"
-					options={compLevelOptions}
-					onChange={updateNumbers}
-				/>
+				<Select<FieldType> title="Match Level" name="comp_level" options={compLevelOptions} onChange={updateNumbers} />
 
-				<div style={{ display: inPlayoffs ? 'inherit' : 'none' }}>
+				<div style={{ display: inPlayoffs ? "inherit" : "none" }}>
 					<Select<FieldType>
 						title="Blue Alliance"
 						name="blue_alliance"
@@ -444,7 +443,9 @@ function MatchScout(props: Props): React.ReactElement {
 					name="robot_position"
 					message="Enter robot position"
 					options={robot_position}
-					onChange={() => { updateTeamNumber(teamsInMatch); }}
+					onChange={() => {
+						updateTeamNumber(teamsInMatch);
+					}}
 				/>
 
 				<h2> Max Fuel Capacity: {maxFuelCapacity}</h2>
@@ -467,17 +468,19 @@ function MatchScout(props: Props): React.ReactElement {
 						onMouseDown={() => {
 							const confirmed = window.confirm("Are you sure that this robot did not appear?");
 
-							if(!confirmed) {
+							if (!confirmed) {
 								return;
 							}
 
-							const values = {...noShowValues};
+							const values = { ...noShowValues };
 
 							setTabNumber("5");
 							accessor.setFormValues(values);
 							setRobot_appeared(false);
 						}}
-					>No Show</button>
+					>
+						No Show
+					</button>
 				</details>
 			</>
 		);
@@ -491,91 +494,75 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Outpost", value: "Outpost" },
 			{ label: "Depot", value: "Depot" },
 			{ label: "Trench", value: "Trench" },
-			{ label: "None", value: "None"},
+			{ label: "None", value: "None" },
 		];
 		const intakeLocation = [
 			{ label: "Neutral", value: "Neutral" },
 			{ label: "Outpost", value: "Outpost" },
 			{ label: "Depot", value: "Depot" },
-			{ label: "None", value: "None"},
+			{ label: "None", value: "None" },
 		];
 
 		return (
-			<div style={{ alignContent: 'center' }}>
-				<NumberInput<FieldType>
-					title="Fuel Scored"
-					buttons={false}
-					value={auton_fuel_number}
-					disabled
-				/>
+			<div style={{ alignContent: "center" }}>
+				<NumberInput<FieldType> title="Fuel Scored" buttons={false} value={auton_fuel_number} disabled />
 
 				<button
 					className="plusButton"
 					type="button"
 					onClick={() => {
-
-					setAutonFuelNumber(auton_fuel_number + multiplier);
-
+						setAutonFuelNumber(auton_fuel_number + multiplier);
 					}}
-				>+{multiplier}</button>
+				>
+					+{multiplier}
+				</button>
 
 				<button
 					className="minusButton"
 					type="button"
 					onClick={() => {
 						let new_fuel_number = auton_fuel_number - multiplier;
-						if(new_fuel_number < 0){
+						if (new_fuel_number < 0) {
 							new_fuel_number = 0;
 						}
 						setAutonFuelNumber(new_fuel_number);
 					}}
-				>-{multiplier}</button>
+				>
+					-{multiplier}
+				</button>
 
 				<Slider<FieldType>
 					title="Fuel Score Multiplier"
 					name="auton_multiplier"
-					defaultValue = {multiplier}
+					defaultValue={multiplier}
 					max={10}
 					min={1}
-					onChange={(val : number) => {
-						setMultiplier(val)
+					onChange={(val: number) => {
+						setMultiplier(val);
 					}}
 				/>
 
-				<Select<FieldType>
-					title="Shoot Location"
-					name="auton_shoot_location"
-					options={shootLocation}
-					multiple
-				/>
+				<Select<FieldType> title="Shoot Location" name="auton_shoot_location" options={shootLocation} multiple />
 
-				<Select<FieldType>
-					title="Intake Location"
-					name="auton_intake_location"
-					options={intakeLocation}
-					multiple
-				/>
+				<Select<FieldType> title="Intake Location" name="auton_intake_location" options={intakeLocation} multiple />
 
 				<Checkbox<FieldType>
 					name="auton_climb_attempted"
 					title="Climb Attempted"
 					onChange={(value) => {
-						setAutonClimbAttempted(value)
+						setAutonClimbAttempted(value);
 						if (!value) {
-							accessor.setFieldValue('auton_climb_successful', formDefaultValues.auton_climb_successful);
+							accessor.setFieldValue("auton_climb_successful", formDefaultValues.auton_climb_successful);
 						}
 					}}
 				/>
 
 				<div
 					style={{
-						display: autonClimbAttempted ? 'inherit' : 'none' ,
+						display: autonClimbAttempted ? "inherit" : "none",
 					}}
 				>
-					<Checkbox<FieldType>
-						name="auton_climb_successful"
-						title="Climb Successful"
-					/>
+					<Checkbox<FieldType> name="auton_climb_successful" title="Climb Successful" />
 				</div>
 			</div>
 		);
@@ -590,7 +577,7 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Low", value: "Low" },
 			{ label: "None", value: "None" },
 		];
-		const teleop_primary_hoard_type= [
+		const teleop_primary_hoard_type = [
 			{ label: "Push Hoard", value: "Push Hoard" },
 			{ label: "Shoot Hoard", value: "Shoot Hoard" },
 			{ label: "Dump Hoard", value: "Dump Hoard" },
@@ -598,12 +585,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 		return (
 			<div>
-				<NumberInput<FieldType>
-					title="Fuel Scored"
-					buttons={false}
-					value={teleop_fuel_number}
-					disabled
-				/>
+				<NumberInput<FieldType> title="Fuel Scored" buttons={false} value={teleop_fuel_number} disabled />
 
 				<button
 					className="plusButton"
@@ -611,29 +593,33 @@ function MatchScout(props: Props): React.ReactElement {
 					onClick={() => {
 						setTeleopFuelNumber(teleop_fuel_number + multiplier);
 					}}
-				>+{multiplier}</button>
+				>
+					+{multiplier}
+				</button>
 
 				<button
 					className="minusButton"
 					type="button"
 					onClick={() => {
 						let new_fuel_number = teleop_fuel_number - multiplier;
-						if(new_fuel_number < 0){
+						if (new_fuel_number < 0) {
 							new_fuel_number = 0;
 						}
 						setTeleopFuelNumber(new_fuel_number);
 					}}
-				>-{multiplier}</button>
+				>
+					-{multiplier}
+				</button>
 
 				<Slider<FieldType>
 					title="Fuel Score Multiplier"
 					name="teleop_multiplier"
-					defaultValue = {multiplier}
+					defaultValue={multiplier}
 					max={10}
 					min={1}
-					onChange={(val : number) =>{
-						setMultiplier(val)
-						accessor.setFieldValue("auton_multiplier", multiplier)
+					onChange={(val: number) => {
+						setMultiplier(val);
+						accessor.setFieldValue("auton_multiplier", multiplier);
 					}}
 				/>
 
@@ -643,16 +629,16 @@ function MatchScout(props: Props): React.ReactElement {
 					message="Enter fuel hoarded amount"
 					options={teleop_fuel_hoarded_amount}
 					onChange={(value) => {
-						setPrimaryHoardTypeIsVisible(value !== "None")
+						setPrimaryHoardTypeIsVisible(value !== "None");
 						if (value === "None") {
-							accessor.setFieldValue('teleop_primary_hoard_type', formDefaultValues.teleop_primary_hoard_type);
+							accessor.setFieldValue("teleop_primary_hoard_type", formDefaultValues.teleop_primary_hoard_type);
 						}
 					}}
 				/>
 
 				<div
 					style={{
-						display: primaryHoardTypeIsVisible ? 'inherit' : 'none' ,
+						display: primaryHoardTypeIsVisible ? "inherit" : "none",
 					}}
 				>
 					<Select<FieldType>
@@ -682,17 +668,17 @@ function MatchScout(props: Props): React.ReactElement {
 					name="endgame_climb_attempted"
 					title="Climb Attempted?"
 					onChange={(value) => {
-						setEndgameClimbAttempted(value)
+						setEndgameClimbAttempted(value);
 						if (!value) {
-							accessor.setFieldValue('endgame_climb_level', formDefaultValues.endgame_climb_level);
-							accessor.setFieldValue('endgame_climb_successful', formDefaultValues.endgame_climb_successful);
+							accessor.setFieldValue("endgame_climb_level", formDefaultValues.endgame_climb_level);
+							accessor.setFieldValue("endgame_climb_successful", formDefaultValues.endgame_climb_successful);
 						}
 					}}
 				/>
 
 				<div
 					style={{
-						display: endgameClimbAttempted ? 'inherit' : 'none' ,
+						display: endgameClimbAttempted ? "inherit" : "none",
 					}}
 				>
 					<Select<FieldType>
@@ -703,13 +689,11 @@ function MatchScout(props: Props): React.ReactElement {
 						required={endgameClimbAttempted}
 					/>
 
-					<Checkbox<FieldType>
-						name="endgame_climb_successful"
-						title="Climb Successful?"
-					/>
+					<Checkbox<FieldType> name="endgame_climb_successful" title="Climb Successful?" />
 				</div>
 			</>
-		)}
+		);
+	}
 
 	function overallMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.OverallMatch;
@@ -717,25 +701,22 @@ function MatchScout(props: Props): React.ReactElement {
 		const opposingTeams = opposingTeamNum.map((team) => ({ label: team.toString(), value: team.toString() }));
 		const overall_path_to_neutral_zone = [
 			{ label: "Bump", value: "Bump" },
-			{ label: "Trench", value: "Trench"},
+			{ label: "Trench", value: "Trench" },
 			{ label: "Both", value: "Both" },
 			{ label: "None", value: "None" },
 		];
 
 		return (
-			<div className='matchbody'>
+			<div className="matchbody">
 				<div className="inputRow">
-					<Checkbox<FieldType>
-						title="Robot died?"
-						name="overall_robot_died"
-					/>
+					<Checkbox<FieldType> title="Robot died?" name="overall_robot_died" />
 					<Checkbox<FieldType>
 						title="Defended others?"
 						name="overall_defended_others"
 						onChange={(value) => {
-							setDefendedIsVisible(value)
+							setDefendedIsVisible(value);
 							if (!value) {
-								accessor.setFieldValue('overall_defended', formDefaultValues.overall_defended);
+								accessor.setFieldValue("overall_defended", formDefaultValues.overall_defended);
 							}
 						}}
 					/>
@@ -744,9 +725,9 @@ function MatchScout(props: Props): React.ReactElement {
 						title="Was Defended?"
 						name="overall_was_defended"
 						onChange={(value) => {
-							setWasDefendedIsVisible(value)
+							setWasDefendedIsVisible(value);
 							if (!value) {
-								accessor.setFieldValue('overall_defended_by', formDefaultValues.overall_defended_by);
+								accessor.setFieldValue("overall_defended_by", formDefaultValues.overall_defended_by);
 							}
 						}}
 					/>
@@ -754,7 +735,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<div
 					style={{
-						display: defendedIsVisible ? 'inherit' : 'none' ,
+						display: defendedIsVisible ? "inherit" : "none",
 					}}
 				>
 					<Select<FieldType>
@@ -769,7 +750,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 				<div
 					style={{
-						display: wasDefendedIsVisible ? 'inherit' : 'none' ,
+						display: wasDefendedIsVisible ? "inherit" : "none",
 					}}
 				>
 					<Select<FieldType>
@@ -789,49 +770,39 @@ function MatchScout(props: Props): React.ReactElement {
 					options={overall_path_to_neutral_zone}
 				/>
 
-				<Checkbox<FieldType>
-					title="Shot While Moving"
-					name="overall_shot_while_moving"
-				/>
+				<Checkbox<FieldType> title="Shot While Moving" name="overall_shot_while_moving" />
 
-				<Checkbox<FieldType>
-					title="Shot Hoarded Pieces"
-					name="overall_shot_hoarded_pieces"
-				/>
+				<Checkbox<FieldType> title="Shot Hoarded Pieces" name="overall_shot_hoarded_pieces" />
 
-				<TextArea<FieldType>
-					title="Comments"
-					name="overall_comments"
-					message="Please enter some comments!"
-				/>
+				<TextArea<FieldType> title="Comments" name="overall_comments" message="Please enter some comments!" />
 			</div>
-		)
+		);
 	}
 
 	const items: TabItems = [
 		{
-			key: '1',
-			label: 'Pre',
+			key: "1",
+			label: "Pre",
 			children: preMatch(),
 		},
 		{
-			key: '2',
-			label: 'Auton',
+			key: "2",
+			label: "Auton",
 			children: autonMatch(),
 		},
 		{
-			key: '3',
-			label: 'Teleop',
+			key: "3",
+			label: "Teleop",
 			children: teleopMatch(),
 		},
 		{
-			key: '4',
-			label: 'Endgame',
+			key: "4",
+			label: "Endgame",
 			children: endgameMatch(),
 		},
 		{
-			key: '5',
-			label: 'Overall',
+			key: "5",
+			label: "Overall",
 			children: overallMatch(),
 		},
 	];
@@ -845,7 +816,9 @@ function MatchScout(props: Props): React.ReactElement {
 					initialValues={formDefaultValues}
 					onFinish={onSubmit}
 					onFinishFailed={(_values, errorFields) => {
-						const errorMessage = Object.entries(errorFields).map((x) => x[0]).join("\n");
+						const errorMessage = Object.entries(errorFields)
+							.map((x) => x[0])
+							.join("\n");
 						window.alert(errorMessage);
 					}}
 					accessor={accessor}
@@ -853,17 +826,33 @@ function MatchScout(props: Props): React.ReactElement {
 					<Tabs defaultActiveKey="1" activeKey={tabNumber} items={items} onChange={setTabNumber} />
 					<footer>
 						{Number(tabNumber) > 1 && (
-							<button type="button" onClick={() => { setTabNumber((Number(tabNumber) - 1).toString())}} className='tabButton'>Back</button>
+							<button
+								type="button"
+								onClick={() => {
+									setTabNumber((Number(tabNumber) - 1).toString());
+								}}
+								className="tabButton"
+							>
+								Back
+							</button>
 						)}
 						{Number(tabNumber) < items.length && (
-							<button type="button" onClick={() => { setTabNumber((Number(tabNumber) + 1).toString())}} className='tabButton'>Next</button>
+							<button
+								type="button"
+								onClick={() => {
+									setTabNumber((Number(tabNumber) + 1).toString());
+								}}
+								className="tabButton"
+							>
+								Next
+							</button>
 						)}
 						{Number(tabNumber) === items.length && (
-							<button type="submit" className='submitButton'>Submit</button>
+							<button type="submit" className="submitButton">
+								Submit
+							</button>
 						)}
-						{isLoading &&
-							<h2>Submitting data...</h2>
-						}
+						{isLoading && <h2>Submitting data...</h2>}
 					</footer>
 				</Form>
 				<QrCode value={qrValue} />

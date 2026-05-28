@@ -1,19 +1,19 @@
-import '../public/stylesheets/matchLookup.css';
-import { useEffect, useState } from 'react';
-import {useLocalStorage, } from 'react-use';
-import Form, { Input, NumberInput } from '../parts/formItems';
-import { getFieldAccessor } from '../parts/formItems';
-import Header from '../parts/header';
-import { getAllTeams, } from '../utils/tbaRequest.ts';
-import Constants from '../utils/constants';
+import "../public/stylesheets/matchLookup.css";
+import { useEffect, useState } from "react";
+import { useLocalStorage } from "react-use";
+import Form, { Input, NumberInput } from "../parts/formItems";
+import { getFieldAccessor } from "../parts/formItems";
+import Header from "../parts/header";
+import { getAllTeams } from "../utils/tbaRequest.ts";
+import Constants from "../utils/constants";
 
-import type * as TbaApi from '../types/tbaApi';
+import type * as TbaApi from "../types/tbaApi";
 
 type Props = {
-	title: string,
+	title: string;
 };
 type Fields = {
-	teamNumber: number,
+	teamNumber: number;
 };
 
 function MatchLookup(props: Props): React.ReactElement {
@@ -24,7 +24,7 @@ function MatchLookup(props: Props): React.ReactElement {
 
 	const accessor = getFieldAccessor<Fields>();
 
-	if(!_eventKey) {
+	if (!_eventKey) {
 		throw new Error("Could not get event key");
 	}
 
@@ -34,19 +34,21 @@ function MatchLookup(props: Props): React.ReactElement {
 		document.title = props.title;
 	}, [props.title]);
 	useEffect(() => {
-		void (async function() {
+		void (async function () {
 			setIsLoading(true);
 			try {
 				const data = await getAllTeams(eventKey);
 
-				if(!data) {
+				if (!data) {
 					throw new Error("Could not get data");
 				}
 
 				const teamNumbers = data.map(function (team) {
-					return (<h2 key={team}>
-						<a href={`#scoutingapp/lookup/teamdata/${team}`}>{team}</a>
-					</h2>);
+					return (
+						<h2 key={team}>
+							<a href={`#scoutingapp/lookup/teamdata/${team}`}>{team}</a>
+						</h2>
+					);
 				});
 
 				setTeamNumberElements(teamNumbers);
@@ -57,9 +59,11 @@ function MatchLookup(props: Props): React.ReactElement {
 		})();
 	}, [eventKey]);
 
-	if(!isLoading && !teamNumberElements) {
+	if (!isLoading && !teamNumberElements) {
 		// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-		setTimeout(() => {setRefresh(!refresh);}, 1000);
+		setTimeout(() => {
+			setRefresh(!refresh);
+		}, 1000);
 	}
 
 	return (
@@ -69,7 +73,7 @@ function MatchLookup(props: Props): React.ReactElement {
 			<match-lookup>
 				<Form<Fields>
 					accessor={accessor}
-					onFinish={event => {
+					onFinish={(event) => {
 						window.location.href = "#scoutingapp/lookup/teamData/" + event.teamNumber.toString();
 					}}
 				>
@@ -80,10 +84,9 @@ function MatchLookup(props: Props): React.ReactElement {
 						min={0}
 						buttons={false}
 					/>
-					<button
-						type="submit"
-						className='submitButton'
-					>Submit</button>
+					<button type="submit" className="submitButton">
+						Submit
+					</button>
 					<h2>List of Teams</h2>
 					{teamNumberElements}
 				</Form>

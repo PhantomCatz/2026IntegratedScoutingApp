@@ -1,13 +1,13 @@
-import { Input, TextArea, Checkbox } from './formItems';
-import '../public/stylesheets/pitLookup.css';
+import { Input, TextArea, Checkbox } from "./formItems";
+import "../public/stylesheets/pitLookup.css";
 
-import type { TabItems } from './tabs';
-import type * as Database from '../types/database';
+import type { TabItems } from "./tabs";
+import type * as Database from "../types/database";
 
 const IMAGE_DELIMITER = "$";
 
 type Props = {
-	teamNumber: number
+	teamNumber: number;
 	data: Database.PitDataFullEntry[] | null;
 };
 
@@ -30,21 +30,17 @@ function PitTabs(props: Props): TabItems {
 
 		const pictures = [];
 
-		if(images.length > 0) {
-			for(let i = 0; i < images.length; i++) {
+		if (images.length > 0) {
+			for (let i = 0; i < images.length; i++) {
 				pictures.push(
 					<div key={`pitImage${i}`}>
 						<h3>Picture {i + 1}</h3>
 						<img className={"pitImage"} src={images[i]}></img>
-					</div>
+					</div>,
 				);
 			}
 		} else {
-			pictures.push(
-				<p key={"pitImage__no-pictures"}>
-					No Pit Pictures D:
-				</p>
-			);
+			pictures.push(<p key={"pitImage__no-pictures"}>No Pit Pictures D:</p>);
 		}
 
 		matches.push({
@@ -77,7 +73,7 @@ function PitTabs(props: Props): TabItems {
 					<h2>Max Shot Range</h2>
 					<Input disabled defaultValue={pitInfo.max_shot_range} />
 					<h2>Trench Capability</h2>
-					<Checkbox disabled defaultValue={Boolean(pitInfo.trench_capability)}/>
+					<Checkbox disabled defaultValue={Boolean(pitInfo.trench_capability)} />
 					<h2>Climb During Auto</h2>
 					<Checkbox disabled defaultValue={Boolean(pitInfo.climb_during_auto)} />
 					<h2>Can Climb L1</h2>
@@ -102,7 +98,7 @@ function PitTabs(props: Props): TabItems {
 					<h2>Pit Pictures</h2>
 					{pictures}
 				</div>
-			)
+			),
 		});
 	}
 	matches.sort((a, b) => parseInt(a.key) - parseInt(b.key));

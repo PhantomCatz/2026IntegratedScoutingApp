@@ -1,4 +1,4 @@
-import * as TbaApi from './tbaApi';
+import * as TbaApi from "./tbaApi";
 
 export type Pre = {
 	scouter_initials: string;
@@ -35,7 +35,4 @@ export type SubmitBody = {
 	team1Value: TeamRanking;
 	team2Value: TeamRanking;
 	team3Value: TeamRanking;
-
 };
-
-

@@ -1,26 +1,26 @@
-import ReactDOM from 'react-dom/client';
-import HomeRouter from './routes/homeRouter';
-import ScoutingAppRouter from './routes/scoutingAppRouter';
-import MatchScout from './routes/matchScout';
-import DTFHome from './routes/dtfHome';
-import DTFTeams from './routes/dtfTeams';
-import StrategicScout from './routes/strategicScout';
-import LookupRouter from './routes/lookupRouter';
-import StrategicLookup from './routes/strategicLookup';
-import PitLookup from './routes/pitLookup';
-import PitScout from './routes/pitScout';
-import MatchLookup from './routes/matchLookup';
-import MatchData from './routes/matchData';
-import SettingsPage from './routes/settingsPage';
-import AllianceZone from './routes/allianceZone';
-import MatchValidation from './routes/matchValidation';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import ReactDOM from "react-dom/client";
+import HomeRouter from "./routes/homeRouter";
+import ScoutingAppRouter from "./routes/scoutingAppRouter";
+import MatchScout from "./routes/matchScout";
+import DTFHome from "./routes/dtfHome";
+import DTFTeams from "./routes/dtfTeams";
+import StrategicScout from "./routes/strategicScout";
+import LookupRouter from "./routes/lookupRouter";
+import StrategicLookup from "./routes/strategicLookup";
+import PitLookup from "./routes/pitLookup";
+import PitScout from "./routes/pitScout";
+import MatchLookup from "./routes/matchLookup";
+import MatchData from "./routes/matchData";
+import SettingsPage from "./routes/settingsPage";
+import AllianceZone from "./routes/allianceZone";
+import MatchValidation from "./routes/matchValidation";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
-const rootElement = document.getElementById('root') as HTMLElement;
+const rootElement = document.getElementById("root") as HTMLElement;
 const root = ReactDOM.createRoot(rootElement);
 
 // Debounce alerting for less annoyance
-window.alert = (function() {
+window.alert = (function () {
 	const alert = window.alert;
 	let id: number;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,22 +28,22 @@ window.alert = (function() {
 	const DEBOUNCE_WINDOW = 500;
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return function(message: any) {
+	return function (message: any) {
 		clearTimeout(id);
 
-		if(!lastMessage.includes(message)) {
+		if (!lastMessage.includes(message)) {
 			lastMessage.push(message);
 		}
 
-		id = setTimeout(function() {
-			if(!lastMessage.length) {
+		id = setTimeout(function () {
+			if (!lastMessage.length) {
 				return;
 			}
 
 			alert(lastMessage.join("\n"));
 			lastMessage = [];
 		}, DEBOUNCE_WINDOW);
-	}
+	};
 })();
 
 function App(): React.ReactElement {
@@ -62,7 +62,7 @@ function App(): React.ReactElement {
 				<Route path="/scoutingapp/lookup/pit" element={<PitLookup title="2637 Pit Lookup" />} />
 				<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<MatchData title="2637 Data Lookup" />} />
 				<Route path="/scoutingapp/pit" element={<PitScout title="2637 Pit Scout" />} />
-				<Route path="/scoutingapp/alliance" element={<AllianceZone title="2637 Alliance Zone" />}/>
+				<Route path="/scoutingapp/alliance" element={<AllianceZone title="2637 Alliance Zone" />} />
 				<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />

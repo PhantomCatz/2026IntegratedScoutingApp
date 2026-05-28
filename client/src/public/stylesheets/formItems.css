@@ -47,7 +47,7 @@
 	}
 }
 .input__text {
-	input[type=text] {
+	input[type="text"] {
 		width: 100%;
 		box-sizing: border-box;
 		height: 3rem;
@@ -64,7 +64,7 @@
 	}
 }
 .input__number {
-	 input[type=number] {
+	input[type="number"] {
 		appearance: textfield;
 		flex-grow: 1;
 		height: 100%;
@@ -80,7 +80,8 @@
 		display: block;
 		width: 100%;
 	}
-	& > number-input-container, & > div {
+	& > number-input-container,
+	& > div {
 		height: 3rem;
 		border: 2px solid var(--font-color);
 		border-radius: 1rem;
@@ -131,7 +132,7 @@
 	}
 }
 .input__checkbox {
-	input[type=checkbox] {
+	input[type="checkbox"] {
 		appearance: none;
 		height: 3rem;
 		padding: 0px;
@@ -146,13 +147,13 @@
 		&:checked {
 			background-color: var(--color-success);
 			&::after {
-				content: 'Yes';
+				content: "Yes";
 			}
 		}
 		&:not(:checked) {
 			background-color: var(--color-failure);
 			&::after {
-				content: 'No';
+				content: "No";
 			}
 		}
 		&::after {
@@ -209,37 +210,37 @@
 
 .input__slider {
 	.slidecontainer {
-  		width: 100%; /* Width of the outside container */
+		width: 100%; /* Width of the outside container */
 	}
 
-/* The slider itself */
-	input[type=range] {
-		-webkit-appearance: none;  /* Override default CSS styles */
+	/* The slider itself */
+	input[type="range"] {
+		-webkit-appearance: none; /* Override default CSS styles */
 		appearance: none;
 		width: 100%; /* Full-width */
 		height: 25px; /* Specified height */
 		background: #d3d3d3; /* Grey background */
 		outline: none; /* Remove outline */
 		opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-		-webkit-transition: .2s; /* 0.2 seconds transition on hover */
-		transition: opacity .2s;
+		-webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
+		transition: opacity 0.2s;
 		&:hover {
 			opacity: 1; /* Fully shown on mouse-over */
 		}
 
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+		/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
 		&::-webkit-slider-thumb {
 			-webkit-appearance: none; /* Override default look */
 			appearance: none;
 			width: 25px; /* Set a specific slider handle width */
 			height: 25px; /* Slider handle height */
-			background: #04AA6D; /* Green background */
+			background: #04aa6d; /* Green background */
 			cursor: pointer; /* Cursor on hover */
 		}
 		&::-moz-range-thumb {
 			width: 25px; /* Set a specific slider handle width */
 			height: 25px; /* Slider handle height */
-			background: #04AA6D; /* Green background */
+			background: #04aa6d; /* Green background */
 			cursor: pointer; /* Cursor on hover */
 		}
 	}

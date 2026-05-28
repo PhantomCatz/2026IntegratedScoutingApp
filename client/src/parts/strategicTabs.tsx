@@ -1,8 +1,8 @@
-import { Input, TextArea, } from './formItems';
-import '../public/stylesheets/strategicTabs.css';
+import { Input, TextArea } from "./formItems";
+import "../public/stylesheets/strategicTabs.css";
 
-import type { TabItems } from './tabs';
-import type * as Database from '../types/database';
+import type { TabItems } from "./tabs";
+import type * as Database from "../types/database";
 
 type Props = {
 	data: Database.StrategicEntry[] | null;
@@ -13,7 +13,7 @@ function StrategicTabs(props: Props): TabItems {
 
 	const matches: TabItems = [];
 
-	if(!data) {
+	if (!data) {
 		return matches;
 	}
 
@@ -25,38 +25,14 @@ function StrategicTabs(props: Props): TabItems {
 			label: `${strategicInfo.scouter_initials.toUpperCase()}:${strategicInfo.team_number}`,
 			children: (
 				<strategic-tab>
-					<Input
-						title="Match Event"
-						disabled
-						defaultValue={strategicInfo.event_key}
-					/>
-					<Input
-						title="Scouter Initials"
-						disabled
-						defaultValue={strategicInfo.scouter_initials}
-					/>
-					<Input
-						title="Match Level"
-						disabled
-						defaultValue={strategicInfo.comp_level}
-					/>
-					<Input
-						title="Match #"
-						disabled
-						defaultValue={strategicInfo.match_number.toString()}
-					/>
-					<Input
-						title="Robot Position"
-						disabled
-						defaultValue={strategicInfo.robot_position}
-					/>
-					<TextArea
-						title="Comments"
-						disabled
-						defaultValue={strategicInfo.comments}
-					/>
+					<Input title="Match Event" disabled defaultValue={strategicInfo.event_key} />
+					<Input title="Scouter Initials" disabled defaultValue={strategicInfo.scouter_initials} />
+					<Input title="Match Level" disabled defaultValue={strategicInfo.comp_level} />
+					<Input title="Match #" disabled defaultValue={strategicInfo.match_number.toString()} />
+					<Input title="Robot Position" disabled defaultValue={strategicInfo.robot_position} />
+					<TextArea title="Comments" disabled defaultValue={strategicInfo.comments} />
 				</strategic-tab>
-			)
+			),
 		});
 	}
 

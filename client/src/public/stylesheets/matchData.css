@@ -2,7 +2,7 @@ match-data {
 	.commentBox {
 		max-height: 3rem;
 
-          width: fit-content;
-          display: inline-block;
+		width: fit-content;
+		display: inline-block;
 	}
 }
