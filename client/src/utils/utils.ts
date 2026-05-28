@@ -1,14 +1,16 @@
-import * as Assertions from '../types/assertions';
+import * as Assertions from "../types/assertions";
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 
-function round(num: number, prec : number = 3): number {
+function round(num: number, prec: number = 3): number {
 	return Math.round(num * 10 ** prec) / 10 ** prec;
 }
 async function sleep(ms: number): Promise<void> {
-	await new Promise(resolve => { setTimeout(resolve, ms); });
+	await new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
 }
 function readImage(blob: Blob): Promise<string> {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function (resolve, reject) {
 		const reader = new FileReader();
 		reader.readAsDataURL(blob);
 		reader.onload = () => {
@@ -18,7 +20,7 @@ function readImage(blob: Blob): Promise<string> {
 		};
 		reader.onerror = () => {
 			reject(new Error("Could not read image"));
-		}
+		};
 	});
 }
 function splitString(str: string, size: number): string[] {
@@ -38,22 +40,22 @@ function getRandomHex(): string {
 	return vals[randVal];
 }
 function parseHexColor(color: string): [number, number, number] {
-	return [Number.parseInt(color.substring(0, 2), 16), Number.parseInt(color.substring(2, 4), 16), Number.parseInt(color.substring(4, 6), 16)];
+	return [
+		Number.parseInt(color.substring(0, 2), 16),
+		Number.parseInt(color.substring(2, 4), 16),
+		Number.parseInt(color.substring(4, 6), 16),
+	];
 }
 function escapeUnicode(str: string): string {
 	// eslint-disable-next-line @typescript-eslint/no-misused-spread
 	return [...str]
-		.map(
-			c => /^[\x00-\x7F]$/.test(c) ?
-				c :
-				c
-					.split("")
-					.map(a =>
-						"\\u" + a
-							.charCodeAt(0)
-							.toString(16)
-							.padStart(4, "0")
-					).join("")
+		.map((c) =>
+			/^[\x00-\x7F]$/.test(c)
+				? c
+				: c
+						.split("")
+						.map((a) => "\\u" + a.charCodeAt(0).toString(16).padStart(4, "0"))
+						.join(""),
 		)
 		.join("");
 }
@@ -75,18 +77,19 @@ function toPercentageString(num: number): string {
 function maximumOfMap(map: Map<string, number>, ordering?: { [key: string]: number | undefined }): string {
 	Assertions.assertTruthy(map.size);
 	let maxValue = -Infinity;
-	for(const value of map.values()) {
-		if(value > maxValue) {
+	for (const value of map.values()) {
+		if (value > maxValue) {
 			maxValue = value;
 		}
 	}
 
-	const maxKeys = map.entries()
-		.filter(item => item[1] === maxValue)
-		.map(item => item[0])
+	const maxKeys = map
+		.entries()
+		.filter((item) => item[1] === maxValue)
+		.map((item) => item[0])
 		.toArray();
 
-	if(ordering) {
+	if (ordering) {
 		maxKeys.sort((a, b) => {
 			const o1 = ordering[a] ?? -1;
 			const o2 = ordering[b] ?? -1;

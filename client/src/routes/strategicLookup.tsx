@@ -1,23 +1,23 @@
-import '../public/stylesheets/strategicLookup.css';
-import { useEffect, useState } from 'react';
-import { useLocalStorage, } from 'react-use';
-import { NumberInput, } from '../parts/formItems';
-import { getFieldAccessor, } from '../parts/formItems';
-import { Tabs } from '../parts/tabs';
-import Header from '../parts/header';
-import { getAllTeams, } from '../utils/tbaRequest.ts';
-import StrategicTabs from '../parts/strategicTabs';
-import Constants from '../utils/constants';
+import "../public/stylesheets/strategicLookup.css";
+import { useEffect, useState } from "react";
+import { useLocalStorage } from "react-use";
+import { NumberInput } from "../parts/formItems";
+import { getFieldAccessor } from "../parts/formItems";
+import { Tabs } from "../parts/tabs";
+import Header from "../parts/header";
+import { getAllTeams } from "../utils/tbaRequest.ts";
+import StrategicTabs from "../parts/strategicTabs";
+import Constants from "../utils/constants";
 
-import type * as TbaApi from '../types/tbaApi';
-import type * as Database from '../types/database';
-import type { TabItem, TabItems } from '../parts/tabs';
+import type * as TbaApi from "../types/tbaApi";
+import type * as Database from "../types/database";
+import type { TabItem, TabItems } from "../parts/tabs";
 
 type Props = {
-	title: string,
+	title: string;
 };
 type Fields = {
-	teamNumber: number,
+	teamNumber: number;
 };
 
 function StrategicLookup(props: Props): React.ReactElement {
@@ -26,10 +26,10 @@ function StrategicLookup(props: Props): React.ReactElement {
 	const [teamNumber, setTeamNumber] = useState(0);
 	const [tabNumber, setTabNumber] = useState("1");
 	const [tabItems, setTabItems] = useState<TabItems>([initialTab()]);
-	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
 	const [refresh, setRefresh] = useState(false);
 
-	if(!_eventKey) {
+	if (!_eventKey) {
 		throw new Error("Could not get event key");
 	}
 
@@ -41,24 +41,30 @@ function StrategicLookup(props: Props): React.ReactElement {
 		document.title = props.title;
 	}, [props.title]);
 	useEffect(() => {
-		void (async function() {
+		void (async function () {
 			setIsLoading(true);
 			try {
 				const data = await getAllTeams(eventKey);
 
-				if(!data) {
+				if (!data) {
 					throw new Error("Could not get data");
 				}
 
 				const teamNumbers = data.map(function (team) {
-					return (<h2 key={team}>
-						<a
-							onClick={() => {setTeamNumber(team)}}
-							style={{
-								cursor: "pointer"
-							}}
-						>{team}</a>
-					</h2>);
+					return (
+						<h2 key={team}>
+							<a
+								onClick={() => {
+									setTeamNumber(team);
+								}}
+								style={{
+									cursor: "pointer",
+								}}
+							>
+								{team}
+							</a>
+						</h2>
+					);
 				});
 
 				setTeamNumberElements(teamNumbers);
@@ -75,18 +81,18 @@ function StrategicLookup(props: Props): React.ReactElement {
 	}, [teamNumberElements]);
 	useEffect(() => {
 		void (async () => {
-			if(!teamNumber) {
+			if (!teamNumber) {
 				return;
 			}
 
-			if(!Constants.SERVER_ADDRESS) {
+			if (!Constants.SERVER_ADDRESS) {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
 			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/strategic/team/" + teamNumber.toString();
 
 			const response = await fetch(fetchLink);
-			const data = await response.json() as Database.StrategicEntry[];
+			const data = (await response.json()) as Database.StrategicEntry[];
 
 			createTabs(data);
 		})();
@@ -105,29 +111,31 @@ function StrategicLookup(props: Props): React.ReactElement {
 
 	function initialTab(): TabItem {
 		return {
-			key: '1',
-			label: 'Team',
+			key: "1",
+			label: "Team",
 			children: Lookup(),
 		};
 	}
 
 	function Lookup(): React.ReactElement {
-		if(!isLoading && !teamNumberElements) {
+		if (!isLoading && !teamNumberElements) {
 			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-			setTimeout(() => {setRefresh(!refresh);}, 1000);
+			setTimeout(() => {
+				setRefresh(!refresh);
+			}, 1000);
 		}
 		return (
 			<>
-				<NumberInput
-					title="Team Number"
-					min={0}
-					max={99999}
-					name='teamNumber'
-				/>
+				<NumberInput title="Team Number" min={0} max={99999} name="teamNumber" />
 				<div className={"centered"}>
-					<button className={"submitButton"} onClick={function(_) {
-						setTeamNumber(accessor.getFieldValue('teamNumber'));
-					}}>Submit</button>
+					<button
+						className={"submitButton"}
+						onClick={function (_) {
+							setTeamNumber(accessor.getFieldValue("teamNumber"));
+						}}
+					>
+						Submit
+					</button>
 				</div>
 				<h2>List of Teams</h2>
 				{teamNumberElements}

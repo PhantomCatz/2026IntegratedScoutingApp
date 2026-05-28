@@ -5,9 +5,9 @@ declare module "*.jpeg";
 declare module "*.jpg";
 declare module "*.css";
 
-import * as React from 'react';
+import * as React from "react";
 
-import type * as TbaApi from './types/tbaApi';
+import type * as TbaApi from "./types/tbaApi";
 type CustomElement = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
 
 declare global {

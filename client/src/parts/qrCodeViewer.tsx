@@ -1,14 +1,14 @@
-import '../public/stylesheets/qrCodeViewer.css';
+import "../public/stylesheets/qrCodeViewer.css";
 
-import { QRCode as AntQr } from 'antd';
-import { useState, useEffect } from 'react';
-import { escapeUnicode, } from '../utils/utils';
+import { QRCode as AntQr } from "antd";
+import { useState, useEffect } from "react";
+import { escapeUnicode } from "../utils/utils";
 
 const sep = "\t";
 const defualtValue = <></>;
 
 type Props = {
-	value: unknown,
+	value: unknown;
 };
 
 function QrCode(props: Props): React.ReactElement {
@@ -16,7 +16,7 @@ function QrCode(props: Props): React.ReactElement {
 	const [timestamp, setTimestamp] = useState<Date>(new Date());
 
 	useEffect(() => {
-		if(!qrValue) {
+		if (!qrValue) {
 			return;
 		}
 		// Scroll to QR when value
@@ -31,22 +31,22 @@ function QrCode(props: Props): React.ReactElement {
 
 	const newQrValue = props.value;
 
-	if(qrValue !== newQrValue) {
+	if (qrValue !== newQrValue) {
 		setQrValue(newQrValue);
 		setTimestamp(new Date());
 		return defualtValue;
 	}
 
-	if(!qrValue) {
+	if (!qrValue) {
 		return defualtValue;
 	}
 
 	const keys = [];
 	const vals = [];
-	if(shouldShow) {
-		for(const [k,v] of Object.entries(qrValue)) {
+	if (shouldShow) {
+		for (const [k, v] of Object.entries(qrValue)) {
 			keys.push(k);
-			switch(v) {
+			switch (v) {
 				case true:
 					vals.push(1);
 					break;
@@ -66,53 +66,61 @@ function QrCode(props: Props): React.ReactElement {
 
 	const shownValue = escapeUnicode(vals.join(sep).replaceAll("\n", "\\n"));
 
-	const valuesToDisplay: { key : string, display : string }[] = [
+	const valuesToDisplay: { key: string; display: string }[] = [
 		{
-			"key": "scouter_initials",
-			"display": "Scouter Initials:",
+			key: "scouter_initials",
+			display: "Scouter Initials:",
 		},
 		{
-			"key": "event_key",
-			"display": "Match Event:",
+			key: "event_key",
+			display: "Match Event:",
 		},
 		{
-			"key": "match_number",
-			"display": "Match Number:",
+			key: "match_number",
+			display: "Match Number:",
 		},
 		{
-			"key": "team_number",
-			"display": "Team Number:",
+			key: "team_number",
+			display: "Team Number:",
 		},
 	];
 
 	const qrInfo: React.ReactElement[] = [];
-	for(const value of valuesToDisplay) {
+	for (const value of valuesToDisplay) {
 		// :eyes:
 		const item = qrValue[value.key as keyof typeof qrValue] as unknown;
 
-		if(item) {
+		if (item) {
 			// :eyes:
 			// eslint-disable-next-line @typescript-eslint/no-base-to-string
-			qrInfo.push(<p className={"qrIdentifier"} key={value.key}>{value.display} {item.toString()}</p>);
+			qrInfo.push(
+				<p className={"qrIdentifier"} key={value.key}>
+					{value.display} {item.toString()}
+				</p>,
+			);
 		}
 	}
 
 	return (
 		<div className="qrCode">
-			<div style={{ display: shouldShow ? 'initial' : 'none' }}>
+			<div style={{ display: shouldShow ? "initial" : "none" }}>
 				<h1 className={"qrTitle"}>{`Last submitted at ${timestamp}`}</h1>
 				{qrInfo}
 				<div className={"qrCodeHolder"}>
 					<div>
-						<AntQr value={
-							/*Limit: 2324 chars*/
-							shownValue
-						} type={"svg"} />
+						<AntQr
+							value={
+								/*Limit: 2324 chars*/
+								shownValue
+							}
+							type={"svg"}
+						/>
 					</div>
 				</div>
 				<h2>Please take a screenshot of this and show it to WebDev</h2>
 			</div>
-		</div>);
+		</div>
+	);
 }
 
 export default QrCode;

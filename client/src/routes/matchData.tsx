@@ -1,16 +1,16 @@
-import '../public/stylesheets/matchData.css';
-import { useEffect, useState } from 'react';
-import { useLocalStorage, } from 'react-use';
-import { useParams } from 'react-router-dom';
-import Table from '../parts/table';
-import { Checkbox } from '../parts/formItems';
-import Header from '../parts/header';
+import "../public/stylesheets/matchData.css";
+import { useEffect, useState } from "react";
+import { useLocalStorage } from "react-use";
+import { useParams } from "react-router-dom";
+import Table from "../parts/table";
+import { Checkbox } from "../parts/formItems";
+import Header from "../parts/header";
 
-import Constants from '../utils/constants';
-import type * as TbaApi from '../types/tbaApi';
-import { assertString, assertTinyInt  } from '../types/assertions';
+import Constants from "../utils/constants";
+import type * as TbaApi from "../types/tbaApi";
+import { assertString, assertTinyInt } from "../types/assertions";
 
-import type * as Database from '../types/database';
+import type * as Database from "../types/database";
 
 const DATA_COLUMNS = {
 	"": {
@@ -39,22 +39,22 @@ const DATA_COLUMNS = {
 		"Robot Died": "overall_robot_died",
 		"Robots Defended": "overall_defended",
 		"Robots Defended By": "overall_defended_by",
-		"Comments": "overall_comments",
+		Comments: "overall_comments",
 		"Robot Appeaered": "robot_appeared",
-	}
+	},
 } as const;
 
 type Props = {
-	title: string
+	title: string;
 };
 
 function MatchData(props: Props): React.ReactElement {
 	const { teamNumber } = useParams();
 	const [loading, setLoading] = useState(true);
-	const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode}[] | null>(null);
-	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+	const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode }[] | null>(null);
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
 
-	if(!_eventKey) {
+	if (!_eventKey) {
 		throw new Error("Could not get event key");
 	}
 
@@ -66,7 +66,7 @@ function MatchData(props: Props): React.ReactElement {
 	useEffect(() => {
 		async function fetchData(teamNumber: number): Promise<void> {
 			try {
-				if(!Constants.SERVER_ADDRESS) {
+				if (!Constants.SERVER_ADDRESS) {
 					console.error("Could not get fetch link. Check .env");
 					return;
 				}
@@ -74,19 +74,19 @@ function MatchData(props: Props): React.ReactElement {
 				const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/team/" + teamNumber.toString();
 
 				const response = await fetch(fetchLink);
-				const data = await response.json() as Database.MatchEntry[];
+				const data = (await response.json()) as Database.MatchEntry[];
 
 				const table = [];
 
-				if(!data.length) {
+				if (!data.length) {
 					window.alert("Could not get data");
 					return;
 				}
 
 				for (const match of data) {
 					const row: {
-						key: string,
-						[key: string]: React.ReactNode | undefined,
+						key: string;
+						[key: string]: React.ReactNode | undefined;
 					} = { key: "" };
 
 					for (const field in match) {
@@ -100,11 +100,9 @@ function MatchData(props: Props): React.ReactElement {
 				}
 
 				setMatchData(table);
-			}
-			catch (err) {
+			} catch (err) {
 				console.error("Error occured when getting data: ", err);
-			}
-			finally {
+			} finally {
 				setLoading(false);
 			}
 		}
@@ -121,12 +119,12 @@ function MatchData(props: Props): React.ReactElement {
 	function getCellValue(field: string, value: unknown): React.ReactNode {
 		let result: React.ReactNode = null;
 
-		if(value === null || value === undefined) {
+		if (value === null || value === undefined) {
 			console.error(`field=`, field);
 			console.error(`value=`, value);
 		}
 
-		switch(field) {
+		switch (field) {
 			case "robot_appeared":
 			case "auton_climb_attempted":
 			case "auton_climb_successful":
@@ -141,7 +139,7 @@ function MatchData(props: Props): React.ReactElement {
 
 				const newValue = Boolean(value);
 
-				result = (<Checkbox disabled defaultValue={newValue} />);
+				result = <Checkbox disabled defaultValue={newValue} />;
 				break;
 			}
 			case "overall_penalties_incurred":
@@ -149,9 +147,7 @@ function MatchData(props: Props): React.ReactElement {
 				assertString(value);
 
 				const text = (value || "").replaceAll("\\n", "\n");
-				result = (<p className="commentBox">
-					{text}
-				</p>);
+				result = <p className="commentBox">{text}</p>;
 				break;
 			}
 			case "event_key":
@@ -184,8 +180,9 @@ function MatchData(props: Props): React.ReactElement {
 	}
 
 	function fixFields(): void {
-		for(const num of fixedFields) {
-			document.querySelectorAll(`.matchDataTable table tr > :nth-child(${num + 1}):not([scope=colgroup])`)
+		for (const num of fixedFields) {
+			document
+				.querySelectorAll(`.matchDataTable table tr > :nth-child(${num + 1}):not([scope=colgroup])`)
 				.forEach((x) => {
 					x.classList.add("cell__fixed");
 				});
@@ -197,19 +194,13 @@ function MatchData(props: Props): React.ReactElement {
 			<Header name={`Data for ${teamNumber}`} back="#scoutingapp/lookup/match" />
 
 			<match-data>
-				{ loading &&
-				<h2>Loading...</h2>
-				}
+				{loading && <h2>Loading...</h2>}
 
-				{matchData ?
-					<Table
-						data={matchData}
-						columns={DATA_COLUMNS}
-						getKey={(row) => (row.id as unknown as number).toString()}
-					/>
-					:
+				{matchData ? (
+					<Table data={matchData} columns={DATA_COLUMNS} getKey={(row) => (row.id as unknown as number).toString()} />
+				) : (
 					<h1>No Data QAQ</h1>
-				}
+				)}
 			</match-data>
 		</>
 	);

@@ -19,7 +19,9 @@ dtf-home {
 		margin-top: 3rem;
 		display: block;
 	}
-	.tabButton, .submitButton, .clear {
+	.tabButton,
+	.submitButton,
+	.clear {
 		width: 50%;
 		height: auto;
 		border: 2px solid var(--font-color) !important;

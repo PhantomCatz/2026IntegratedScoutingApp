@@ -1,9 +1,9 @@
-import '../public/stylesheets/homeRouter.css';
-import { useEffect } from 'react';
-import Header from '../parts/header';
+import "../public/stylesheets/homeRouter.css";
+import { useEffect } from "react";
+import Header from "../parts/header";
 
 type Props = {
-	title: string,
+	title: string;
 };
 
 function HomeRouter(props: Props): React.ReactElement {
@@ -16,9 +16,15 @@ function HomeRouter(props: Props): React.ReactElement {
 			<Header name={"Strategy App"} />
 
 			<home-router>
-				<a className='homeButton' href='#scoutingapp'>Scouting App</a>
-				<a className='homeButton' href='#dtf'>DTF</a>
-				<a className='homeButton' href='#validation'>Match Validation</a>
+				<a className="homeButton" href="#scoutingapp">
+					Scouting App
+				</a>
+				<a className="homeButton" href="#dtf">
+					DTF
+				</a>
+				<a className="homeButton" href="#validation">
+					Match Validation
+				</a>
 			</home-router>
 		</>
 	);
