@@ -77,37 +77,14 @@ function PitLookup(props: Props): React.ReactElement {
 				return;
 			}
 
-			let fetchLink = Constants.SERVER_ADDRESS;
-
-			if(!fetchLink) {
+			if(!Constants.SERVER_ADDRESS) {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			fetchLink += "reqType=getTeamPitData";
+			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/team/" + teamNumber.toString();
 
-			const res1 = await fetch(fetchLink + `&team=${teamNumber}`);
-			const pitData = await res1.json() as Database.PitDataEntry[];
-
-			fetchLink = Constants.SERVER_ADDRESS;
-			fetchLink += "reqType=getTeamPitPictureData";
-
-			const res2 = await fetch(fetchLink + `&team=${teamNumber}`);
-			const pitPictureData = await res2.json() as Database.PitPictureEntry[];
-
-			const pitPictureMap: { [id: number]: Database.PitPictureEntry | undefined } = {};
-
-			for(const pitPictureEntry of pitPictureData) {
-				pitPictureMap[pitPictureEntry.id] = pitPictureEntry;
-			}
-
-			const data: Database.PitDataFullEntry[] = pitData.map(pitDataEntry => {
-				const pitDataFullEntry: Database.PitDataFullEntry = {
-					...pitDataEntry,
-					robot_image_uri: pitPictureMap[pitDataEntry.id]?.robot_image_uri ?? "",
-				};
-
-				return pitDataFullEntry;
-			});
+			const response = await fetch(fetchLink);
+			const data = await response.json() as Database.PitDataFullEntry[];
 
 			createTabs(teamNumber, data);
 		})();
@@ -121,6 +98,7 @@ function PitLookup(props: Props): React.ReactElement {
 		};
 	}
 	function Lookup(): React.ReactElement {
+		// TODO: is this necessary?
 		if(!isLoading && !teamNumberElements) {
 			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 			setTimeout(() => {setRefresh(!refresh);}, 1000);
@@ -144,8 +122,7 @@ function PitLookup(props: Props): React.ReactElement {
 		);
 	}
 
-	function createTabs(teamNumber: number, data: Database.PitDataEntry[] | null): void {
-		console.log(`teamNumber=`, teamNumber);
+	function createTabs(teamNumber: number, data: Database.PitDataFullEntry[] | null): void {
 		try {
 			const tabs = PitTabs({teamNumber: teamNumber, data: data});
 

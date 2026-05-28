@@ -1,20 +1,31 @@
 {
 	"name": "2026-integrated-scouting-app-server",
 	"version": "1.0.0",
+	"main": "index.js",
 	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"dev": "node --watch -r ts-node/register src/index.ts",
+		"format": "prettier . --write"
+	},
 	"dependencies": {
 		"dotenv": "^17.2.3",
 		"express": "^5.2.1",
-		"mysql2": "^3.16.1",
-		"nodemon": "^3.1.11"
-	},
-	"scripts": {
-		"start": "node index.js",
-		"dev": "nodemon index.js"
+		"mysql2": "^3.17.4",
+		"prettier": "^3.8.3"
 	},
 	"devDependencies": {
-		"eslint": "^9.39.2",
-		"typescript-eslint": "^8.53.1",
-		"typescript": "^5.9.3"
+		"@eslint/eslintrc": "^3.3.4",
+		"@eslint/js": "^9.39.3",
+		"@types/express": "^5.0.6",
+		"@types/node": "^25.3.0",
+		"eslint": "^9.39.3",
+		"globals": "^17.3.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "8.56.0"
+	},
+	"engines": {
+		"node": ">=20.6.0"
 	}
 }

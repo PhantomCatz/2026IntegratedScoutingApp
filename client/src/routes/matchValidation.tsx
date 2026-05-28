@@ -46,87 +46,74 @@ function MatchValidation(props: Props): React.ReactElement {
 		document.title = props.title;
 	}, [props.title]);
 	useEffect(() => {
-		const fetchLink = Constants.SERVER_ADDRESS;
-
-		if(!fetchLink) {
+		if(!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; check .env");
 			return;
 		}
 		setIsLoading(true);
 
-		void Promise.all([(async () => {
-				const allianceZoneFetchLink = fetchLink + "reqType=getAllianceZoneData";
+		const allianceZoneFetchLink = Constants.SERVER_ADDRESS + eventKey + "/allianceZone/all";
+		const matchDataFetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/all";
 
-				try {
-					const res = await fetch(allianceZoneFetchLink + `&eventKey=${eventKey}`);
-					const data = await res.json() as Database.AllianceZoneEntry[] | null;
+		void Promise.all([
+			(async () => {
+				const res = await fetch(allianceZoneFetchLink);
+				const data = await res.json() as Database.AllianceZoneEntry[] | null;
 
-					if(!data) {
-						throw new Error("Could not get alliance zone data.");
-					}
-
-					const allianceZoneData: AllianceZoneData = {};
-
-					for(const allianceZoneEntry of data) {
-						const id = getMatchId(allianceZoneEntry.event_key, allianceZoneEntry.comp_level, allianceZoneEntry.match_number);
-						if(!allianceZoneData[id]) {
-							allianceZoneData[id] = {};
-						}
-
-						allianceZoneData[id][allianceZoneEntry.robot_alliance] = allianceZoneEntry;
-					}
-
-					setAllianceZoneData(allianceZoneData);
-				} catch (err) {
-					window.alert(`An error occurred: ${err}`);
+				if(!data) {
+					throw new Error("Could not get alliance zone data.");
 				}
+
+				const allianceZoneData: AllianceZoneData = {};
+
+				for(const allianceZoneEntry of data) {
+					const id = getMatchId(allianceZoneEntry.event_key, allianceZoneEntry.comp_level, allianceZoneEntry.match_number);
+					if(!allianceZoneData[id]) {
+						allianceZoneData[id] = {};
+					}
+
+					allianceZoneData[id][allianceZoneEntry.robot_alliance] = allianceZoneEntry;
+				}
+
+				setAllianceZoneData(allianceZoneData);
 			})(),
 			(async () => {
-				const matchDataFetchLink = fetchLink + "reqType=getAllMatchData";
+				const res = await fetch(matchDataFetchLink);
+				const data = await res.json() as Database.MatchEntry[] | null;
 
-				try {
-					const res = await fetch(matchDataFetchLink + `&eventKey=${eventKey}`);
-					const data = await res.json() as Database.MatchEntry[] | null;
-
-					if(!data) {
-						throw new Error("Could not get match data.");
-					}
-
-					const matchData: MatchData = {};
-
-					for(const match of data) {
-						const id = getMatchId(match.event_key, match.comp_level, match.match_number);
-						const allianceColor = parseRobotPosition(match.robot_position)[0];
-
-						matchData[id] ??= {};
-						matchData[id][allianceColor] ??= {};
-
-						matchData[id][allianceColor][match.robot_position] = match;
-					}
-
-					setMatchData(matchData);
-				} catch (err) {
-					window.alert(`An error occurred: ${err}`);
+				if(!data) {
+					throw new Error("Could not get match data.");
 				}
+
+				const matchData: MatchData = {};
+
+				for(const match of data) {
+					const id = getMatchId(match.event_key, match.comp_level, match.match_number);
+					const allianceColor = parseRobotPosition(match.robot_position)[0];
+
+					matchData[id] ??= {};
+					matchData[id][allianceColor] ??= {};
+
+					matchData[id][allianceColor][match.robot_position] = match;
+				}
+
+				setMatchData(matchData);
 			})(),
 			(async () => {
-				try {
-					const res = await request(`event/${eventKey}/matches`);
-					const data = await res.json() as TbaApi.Match[];
+				const res = await request(`event/${eventKey}/matches`);
+				const data = await res.json() as TbaApi.Match[];
 
-					const tbaData: TbaData = {};
+				const tbaData: TbaData = {};
 
-					data.forEach(match => {
-						tbaData[match.key] = match;
-					});
+				data.forEach(match => {
+					tbaData[match.key] = match;
+				});
 
-					setTbaData(tbaData);
-				} catch (err) {
-					window.alert(`An error occurred: ${err}`);
-				}
+				setTbaData(tbaData);
 			})(),
 		])
 			.catch((err: unknown) => {
+				window.alert(`An error occurred: ${err}`);
 				console.log(err);
 			})
 			.finally(() => {

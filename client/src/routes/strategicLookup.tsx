@@ -79,16 +79,14 @@ function StrategicLookup(props: Props): React.ReactElement {
 				return;
 			}
 
-			let fetchLink = Constants.SERVER_ADDRESS;
-
-			if(!fetchLink) {
+			if(!Constants.SERVER_ADDRESS) {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			fetchLink += "reqType=getTeamStrategic";
+			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/strategic/team/" + teamNumber.toString();
 
-			const res = await fetch(fetchLink + `&team=${teamNumber}`);
-			const data = await res.json() as Database.StrategicEntry[];
+			const response = await fetch(fetchLink);
+			const data = await response.json() as Database.StrategicEntry[];
 
 			createTabs(data);
 		})();

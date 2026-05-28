@@ -1,11 +1,13 @@
 import '../public/stylesheets/matchData.css';
 import { useEffect, useState } from 'react';
+import { useLocalStorage, } from 'react-use';
 import { useParams } from 'react-router-dom';
 import Table from '../parts/table';
 import { Checkbox } from '../parts/formItems';
 import Header from '../parts/header';
 
 import Constants from '../utils/constants';
+import type * as TbaApi from '../types/tbaApi';
 import { assertString, assertTinyInt  } from '../types/assertions';
 
 import type * as Database from '../types/database';
@@ -50,6 +52,13 @@ function MatchData(props: Props): React.ReactElement {
 	const { teamNumber } = useParams();
 	const [loading, setLoading] = useState(true);
 	const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode}[] | null>(null);
+	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
+
+	if(!_eventKey) {
+		throw new Error("Could not get event key");
+	}
+
+	const eventKey = _eventKey;
 
 	useEffect(() => {
 		document.title = props.title;
@@ -57,21 +66,19 @@ function MatchData(props: Props): React.ReactElement {
 	useEffect(() => {
 		async function fetchData(teamNumber: number): Promise<void> {
 			try {
-				let fetchLink = Constants.SERVER_ADDRESS;
-
-				if(!fetchLink) {
+				if(!Constants.SERVER_ADDRESS) {
 					console.error("Could not get fetch link. Check .env");
 					return;
 				}
 
-				fetchLink += "reqType=getTeam";
-				fetchLink += `&team1=${teamNumber}`;
+				const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/team/" + teamNumber.toString();
 
-				const response = await (await fetch(fetchLink)).json() as { [teamIndex: number]: Database.MatchEntry[] | undefined };
+				const response = await fetch(fetchLink);
+				const data = await response.json() as Database.MatchEntry[];
 
 				const table = [];
-				const data  = response[1];
-				if(!data) {
+
+				if(!data.length) {
 					window.alert("Could not get data");
 					return;
 				}

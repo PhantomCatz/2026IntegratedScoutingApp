@@ -23,7 +23,7 @@ type Props = {
 };
 
 const formDefaultValues: MatchScoutTypes.All = {
-	
+
 	// Pre-match
 	"scouter_initials": "",
 	"comp_level": "qm",
@@ -37,7 +37,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	"auton_multiplier": 0,
 
 	// Teleop
-	
+
 	"teleop_fuel_hoarded_amount": "",
 	"teleop_primary_hoard_type": "",
 	"teleop_multiplier" : 0,
@@ -103,7 +103,7 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 
 function MatchScout(props: Props): React.ReactElement {
 	const [isLoading, setLoading] = useState(false);
-	const [tabNum, setTabNum] = useState("1");
+	const [tabNumber, setTabNumber] = useState("1");
 	const [team_number, setTeamNumber] = useState(0);
 	const [auton_fuel_number, setAutonFuelNumber] = useState(0);
 	const [teleop_fuel_number, setTeleopFuelNumber] = useState(0);
@@ -120,6 +120,7 @@ function MatchScout(props: Props): React.ReactElement {
 	const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>('eventKey', Constants.EVENT_KEY);
 	const [maxFuelCapacity,setMaxFuelCapacity] = useState(0);
 	const [multiplier, setMultiplier] = useState(1);
+
 	if(!_eventKey) {
 		throw new Error("Could not get event key");
 	}
@@ -161,24 +162,17 @@ function MatchScout(props: Props): React.ReactElement {
 				return;
 			}
 
-			let fetchLink = Constants.SERVER_ADDRESS;
-
-			if(!fetchLink) {
+			if(!Constants.SERVER_ADDRESS) {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			fetchLink += "reqType=getTeamPitData";
 
-			const res = await fetch(fetchLink + `&team=${team_number}`);
-			const data = await res.json() as Database.PitDataEntry[] | null;
+			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/team/data/" + team_number.toString();
 
-			if(!data) {
-				return;
-			}
-
+			const response = await fetch(fetchLink);
+			const data = await response.json() as Database.PitDataEntry[];
 			const max_fuel_capacity = data[data.length-1]?.max_fuel_capacity ?? 0;
 			setMaxFuelCapacity(max_fuel_capacity);
-
 		})();
 	}, [team_number]);
 
@@ -238,7 +232,7 @@ function MatchScout(props: Props): React.ReactElement {
 			});
 
 		// Do not block
-		void tryFetch(body)
+		void tryOnlineSubmit(body)
 			.then((successful) => {
 				if(successful) {
 					window.alert("Submit successful.");
@@ -250,23 +244,20 @@ function MatchScout(props: Props): React.ReactElement {
 		setQrValue(body);
 	}
 
-	async function tryFetch(body: MatchScoutTypes.SubmitBody): Promise<boolean> {
-		let fetchLink = Constants.SERVER_ADDRESS;
-
-		if(!fetchLink) {
+	async function tryOnlineSubmit(body: MatchScoutTypes.SubmitBody): Promise<boolean> {
+		if(!Constants.SERVER_ADDRESS) {
 			console.error("Could not get fetch link; Check .env");
 			return false;
 		}
 
-		//TODO: refactor
-		fetchLink += "reqType=submitMatchData";
+		const fetchLink = Constants.SERVER_ADDRESS + "/match/team/" + team_number.toString();
 
 		const submitBody = {
 			...body,
 		};
 
 		try {
-			const res = await fetch(fetchLink, {
+			const response = await fetch(fetchLink, {
 				method: "POST",
 				body: JSON.stringify(submitBody),
 				headers: {
@@ -274,7 +265,7 @@ function MatchScout(props: Props): React.ReactElement {
 				},
 			});
 
-			return res.ok;
+			return response.ok;
 		} catch (_) {
 			return false;
 		}
@@ -328,7 +319,7 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("comp_level", comp_level);
 			accessor.setFieldValue("match_number", match_number + 1);
 			accessor.setFieldValue("robot_position", robot_position);
-			
+
 
 			await updateNumbers();
 		} catch (err) {
@@ -337,7 +328,7 @@ function MatchScout(props: Props): React.ReactElement {
 			setLoading(false);
 		}
 
-		
+
 	}
 
 	async function updateNumbers(): Promise<void> {
@@ -385,11 +376,6 @@ function MatchScout(props: Props): React.ReactElement {
 
 		setTeamNumber(teamNumber);
 	}
-
-	
-	
-
-	
 
 	function preMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.PreMatch;
@@ -487,7 +473,7 @@ function MatchScout(props: Props): React.ReactElement {
 
 							const values = {...noShowValues};
 
-							setTabNum("5");
+							setTabNumber("5");
 							accessor.setFormValues(values);
 							setRobot_appeared(false);
 						}}
@@ -497,17 +483,8 @@ function MatchScout(props: Props): React.ReactElement {
 		);
 	}
 
-
-
-
-	 
-		
-	
 	function autonMatch(): React.ReactElement {
-	//accessor.setFieldValue("auton_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.AutonMatch;
-		
-		
 
 		const shootLocation = [
 			{ label: "Tower", value: "Tower" },
@@ -522,14 +499,6 @@ function MatchScout(props: Props): React.ReactElement {
 			{ label: "Depot", value: "Depot" },
 			{ label: "None", value: "None"},
 		];
-// 		const slider = document.getElementById("myRange");
-// 		const output = document.getElementById("demo");
-// 		output.innerHTML = slider.value; // Display the default slider value
-
-// 		// Update the current slider value (each time you drag the slider handle)
-// 		slider.oninput = function() {
-//   		output.innerHTML = this.value;
-// }
 
 		return (
 			<div style={{ alignContent: 'center' }}>
@@ -544,9 +513,9 @@ function MatchScout(props: Props): React.ReactElement {
 					className="plusButton"
 					type="button"
 					onClick={() => {
-						
+
 					setAutonFuelNumber(auton_fuel_number + multiplier);
-						
+
 					}}
 				>+{multiplier}</button>
 
@@ -559,26 +528,20 @@ function MatchScout(props: Props): React.ReactElement {
 							new_fuel_number = 0;
 						}
 						setAutonFuelNumber(new_fuel_number);
-					}} 
+					}}
 				>-{multiplier}</button>
 
-				
-
 				<Slider<FieldType>
-				title="Fuel Score Multiplier"
-				name="auton_multiplier"
-				
-				defaultValue = {multiplier}
-				max={10}
-				min={1}
-				onChange = {(val : number) => {
-					
-					setMultiplier(val)
-				}
-				
-				}
+					title="Fuel Score Multiplier"
+					name="auton_multiplier"
+					defaultValue = {multiplier}
+					max={10}
+					min={1}
+					onChange={(val : number) => {
+						setMultiplier(val)
+					}}
 				/>
-				
+
 				<Select<FieldType>
 					title="Shoot Location"
 					name="auton_shoot_location"
@@ -616,17 +579,11 @@ function MatchScout(props: Props): React.ReactElement {
 				</div>
 			</div>
 		);
-		}
-
-	
-	
-	
-
+	}
 
 	function teleopMatch(): React.ReactElement {
-		
-		//accessor.setFieldValue("teleop_multiplier", multiplier)
 		type FieldType = MatchScoutTypes.TeleopMatch;
+
 		const teleop_fuel_hoarded_amount = [
 			{ label: "High", value: "High" },
 			{ label: "Medium", value: "Medium" },
@@ -652,9 +609,9 @@ function MatchScout(props: Props): React.ReactElement {
 					className="plusButton"
 					type="button"
 					onClick={() => {
-						
-							setTeleopFuelNumber(teleop_fuel_number + multiplier);
-						}}>+{multiplier}</button>
+						setTeleopFuelNumber(teleop_fuel_number + multiplier);
+					}}
+				>+{multiplier}</button>
 
 				<button
 					className="minusButton"
@@ -668,21 +625,16 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				>-{multiplier}</button>
 
-				
-
 				<Slider<FieldType>
-				title="Fuel Score Multiplier"
-				name="teleop_multiplier"
-				
-				defaultValue = {multiplier}
-				max={10}
-				min={1}
-				
-				onChange = {(val : number) =>{		
-					setMultiplier(val)
-					accessor.setFieldValue("auton_multiplier", multiplier)
-				}
-				}
+					title="Fuel Score Multiplier"
+					name="teleop_multiplier"
+					defaultValue = {multiplier}
+					max={10}
+					min={1}
+					onChange={(val : number) =>{
+						setMultiplier(val)
+						accessor.setFieldValue("auton_multiplier", multiplier)
+					}}
 				/>
 
 				<Select<FieldType>
@@ -715,15 +667,15 @@ function MatchScout(props: Props): React.ReactElement {
 		);
 	}
 
-
-
 	function endgameMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.EndgameMatch;
+
 		const endgame_climb_level = [
 			{ label: "Level 1", value: "Level 1" },
 			{ label: "Level 2", value: "Level 2" },
 			{ label: "Level 3", value: "Level 3" },
 		];
+
 		return (
 			<>
 				<Checkbox<FieldType>
@@ -758,8 +710,6 @@ function MatchScout(props: Props): React.ReactElement {
 				</div>
 			</>
 		)}
-
-
 
 	function overallMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.OverallMatch;
@@ -885,6 +835,7 @@ function MatchScout(props: Props): React.ReactElement {
 			children: overallMatch(),
 		},
 	];
+
 	return (
 		<>
 			<Header name="Match Scout" back="#scoutingapp" />
@@ -893,22 +844,21 @@ function MatchScout(props: Props): React.ReactElement {
 				<Form<MatchScoutTypes.All>
 					initialValues={formDefaultValues}
 					onFinish={onSubmit}
-
 					onFinishFailed={(_values, errorFields) => {
 						const errorMessage = Object.entries(errorFields).map((x) => x[0]).join("\n");
 						window.alert(errorMessage);
 					}}
 					accessor={accessor}
 				>
-					<Tabs defaultActiveKey="1" activeKey={tabNum} items={items} onChange={(key) => { setTabNum(key) }} />
+					<Tabs defaultActiveKey="1" activeKey={tabNumber} items={items} onChange={setTabNumber} />
 					<footer>
-						{Number(tabNum) > 1 && (
-							<button type="button" onMouseDown={() => { setTabNum((Number(tabNum) - 1).toString())}} className='tabButton'>Back</button>
+						{Number(tabNumber) > 1 && (
+							<button type="button" onClick={() => { setTabNumber((Number(tabNumber) - 1).toString())}} className='tabButton'>Back</button>
 						)}
-						{Number(tabNum) < items.length && (
-							<button type="button" onMouseDown={() => { setTabNum((Number(tabNum) + 1).toString())}} className='tabButton'>Next</button>
+						{Number(tabNumber) < items.length && (
+							<button type="button" onClick={() => { setTabNumber((Number(tabNumber) + 1).toString())}} className='tabButton'>Next</button>
 						)}
-						{Number(tabNum) === items.length && (
+						{Number(tabNumber) === items.length && (
 							<button type="submit" className='submitButton'>Submit</button>
 						)}
 						{isLoading &&
@@ -921,7 +871,5 @@ function MatchScout(props: Props): React.ReactElement {
 		</>
 	);
 }
-
-
 
 export default MatchScout;
