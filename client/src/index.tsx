@@ -14,6 +14,7 @@ import MatchData from "./routes/matchData";
 import SettingsPage from "./routes/settingsPage";
 import AllianceZone from "./routes/allianceZone";
 import MatchValidation from "./routes/matchValidation";
+import Picklist from "./routes/picklist";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 const rootElement = document.getElementById("root") as HTMLElement;
@@ -67,6 +68,7 @@ function App(): React.ReactElement {
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
 				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
+				<Route path="/picklist" element={<Picklist title="Picklist" />} />
 			</Routes>
 		</HashRouter>
 	);

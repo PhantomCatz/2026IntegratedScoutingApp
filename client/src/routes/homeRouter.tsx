@@ -25,6 +25,9 @@ function HomeRouter(props: Props): React.ReactElement {
 				<a className="homeButton" href="#validation">
 					Match Validation
 				</a>
+				<a className="homeButton" href="#picklist">
+					Picklist
+				</a>
 			</home-router>
 		</>
 	);
