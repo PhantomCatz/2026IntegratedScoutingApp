@@ -13,8 +13,6 @@ export type PreMatch = {
 };
 
 export type AutonMatch = {
-	auton_shoot_location: string[];
-	auton_intake_location: string[];
 	auton_climb_attempted: boolean;
 	auton_climb_successful: boolean;
 	auton_multiplier: number;
@@ -38,9 +36,7 @@ export type OverallMatch = {
 	overall_defended: number[];
 	overall_was_defended: boolean;
 	overall_defended_by: number[];
-	overall_path_to_neutral_zone: string;
 	overall_shot_while_moving: boolean;
-	overall_shot_hoarded_pieces: boolean;
 	overall_comments: string;
 };
 
@@ -55,8 +51,6 @@ export type SubmitBody = {
 	match_number: number;
 	robot_position: string;
 	auton_fuel_scored: number;
-	auton_shoot_location: string;
-	auton_intake_location: string;
 	auton_climb_attempted: Database.Tinyint;
 	auton_climb_successful: Database.Tinyint;
 	teleop_fuel_scored: number;
@@ -70,9 +64,7 @@ export type SubmitBody = {
 	overall_was_defended: Database.Tinyint;
 	overall_defended: string;
 	overall_defended_by: string;
-	overall_path_to_neutral_zone: string;
 	overall_shot_while_moving: Database.Tinyint;
-	overall_shot_hoarded_pieces: Database.Tinyint;
 	overall_comments: string;
 	robot_appeared: Database.Tinyint;
 };
