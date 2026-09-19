@@ -23,7 +23,7 @@ function Picklist(): React.ReactElement {
 			label: "First Pick",
 			children: firstPick(),
 		},
-		/*{
+		{
 			key: "2",
 			label: "Second Pick",
 			children: secondPick(),
@@ -42,7 +42,7 @@ function Picklist(): React.ReactElement {
 			key: "5",
 			label: "Weights",
 			children: weights(),
-		}*/
+		}
 	];
 
     if (!_eventKey) {
@@ -116,14 +116,52 @@ function Picklist(): React.ReactElement {
             </>
         );
     }
-    //function secondPick(): React.ReactElement {}
-    //function dataDump(): React.ReactElement {}
-    //function comments(): React.ReactElement {}
-    //function weights(): React.ReactElement {}
+    function secondPick(): React.ReactElement {
+        type PicklistRow = {
+            teamNumber: number;
+            iegr: number | null;
+            hoard: string;
+            defense: string;
+            restriction: string;
+            deathRate: number | null;
+            motorType: string;
+            drivetrain: string;
+        };
+
+        const COLUMNS: Column[] = [
+            { key: "teamNumber", label: "Team #", sortable: true },
+            { key: "pickRanking", label: "Pick ranking", sortable: true },
+            { key: "iegr", label: "IEGR", sortable: true },
+            { key: "hoard", label: "Hoard", sortable: true },
+            { key: "defense", label: "Defense", sortable: true },
+            { key: "restriction", label: "Restriction", sortable: true },
+            { key: "deathRate", label: "Death rate", sortable: true },
+            { key: "motorType", label: "Motor Type", sortable: true },
+            { key: "drivetrain", label: "Drivetrain", sortable: true },
+        ];
+        
+        return(
+            <>
+            <table>
+                <thead>
+                    {COLUMNS.map((column) => (
+                        <th key={column.key.toString()} onClick={() => setSortState({ key: column.key, direction: sortState?.key === column.key && sortState.direction === "asc" ? "desc" : "asc" })}>
+                            {column.label}
+                            {sortState?.key === column.key && (sortState.direction === "asc" ? " ▲" : " ▼")}
+                        </th>
+                    ))}
+                </thead>
+            </table>
+            </>
+        );
+    }
+    function dataDump(): React.ReactElement {}
+    function comments(): React.ReactElement {}
+    function weights(): React.ReactElement {}
 
     return (
         <>
-        <Header name={"Picklist"} back={"#scoutingapp/lookup"} />
+        <Header name={"Picklist"} back={"#"} />
         <picklist>
             <Tabs defaultActiveKey="1" activeKey={tabNumber} items={tabItems} onChange={setTabNumber} />
         </picklist>
