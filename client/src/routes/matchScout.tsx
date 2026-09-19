@@ -36,8 +36,6 @@ const formDefaultValues: MatchScoutTypes.All = {
 	match_number: 0,
 	robot_position: "B1",
 	// Auton
-	auton_shoot_location: [],
-	auton_intake_location: [],
 	auton_climb_attempted: false,
 	auton_climb_successful: false,
 	auton_multiplier: 0,
@@ -57,9 +55,7 @@ const formDefaultValues: MatchScoutTypes.All = {
 	overall_was_defended: false,
 	overall_defended: [],
 	overall_defended_by: [],
-	overall_path_to_neutral_zone: "",
 	overall_shot_while_moving: false,
-	overall_shot_hoarded_pieces: false,
 	overall_comments: "",
 
 	// Playoffs
@@ -98,9 +94,7 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	overall_was_defended: false,
 	overall_defended: [],
 	overall_defended_by: [],
-	overall_path_to_neutral_zone: "None",
 	overall_shot_while_moving: false,
-	overall_shot_hoarded_pieces: false,
 	overall_comments: "Robot did not appear",
 	// Playoffs
 	//"red_alliance": "",
@@ -198,8 +192,6 @@ function MatchScout(props: Props): React.ReactElement {
 			robot_position: event.robot_position,
 			// Auton
 			auton_fuel_scored: auton_fuel_number,
-			auton_shoot_location: event.auton_shoot_location.sort().join(","),
-			auton_intake_location: event.auton_intake_location.sort().join(","),
 			auton_climb_attempted: toTinyInt(event.auton_climb_attempted),
 			auton_climb_successful: toTinyInt(event.auton_climb_successful),
 			// Teleop
@@ -216,9 +208,7 @@ function MatchScout(props: Props): React.ReactElement {
 			overall_was_defended: toTinyInt(event.overall_was_defended),
 			overall_defended: event.overall_defended.sort().join(","),
 			overall_defended_by: event.overall_defended_by.sort().join(","),
-			overall_path_to_neutral_zone: event.overall_path_to_neutral_zone,
 			overall_shot_while_moving: toTinyInt(event.overall_shot_while_moving),
-			overall_shot_hoarded_pieces: toTinyInt(event.overall_shot_hoarded_pieces),
 			overall_comments: event.overall_comments,
 			robot_appeared: toTinyInt(robot_appeared),
 		};
@@ -251,7 +241,7 @@ function MatchScout(props: Props): React.ReactElement {
 			return false;
 		}
 
-		const fetchLink = Constants.SERVER_ADDRESS + "/match/team/" + team_number.toString();
+		const fetchLink = Constants.SERVER_ADDRESS + "match/team/";
 
 		const submitBody = {
 			...body,
@@ -312,9 +302,7 @@ function MatchScout(props: Props): React.ReactElement {
 			accessor.setFieldValue("overall_robot_died", false);
 			accessor.setFieldValue("overall_defended_others", false);
 			accessor.setFieldValue("overall_was_defended", false);
-			accessor.setFieldValue("overall_path_to_neutral_zone", formDefaultValues.overall_path_to_neutral_zone);
 			accessor.setFieldValue("overall_shot_while_moving", false);
-			accessor.setFieldValue("overall_shot_hoarded_pieces", false);
 
 			accessor.setFieldValue("scouter_initials", scouter_initials);
 			accessor.setFieldValue("comp_level", comp_level);
@@ -542,10 +530,6 @@ function MatchScout(props: Props): React.ReactElement {
 					}}
 				/>
 
-				<Select<FieldType> title="Shoot Location" name="auton_shoot_location" options={shootLocation} multiple />
-
-				<Select<FieldType> title="Intake Location" name="auton_intake_location" options={intakeLocation} multiple />
-
 				<Checkbox<FieldType>
 					name="auton_climb_attempted"
 					title="Climb Attempted"
@@ -763,16 +747,7 @@ function MatchScout(props: Props): React.ReactElement {
 					/>
 				</div>
 
-				<Select<FieldType>
-					title="Path to Neutral Zone"
-					name="overall_path_to_neutral_zone"
-					message="Enter path to neutral zone"
-					options={overall_path_to_neutral_zone}
-				/>
-
 				<Checkbox<FieldType> title="Shot While Moving" name="overall_shot_while_moving" />
-
-				<Checkbox<FieldType> title="Shot Hoarded Pieces" name="overall_shot_hoarded_pieces" />
 
 				<TextArea<FieldType> title="Comments" name="overall_comments" message="Please enter some comments!" />
 			</div>

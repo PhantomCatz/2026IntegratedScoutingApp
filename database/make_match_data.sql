@@ -11,8 +11,6 @@ CREATE TABLE match_data(
     match_number                      SMALLINT NOT NULL,
     robot_position                    VARCHAR(10) NOT NULL,
     auton_fuel_scored                 SMALLINT NOT NULL,
-    auton_shoot_location              VARCHAR(30) NOT NULL,
-    auton_intake_location             VARCHAR(30) NOT NULL,
     auton_climb_attempted             TINYINT NOT NULL,
     auton_climb_successful            TINYINT NOT NULL,
     teleop_fuel_scored                SMALLINT NOT NULL,
@@ -26,9 +24,7 @@ CREATE TABLE match_data(
     overall_was_defended              TINYINT NOT NULL,
     overall_defended                  VARCHAR(50) NOT NULL,
     overall_defended_by               VARCHAR(50) NOT NULL,
-    overall_path_to_neutral_zone      VARCHAR(10) NOT NULL,
     overall_shot_while_moving         TINYINT NOT NULL,
-    overall_shot_hoarded_pieces       TINYINT NOT NULL,
     overall_comments                  VARCHAR(500),
     robot_appeared                    TINYINT NOT NULL,
 
