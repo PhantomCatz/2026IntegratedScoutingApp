@@ -51,5 +51,4 @@ export type SubmitBody = {
 	team_workmanship: number;
 	gracious_professionalism: number;
 	comments: string;
-	robot_image_uri: string;
 };

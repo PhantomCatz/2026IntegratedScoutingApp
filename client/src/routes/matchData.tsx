@@ -153,8 +153,6 @@ function MatchData(props: Props): React.ReactElement {
 			case "match_number":
 			case "robot_position":
 			case "auton_fuel_scored":
-			case "auton_shoot_location":
-			case "auton_intake_location":
 			case "teleop_fuel_scored":
 			case "teleop_fuel_hoarded_amount":
 			case "teleop_primary_hoard_type":

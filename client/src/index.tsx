@@ -76,7 +76,7 @@ root.render(<App />);
 
 window.addEventListener("error", (event) => {
 	window.alert(event.message);
-});
+});+
 
 window.addEventListener("unhandledrejection", (event) => {
 	window.alert(event);
