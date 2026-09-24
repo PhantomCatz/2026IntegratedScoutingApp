@@ -71,16 +71,6 @@ export type PitDataEntry = {
 	comments: string;
 };
 
-export type PitPictureEntry = {
-	id: number;
-	event_key: TbaApi.EventKey;
-	team_number: number;
-	scouter_initials: string;
-	robot_image_uri: string;
-};
-
-export type PitDataFullEntry = PitDataEntry & { robot_image_uri: string };
-
 export type AllianceZoneEntry = {
 	id: number;
 	event_key: TbaApi.EventKey;

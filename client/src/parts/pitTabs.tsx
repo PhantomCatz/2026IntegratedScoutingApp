@@ -4,8 +4,6 @@ import "../public/stylesheets/pitLookup.css";
 import type { TabItems } from "./tabs";
 import type * as Database from "../types/database";
 
-const IMAGE_DELIMITER = "$";
-
 type Props = {
 	teamNumber: number;
 	data: Database.PitDataFullEntry[] | null;
@@ -25,24 +23,6 @@ function PitTabs(props: Props): TabItems {
 
 	for (const pitInfo of data) {
 		pitInfo.comments = pitInfo.comments.replaceAll("\\n", "\n");
-
-		const images = pitInfo.robot_image_uri.split(IMAGE_DELIMITER).filter((x: string) => x !== "");
-
-		const pictures = [];
-
-		if (images.length > 0) {
-			for (let i = 0; i < images.length; i++) {
-				pictures.push(
-					<div key={`pitImage${i}`}>
-						<h3>Picture {i + 1}</h3>
-						<img className={"pitImage"} src={images[i]}></img>
-					</div>,
-				);
-			}
-		} else {
-			pictures.push(<p key={"pitImage__no-pictures"}>No Pit Pictures D:</p>);
-		}
-
 		matches.push({
 			key: `pitData${pitInfo.id}`,
 			label: `${pitInfo.scouter_initials.toUpperCase()}:${pitInfo.team_number}`,
@@ -94,9 +74,6 @@ function PitTabs(props: Props): TabItems {
 					<TextArea disabled defaultValue={pitInfo.any_electrical_issues} />
 					<h2>Comments</h2>
 					<TextArea disabled defaultValue={pitInfo.comments} />
-
-					<h2>Pit Pictures</h2>
-					{pictures}
 				</div>
 			),
 		});
