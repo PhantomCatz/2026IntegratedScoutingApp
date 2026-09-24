@@ -35,7 +35,7 @@ WHERE pit_data.event_key=? AND pit_data.team_number=?;`,
 		["event_key", "team_number"],
 	],
 	":event_key/pit/teamsScouted": [
-		`SELECT unique team_number FROM pit_data WHERE event_key=?;`,
+		`SELECT distinct team_number FROM pit_data WHERE event_key=?;`,
 		["event_key"],
 	],
 	":event_key/strategic/all": [
