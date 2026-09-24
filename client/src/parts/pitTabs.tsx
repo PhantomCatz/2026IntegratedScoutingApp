@@ -4,8 +4,6 @@ import "../public/stylesheets/pitLookup.css";
 import type { TabItems } from "./tabs";
 import type * as Database from "../types/database";
 
-const IMAGE_DELIMITER = "$";
-
 type Props = {
 	teamNumber: number;
 	data: Database.PitDataFullEntry[] | null;
