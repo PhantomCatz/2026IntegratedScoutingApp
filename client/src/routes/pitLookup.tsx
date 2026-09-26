@@ -90,7 +90,7 @@ function PitLookup(props: Props): React.ReactElement {
 			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/team/data/" + teamNumber.toString();
 
 			const response = await fetch(fetchLink);
-			const data = (await response.json()) as Database.PitDataFullEntry[];
+			const data = (await response.json()) as Database.PitDataEntry[];
 
 			createTabs(teamNumber, data);
 		})();
