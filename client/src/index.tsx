@@ -5,16 +5,12 @@ import MatchScout from "./routes/matchScout";
 import DTFHome from "./routes/dtfHome";
 import DTFTeams from "./routes/dtfTeams";
 import StrategicScout from "./routes/strategicScout";
-import LookupRouter from "./routes/lookupRouter";
-import StrategicLookup from "./routes/strategicLookup";
-import PitLookup from "./routes/pitLookup";
+import DataLookup from "./routes/dataLookup";
 import PitScout from "./routes/pitScout";
-import MatchLookup from "./routes/matchLookup";
-import MatchData from "./routes/matchData";
 import SettingsPage from "./routes/settingsPage";
 import AllianceZone from "./routes/allianceZone";
 import MatchValidation from "./routes/matchValidation";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
 
 const rootElement = document.getElementById("root") as HTMLElement;
 const root = ReactDOM.createRoot(rootElement);
@@ -56,11 +52,13 @@ function App(): React.ReactElement {
 				<Route path="/scoutingapp" element={<ScoutingAppRouter title="2637 Scouting App" />} />
 				<Route path="/scoutingapp/match" element={<MatchScout title="2637 Match Scout" />} />
 				<Route path="/scoutingapp/strategic" element={<StrategicScout title="2637 Strategic Scout" />} />
-				<Route path="/scoutingapp/lookup/" element={<LookupRouter title="2637 Lookup" />} />
-				<Route path="/scoutingapp/lookup/strategic" element={<StrategicLookup title="2637 Strategic Lookup" />} />
-				<Route path="/scoutingapp/lookup/match" element={<MatchLookup title="2637 Match Lookup" />} />
-				<Route path="/scoutingapp/lookup/pit" element={<PitLookup title="2637 Pit Lookup" />} />
-				<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<MatchData title="2637 Data Lookup" />} />
+				<Route path="/scoutingapp/lookup" element={<DataLookup title="2637 Data Lookup" />} />
+				<Route path="/scoutingapp/lookup/" element={<DataLookup title="2637 Data Lookup" />} />
+				<Route path="/scoutingapp/lookup/strategic" element={<Navigate to="/scoutingapp/lookup" replace />} />
+				<Route path="/scoutingapp/lookup/match" element={<Navigate to="/scoutingapp/lookup" replace />} />
+				<Route path="/scoutingapp/lookup/pit" element={<Navigate to="/scoutingapp/lookup" replace />} />
+				<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
+				<Route path="/scoutingapp/lookup/teamData/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
 				<Route path="/scoutingapp/pit" element={<PitScout title="2637 Pit Scout" />} />
 				<Route path="/scoutingapp/alliance" element={<AllianceZone title="2637 Alliance Zone" />} />
 				<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
@@ -76,7 +74,7 @@ root.render(<App />);
 
 window.addEventListener("error", (event) => {
 	window.alert(event.message);
-});+
+});
 
 window.addEventListener("unhandledrejection", (event) => {
 	window.alert(event);
