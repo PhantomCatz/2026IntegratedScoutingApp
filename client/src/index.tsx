@@ -12,7 +12,6 @@ import PitScout from "./routes/pitScout";
 import MatchLookup from "./routes/matchLookup";
 import MatchData from "./routes/matchData";
 import SettingsPage from "./routes/settingsPage";
-import AllianceZone from "./routes/allianceZone";
 import MatchValidation from "./routes/matchValidation";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
@@ -62,7 +61,6 @@ function App(): React.ReactElement {
 				<Route path="/scoutingapp/lookup/pit" element={<PitLookup title="2637 Pit Lookup" />} />
 				<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<MatchData title="2637 Data Lookup" />} />
 				<Route path="/scoutingapp/pit" element={<PitScout title="2637 Pit Scout" />} />
-				<Route path="/scoutingapp/alliance" element={<AllianceZone title="2637 Alliance Zone" />} />
 				<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
