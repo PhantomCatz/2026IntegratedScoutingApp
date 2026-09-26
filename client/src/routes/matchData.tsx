@@ -23,11 +23,7 @@ const DATA_COLUMNS = {
 		"Primary Hoard Type": "teleop_primary_hoard_type",
 		"Climb Type": "endgame_climb_level",
 		"Climb Successful": "endgame_climb_successful",
-		"Auton Shoot Location": "auton_shoot_location",
-		"Auton Intake Location": "auton_intake_location",
 		"Shot While Moving": "overall_shot_while_moving",
-		"Path to Neutral Zone": "overall_path_to_neutral_zone",
-		"Shot Hoarded Pieces": "overall_shot_hoarded_pieces",
 		"Defended Others": "overall_defended_others",
 		"Was Defended": "overall_was_defended",
 		"Event Key": "event_key",
@@ -157,8 +153,6 @@ function MatchData(props: Props): React.ReactElement {
 			case "match_number":
 			case "robot_position":
 			case "auton_fuel_scored":
-			case "auton_shoot_location":
-			case "auton_intake_location":
 			case "teleop_fuel_scored":
 			case "teleop_fuel_hoarded_amount":
 			case "teleop_primary_hoard_type":

@@ -87,10 +87,10 @@ function PitLookup(props: Props): React.ReactElement {
 				console.error("Could not get fetch link; check .env");
 				return;
 			}
-			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/team/" + teamNumber.toString();
+			const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/pit/team/data/" + teamNumber.toString();
 
 			const response = await fetch(fetchLink);
-			const data = (await response.json()) as Database.PitDataFullEntry[];
+			const data = (await response.json()) as Database.PitDataEntry[];
 
 			createTabs(teamNumber, data);
 		})();

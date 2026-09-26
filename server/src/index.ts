@@ -19,23 +19,12 @@ const API_GET_ENDPOINTS: {
 		`SELECT * FROM match_data WHERE event_key=? AND team_number=?;`,
 		["event_key", "team_number"],
 	],
-	":event_key/pit/team/:team_number": [
-		`SELECT pit_data.*, pit_picture_data.robot_image_uri
-FROM pit_data
-LEFT JOIN pit_picture_data ON pit_data.id = pit_picture_data.id
-WHERE pit_data.event_key=? AND pit_data.team_number=?;`,
-		["event_key", "team_number"],
-	],
 	":event_key/pit/team/data/:team_number": [
 		`SELECT * FROM pit_data WHERE event_key=? AND team_number=?;`,
 		["event_key", "team_number"],
 	],
-	":event_key/pit/team/pictures/:team_number": [
-		`SELECT * FROM pit_pictures_data WHERE event_key=? AND team_number=?;`,
-		["event_key", "team_number"],
-	],
 	":event_key/pit/teamsScouted": [
-		`SELECT unique team_number FROM pit_data WHERE event_key=?;`,
+		`SELECT distinct team_number FROM pit_data WHERE event_key=?;`,
 		["event_key"],
 	],
 	":event_key/strategic/all": [
@@ -53,23 +42,7 @@ const API_POST_ENDPOINTS: {
 } = {
 	"allianceZone/match/": "alliance_zone_data",
 	"match/team/": "match_data",
-	"pit/team/full/": async function (data: unknown) {
-		const pitPictureData = {
-			event_key: data.event_key,
-			team_number: data.team_number,
-			scouter_initials: data.scouter_initials,
-			robot_image_uri: data.robot_image_uri,
-		};
-		delete data.robot_image_uri;
-
-		const res = await submitData(data, "pit_data");
-
-		pitPictureData.id = res.insertId;
-
-		return await submitData(pitPictureData, "pit_picture_data");
-	},
 	"pit/team/data/": "pit_data",
-	"pit/team/pictures/": "pit_picture_data",
 	"strategic/team/": "strategic_data",
 };
 
