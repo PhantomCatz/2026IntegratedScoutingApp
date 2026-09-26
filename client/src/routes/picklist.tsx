@@ -95,6 +95,16 @@ function Picklist(): React.ReactElement {
 	label: string;
 	sortable: boolean;
     };
+    type team = {
+            team_number: number;
+            auton_fuel_scored: number[];
+            teleop_fuel_scored: number[];
+            teleop_fuel_hoarded_amount: number[];
+            overall_robot_died: number[];
+            overall_defended_others: number[];
+            overall_was_defended: number[];
+            overall_shot_while_moving: number[];
+    }
 
     function compareValues(a: string | number | null | undefined, b: string | number | null | undefined): number {
         if (a == null && b == null) {
@@ -197,7 +207,6 @@ function Picklist(): React.ReactElement {
         
 
     function dataDump(props: Props): React.ReactElement {
-
         const [loading, setLoading] = useState(true);
         const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode }[] | null>(null);
         const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
@@ -228,21 +237,44 @@ function Picklist(): React.ReactElement {
                         return;
                     }
 
+                    const teams: team[] = [];
                     for (const match of data) {
-                        const row: {
-                            key: string;
-                            [key: string]: React.ReactNode | undefined;
-                        } = { key: "" };
-
-                        for (const field in match) {
-                            const result = getCellValue(field, match[field as keyof typeof match] as unknown);
-                            row[field as keyof typeof match] = result;
+                        const team = match.team_number;
+                        const fuelHoarded = match.teleop_fuel_hoarded_amount === "High" ? 4
+                                        : match.teleop_fuel_hoarded_amount === "Medium" ? 3
+                                        : match.teleop_fuel_hoarded_amount === "Low" ? 2
+                                        : match.teleop_fuel_hoarded_amount === "None" ? 1
+                                        : 0;
+                        if(!teams[team]){
+                            const newteam: team = {
+                                team_number: team,
+                                auton_fuel_scored: [match.auton_fuel_scored],
+                                teleop_fuel_scored: [match.teleop_fuel_scored],
+                                teleop_fuel_hoarded_amount: [fuelHoarded],
+                                overall_robot_died: [match.overall_robot_died],
+                                overall_defended_others: [match.overall_defended_others],
+                                overall_was_defended: [match.overall_was_defended],
+                                overall_shot_while_moving: [match.overall_shot_while_moving],
+                            }
+                            teams[team] = newteam;
                         }
-                        const key = `${match.id}`;
-                        row["key"] = key;
-
-                        table.push(row);
                     }
+
+                    // for (const match of data) {
+                    //     const row: {
+                    //         key: string;
+                    //         [key: string]: React.ReactNode | undefined;
+                    //     } = { key: "" };
+
+                    //     for (const field in match) {
+                    //         const result = getCellValue(field, match[field as keyof typeof match] as unknown);
+                    //         row[field as keyof typeof match] = result;
+                    //     }
+                    //     const key = `${match.id}`;
+                    //     row["key"] = key;
+
+                    //     table.push(row);
+                    // }
 
                     setMatchData(table);
                 } catch (err) {
