@@ -11,7 +11,7 @@ import Constants from "../utils/constants";
 import { Checkbox } from "../parts/formItems";
 import { assertString, assertTinyInt } from "../types/assertions";
 import { useParams } from "react-router-dom";
-
+import { getAllTeams } from "../utils/tbaRequest.ts"
 import type * as TbaApi from "../types/tbaApi";
 import type { TabItem, TabItems } from "../parts/tabs";
 import type * as Database from "../types/database";
@@ -46,7 +46,9 @@ function Picklist(): React.ReactElement {
             "Robot Appeaered": "robot_appeared",
         },
     } as const;
-
+    interface teamsJson {
+        [key: string]: any;
+    }
     type Props = {
         title: string;
     };
@@ -95,8 +97,7 @@ function Picklist(): React.ReactElement {
 	label: string;
 	sortable: boolean;
     };
-    type team = {
-            team_number: number;
+    type teamNum = {
             auton_fuel_scored: number[];
             teleop_fuel_scored: number[];
             teleop_fuel_hoarded_amount: number[];
@@ -225,42 +226,70 @@ function Picklist(): React.ReactElement {
                         console.error("Could not get fetch link. Check .env");
                         return;
                     }
-                    const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/all/";
-
+                    const teams = await getAllTeams(eventKey);
+                    const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/team/"+team.toString();
                     const response = await fetch(fetchLink);
-                    const data = (await response.json()) as Database.MatchEntry[];
-
+                        
+                    
                     const table = [];
 
                     if (!data.length) {
                         window.alert("Could not get data");
                         return;
                     }
+                    for(const team of teams){
+                        const data = (await response.json()) as Database.MatchEntry[];
 
-                    const teams: team[] = [];
-                    for (const match of data) {
-                        const team = match.team_number;
-                        const fuelHoarded = match.teleop_fuel_hoarded_amount === "High" ? 4
-                                        : match.teleop_fuel_hoarded_amount === "Medium" ? 3
-                                        : match.teleop_fuel_hoarded_amount === "Low" ? 2
-                                        : match.teleop_fuel_hoarded_amount === "None" ? 1
-                                        : 0;
-                        if(!teams[team]){
-                            const newteam: team = {
-                                team_number: team,
-                                auton_fuel_scored: [match.auton_fuel_scored],
-                                teleop_fuel_scored: [match.teleop_fuel_scored],
-                                teleop_fuel_hoarded_amount: [fuelHoarded],
-                                overall_robot_died: [match.overall_robot_died],
-                                overall_defended_others: [match.overall_defended_others],
-                                overall_was_defended: [match.overall_was_defended],
-                                overall_shot_while_moving: [match.overall_shot_while_moving],
-                            }
-                            teams[team] = newteam;
-                        }
                     }
-
+                    // const teams: teamsJson = {};
                     // for (const match of data) {
+                    //     const teamNum = match.team_number.toString();
+                    //     const fuelHoarded = match.teleop_fuel_hoarded_amount === "High" ? 3
+                    //                     : match.teleop_fuel_hoarded_amount === "Medium" ? 2
+                    //                     : match.teleop_fuel_hoarded_amount === "Low" ? 1
+                    //                     : match.teleop_fuel_hoarded_amount === "None" ? 0
+                    //                     : 0;
+                    //     if(teams[teamNum]){
+                    //         teams[teamNum].auton_fuel_scored.push(match.auton_fuel_scored);
+                    //         teams[teamNum].teleop_fuel_scored.push(match.teleop_fuel_scored);
+                    //         teams[teamNum].teleop_fuel_hoarded_amount.push(fuelHoarded);
+                    //         teams[teamNum].overall_robot_died.push(match.overall_robot_died);
+                    //         teams[teamNum].overall_defended_others.push(match.overall_defended_others);
+                    //         teams[teamNum].overall_was_defended.push(match.overall_was_defended);
+                    //         teams[teamNum].overall_shot_while_moving.push(match.overall_shot_while_moving);
+                    //     }
+                    //     else {
+                    //         const newteam: teamNum = {
+                    //             auton_fuel_scored: [match.auton_fuel_scored],
+                    //             teleop_fuel_scored: [match.teleop_fuel_scored],
+                    //             teleop_fuel_hoarded_amount: [fuelHoarded],
+                    //             overall_robot_died: [match.overall_robot_died],
+                    //             overall_defended_others: [match.overall_defended_others],
+                    //             overall_was_defended: [match.overall_was_defended],
+                    //             overall_shot_while_moving: [match.overall_shot_while_moving],
+                    //         }
+                    //         teams[teamNum] = newteam;
+                    //     }
+                    // }
+                    //     const teamNums = Object.keys(teams)
+                    //     const fields = Object.keys(teams[teamNums[0]]);
+                    //     for (const team of teamNums)
+                    //     {
+                    //         const row: {
+                    //             key: string;
+                    //             [key: string]: React.ReactNode | undefined;
+                    //         } = { key: "" };
+                    //         for (const field in teams[team])
+                    //         {
+                    //             let sum = 0;
+                    //             let i = 0;
+                    //             for (const value of field ){
+                    //                 sum+=value;
+                    //                 i+=1;
+                    //             }
+                    //         }
+                    //     }
+                    // for (const team of data) {
                     //     const row: {
                     //         key: string;
                     //         [key: string]: React.ReactNode | undefined;
