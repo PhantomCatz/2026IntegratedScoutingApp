@@ -5,6 +5,7 @@ import { useLocalStorage } from "react-use";
 import { useParams } from "react-router-dom";
 import { Input, TextArea, Checkbox } from "../parts/formItems";
 import { Tabs } from "../parts/tabs";
+import Table from "../parts/table";
 import Header from "../parts/header";
 import { DTFAutonChartComponent, DTFTeleopChartComponent } from "../parts/dtfChart";
 import Constants from "../utils/constants";
@@ -41,7 +42,7 @@ type AggregateData = {
 	overall_shot_while_moving: Map<Database.Tinyint, number>;
 
 	match_count: number;
-	robot_comments: string;
+	overall_comments: string;
 	total_score: number;
 	total_auton_score: number;
 	total_teleop_score: number;
@@ -172,6 +173,17 @@ const ACTIONS = {
 			value,
 			(data["endgame_climb_successful"].get(value) ?? 0) + match.endgame_climb_successful,
 		);
+	},
+} as const;
+
+const DATA_COLUMNS = {
+	"": {
+		"Competition Level": "comp_level",
+		"Match Number": "match_number",
+		"Auto Fuel Scored": "auton_fuel_scored",
+		"Teleop Fuel Scored": "teleop_fuel_scored",
+		"Climb Type": "endgame_climb_level",		
+		"Total Fuel Scored": "total_fuel_scored",
 	},
 } as const;
 
@@ -387,6 +399,59 @@ function DTFTeams(props: Props): React.ReactElement {
 		}
 		return score;
 	}
+	function AutonMatchData(matches: Database.MatchEntry[]): React.ReactElement {
+		const table: {
+			key: string;
+			[key: string]: React.ReactNode | undefined;
+		}[] = [];
+
+		function getCellValue(field: string, value: unknown): React.ReactNode {
+			let result: React.ReactNode = null;
+
+			if (value === null || value === undefined) {
+				console.error(`field=`, field);
+				console.error(`value=`, value);
+			}
+
+			switch (field) {
+				case "comp_level":
+				case "match_number":
+				case "auton_fuel_scored":
+				case "teleop_fuel_scored":
+				case "endgame_climb_level": {
+					result = (value || "").toString();
+					break;
+				}
+				case "id":
+					break;
+				default:
+					console.error(`Unknown field`, field);
+					break;
+			}
+
+			return result;
+		}
+
+		for (const match of matches) {
+			const row: {
+				key: string;
+				[key: string]: React.ReactNode | undefined;
+			} = { key: "" };
+
+			for (const field in match) {
+				const result = getCellValue(field, match[field as keyof typeof match] as unknown);
+				row[field as keyof typeof match] = result;
+			}
+			const key = `${match.id}`;
+			row["key"] = key;
+
+			row["total_fuel_scored"] = match.auton_fuel_scored + match.teleop_fuel_scored;
+
+			table.push(row);
+		}
+
+		return <Table data={table} columns={DATA_COLUMNS} getKey={(row) => (row.id as unknown as number).toString()} />;
+	}
 	function mergeTeamMatches(matches: Database.MatchEntry[]): AggregateData {
 		const data: AggregateData = {
 			auton_fuel_scored: 0,
@@ -407,7 +472,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			overall_shot_while_moving: new Map<Database.Tinyint, number>(),
 
 			match_count: 0,
-			robot_comments: "",
+			overall_comments: "",
 			total_score: 0,
 			total_auton_score: 0,
 			total_teleop_score: 0,
@@ -498,7 +563,7 @@ function DTFTeams(props: Props): React.ReactElement {
 
 				strategicData.forEach((row) => {
 					// :eyes:
-					dispatchValueAction("robot_comments", row.comments, data, null as never);
+					dispatchValueAction("overall_comments", row.comments, data, null as never);
 				});
 
 				const latestPitMatch = pitData[pitData.length - 1] as Database.PitDataEntry | undefined;
@@ -514,6 +579,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					label: "Auton",
 					children: (
 						<>
+							<div>{AutonMatchData(teamMatches)}</div>
 							<div className="inputRow">
 								<Input title="Avg Fuel Scored" disabled defaultValue={data.auton_fuel_scored.toString()} />
 								<Input
@@ -523,6 +589,8 @@ function DTFTeams(props: Props): React.ReactElement {
 								/>
 							</div>
 							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
+							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
+							<TextArea title="Robot Comments" disabled defaultValue={data.overall_comments} />
 						</>
 					),
 				});
@@ -604,7 +672,7 @@ function DTFTeams(props: Props): React.ReactElement {
 									defaultValue={Utils.maximumOfMap(data.teleop_primary_hoard_type, teleop_primary_hoard_type_ordering)}
 								/>
 							</div>
-							<TextArea title="Robot Comments" disabled defaultValue={data.robot_comments} />
+							<TextArea title="Robot Comments" disabled defaultValue={data.overall_comments} />
 						</>
 					),
 				});
