@@ -11,7 +11,6 @@ import Constants from "../utils/constants";
 import { Checkbox } from "../parts/formItems";
 import { assertString, assertTinyInt } from "../types/assertions";
 import { useParams } from "react-router-dom";
-import { getAllTeams } from "../utils/tbaRequest.ts"
 import type * as TbaApi from "../types/tbaApi";
 import type { TabItem, TabItems } from "../parts/tabs";
 import type * as Database from "../types/database";
