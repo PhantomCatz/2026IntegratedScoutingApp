@@ -26,12 +26,11 @@ const connectionData = _connectionData as {
 
 console.log(`Using Database ${process.env.DB_DATABASE}`);
 
-// this is so sus
 let connPool = {
 	errorConnection: {
 		query: function (sqlQuery: string) {
 			console.error(`Did not run query '${sqlQuery}'`);
-			return { ...defaultValue };
+			throw new Error("cannot connect to database");
 		},
 		release: function () {},
 	} as unknown as mysql.PoolConnection,
@@ -61,7 +60,7 @@ async function requestDatabase(
 	query: string,
 	config: RequestConfig,
 ): Promise<unknown> {
-	let result = null;
+	let result;
 
 	const sqlQuery = query;
 
@@ -81,6 +80,7 @@ async function requestDatabase(
 		console.log(`sqlQuery=`, sqlQuery);
 		console.log(`config=`, config);
 		// console.log(err);
+		throw err;
 	}
 	return result;
 }
@@ -93,7 +93,7 @@ async function submitData(
 	const sqlQuery = `INSERT INTO ${table} (${keys.join(",")}) values(${keys.map(() => "?").join(",")})`;
 	const values = Object.values(data);
 
-	let result = null;
+	let result;
 
 	try {
 		const conn = await connPool.getConnection();
@@ -106,6 +106,7 @@ async function submitData(
 	} catch (err) {
 		console.error(`Failed to resolve request to ${table}:`);
 		console.dir(err);
+		throw err;
 	}
 
 	return result;
