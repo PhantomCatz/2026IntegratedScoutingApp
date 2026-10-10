@@ -1,6 +1,7 @@
 import "dotenv/config";
-import { requestDatabase, submitData } from "./database.ts";
 import express from "express";
+import { requestDatabase, submitData } from "./database.ts";
+import { updatePickRanking, updatePickWeights } from "./picklist.ts";
 import type { TableName } from "./types/database.ts";
 
 const API_BASE_URL = "/api/";
@@ -35,6 +36,14 @@ const API_GET_ENDPOINTS: {
 		`SELECT * FROM strategic_data WHERE event_key=? AND team_number=?;`,
 		["event_key", "team_number"],
 	],
+	":event_key/picklist/weights": [
+		`SELECT * FROM picklist_weights WHERE event_key=?;`,
+		["event_key"],
+	],
+	":event_key/picklist/all": [
+		`SELECT * FROM picklist_rankings WHERE event_key=?;`,
+		["event_key"],
+	],
 };
 // TODO: figure out typing so that server can easily match client (tRPC?)
 const API_POST_ENDPOINTS: {
@@ -44,6 +53,8 @@ const API_POST_ENDPOINTS: {
 	"match/team/": "match_data",
 	"pit/team/data/": "pit_data",
 	"strategic/team/": "strategic_data",
+	"picklist/ranking/": updatePickRanking,
+	"picklist/weights/": updatePickWeights,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
