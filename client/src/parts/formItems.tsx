@@ -1,5 +1,5 @@
 import "../public/stylesheets/formItems.css";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as Utils from "../utils/utils";
 
 import type { StringMap } from "../types/utilityTypes";
@@ -45,7 +45,7 @@ type NumberInputType<FieldType> = Disableable<{
 	shown?: boolean;
 	buttons?: boolean;
 	defaultValue?: number;
-	value?: number;
+	value?: number | "";
 }>;
 type SelectType<FieldType> = Disableable<{
 	title: string | React.ReactElement;
@@ -256,42 +256,76 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 	const align = props.align ?? "center";
 	const buttons = props.buttons ?? true;
 	const disabled = props.disabled;
-	const defaultValue = (props.defaultValue ?? props.min !== undefined) ? min : undefined;
+	const isControlled = props.value !== undefined;
+	const defaultValue = props.defaultValue !== undefined ? props.defaultValue : props.min !== undefined ? min : undefined;
 	const value = props.value;
 
 	const input = useRef<HTMLInputElement>(null);
+	const [focused, setFocused] = useState(false);
+	const [text, setText] = useState(() =>
+		value !== undefined && value !== "" ? String(value) : defaultValue !== undefined ? String(defaultValue) : "",
+	);
+
+	useEffect(() => {
+		if (!focused && isControlled) {
+			setText(value === "" || value === undefined ? "" : String(value));
+		}
+	}, [value, focused, isControlled]);
+
+	function clamp(n: number): number {
+		if (n > max) {
+			return max;
+		}
+		if (n < min) {
+			return min;
+		}
+		return n;
+	}
+
+	function commitNumber(n: number): void {
+		const next = clamp(n);
+		setText(String(next));
+		if (input.current) {
+			input.current.value = String(next);
+		}
+		onChange(next);
+	}
 
 	function updateInputValue(delta: number): void {
 		if (!input.current) {
 			return;
 		}
 
-		const parsedValue = Utils.toNumber(input.current.value) + delta;
-		let newValue: number;
-		if (parsedValue > max) {
-			newValue = max;
-		} else if (parsedValue < min) {
-			newValue = min;
-		} else {
-			newValue = parsedValue;
-		}
-
-		input.current.value = newValue.toString();
-
-		// if we didn't have to clamp it
-		if (parsedValue === newValue) {
-			// :eyes:
-			handleChange({ target: input.current } as unknown as React.ChangeEvent);
-		}
+		const base = input.current.value === "" ? 0 : Utils.toNumber(input.current.value);
+		commitNumber(base + delta);
 	}
+
 	function handleChange(e: React.ChangeEvent): void {
 		const target = e.target;
-
 		assertInstanceOf(target, HTMLInputElement);
 
-		const newVal = Utils.toNumber(target.value);
+		const raw = target.value;
+		setText(raw);
 
-		onChange(newVal);
+		// Allow empty (and lone minus) while typing; commit on blur.
+		if (raw === "" || raw === "-") {
+			return;
+		}
+
+		const parsed = Number(raw);
+		if (Number.isNaN(parsed)) {
+			return;
+		}
+		onChange(clamp(parsed));
+	}
+
+	function handleBlur(): void {
+		setFocused(false);
+		if (text === "" || text === "-" || Number.isNaN(Number(text))) {
+			commitNumber(0);
+			return;
+		}
+		commitNumber(Number(text));
 	}
 
 	return (
@@ -334,10 +368,19 @@ function NumberInput<FieldType>(props: NumberInputType<FieldType>): React.ReactE
 						min={min}
 						max={max}
 						onChange={handleChange}
+						onFocus={() => {
+							setFocused(true);
+							if (text === "0" || value === 0) {
+								setText("");
+								if (input.current) {
+									input.current.value = "";
+								}
+							}
+						}}
+						onBlur={handleBlur}
 						required={required}
-						defaultValue={defaultValue}
-						value={value}
 						disabled={disabled}
+						value={text}
 					/>
 					{buttons && (
 						<button

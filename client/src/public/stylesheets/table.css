@@ -1,6 +1,11 @@
 .table {
 	border-collapse: collapse;
 
+	.table__sortable {
+		cursor: pointer;
+		user-select: none;
+	}
+
 	tbody {
 		tr:nth-child(2n) {
 			background-color: var(--color-hover);
