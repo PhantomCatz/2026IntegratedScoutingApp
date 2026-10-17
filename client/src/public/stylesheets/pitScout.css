@@ -4,8 +4,8 @@ pit-scout {
 	}
 	.robotImageLabel {
 		display: block;
-		border: 2px solid var(--font-color);
-		border-radius: 1rem;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
+		border-radius: 4px;
 		height: 100px;
 		width: 100%;
 		text-align: center;
