@@ -1,5 +1,6 @@
 import "../public/stylesheets/dataLookup.css";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import Header from "../parts/header";
 import { getAllTeams } from "../utils/tbaRequest.ts";
@@ -394,6 +395,31 @@ function buildComments(
 	return rows;
 }
 
+function parseTeamParam(value: string | null | undefined): number[] {
+	if (!value) {
+		return [];
+	}
+
+	const seen = new Set<number>();
+	const teams: number[] = [];
+
+	for (const part of value.split(",")) {
+		if (!/^\d+$/.test(part)) {
+			continue;
+		}
+
+		const team = Number(part);
+		if (team === 0 || seen.has(team)) {
+			continue;
+		}
+
+		seen.add(team);
+		teams.push(team);
+	}
+
+	return teams;
+}
+
 function CellText(props: { value: string; colored: boolean }): React.ReactElement {
 	if (!props.colored) {
 		return <>{props.value}</>;
@@ -541,8 +567,8 @@ type TeamCardProps = {
 	open: boolean;
 	view: DataView;
 	cache: TeamCache | undefined;
-	onOpen: () => void;
-	onClose: () => void;
+	onToggle: () => void;
+	onRemove: () => void;
 	onRetry: () => void;
 };
 
@@ -555,13 +581,14 @@ function TeamCard(props: TeamCardProps): React.ReactElement {
 					<button
 						type="button"
 						className="icon-button"
-						aria-label={`Collapse ${props.team}`}
-						onClick={props.onClose}
+						aria-expanded={props.open}
+						aria-label={`${props.open ? "Collapse" : "Expand"} ${props.team}`}
+						onClick={props.onToggle}
 					>
-						−
+						{props.open ? "˅" : "˄"}
 					</button>
-					<button type="button" className="icon-button" aria-label={`Expand ${props.team}`} onClick={props.onOpen}>
-						+
+					<button type="button" className="icon-button" aria-label={`Remove ${props.team}`} onClick={props.onRemove}>
+						×
 					</button>
 				</div>
 			</div>
@@ -589,10 +616,14 @@ function DataLookup(props: Props): React.ReactElement {
 	const [teams, setTeams] = useState<number[] | null>(null);
 	const [teamsStatus, setTeamsStatus] = useState<"loading" | "ready" | "error">("loading");
 	const [teamListAttempt, setTeamListAttempt] = useState(0);
-	const [openTeam, setOpenTeam] = useState<number | null>(null);
+	const [openTeams, setOpenTeams] = useState<number[]>([]);
 	const [cache, setCache] = useState<Record<number, TeamCache>>({});
 	const [retryToken, setRetryToken] = useState(0);
+	const { teams: teamsParam } = useParams();
+	const navigate = useNavigate();
 	const [_eventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
+
+	const selected = parseTeamParam(teamsParam);
 
 	const cacheRef = useRef(cache);
 	cacheRef.current = cache;
@@ -603,6 +634,24 @@ function DataLookup(props: Props): React.ReactElement {
 	useEffect(() => {
 		document.title = props.title;
 	}, [props.title]);
+
+	useEffect(() => {
+		if (teamsParam === undefined) {
+			return;
+		}
+
+		const canonical = parseTeamParam(teamsParam).join(",");
+		if (teamsParam === canonical) {
+			return;
+		}
+
+		if (canonical === "") {
+			void navigate("/scoutingapp/lookup", { replace: true });
+			return;
+		}
+
+		void navigate(`/scoutingapp/lookup/${canonical}`, { replace: true });
+	}, [teamsParam, navigate]);
 
 	useEffect(() => {
 		if (eventKey === "") {
@@ -631,15 +680,13 @@ function DataLookup(props: Props): React.ReactElement {
 	}, [eventKey, teamListAttempt]);
 
 	useEffect(() => {
-		if (openTeam === null || eventKey === "") {
+		if (eventKey === "" || openTeams.length === 0) {
 			return;
 		}
 
-		const team = openTeam;
-
 		type AnyRow = Database.MatchEntry & Database.StrategicEntry & Database.PitDataEntry;
 
-		function storeSlice(kind: Kind, slice: Slice<AnyRow>): void {
+		function storeSlice(team: number, kind: Kind, slice: Slice<AnyRow>): void {
 			setCache((prev) => {
 				const current = prev[team] ?? {};
 				if (kind === "match") {
@@ -652,33 +699,69 @@ function DataLookup(props: Props): React.ReactElement {
 			});
 		}
 
-		for (const kind of kindsFor(view)) {
-			const existing = sliceOf(cacheRef.current[team], kind);
-			if (existing && existing.status !== "loading") {
-				continue;
-			}
-			if (existing?.status === "loading") {
-				continue;
-			}
-
-			const key = `${team}:${kind}`;
-			const requestId = (requestIds.current.get(key) ?? 0) + 1;
-			requestIds.current.set(key, requestId);
-			storeSlice(kind, { status: "loading", rows: [], message: "" });
-
-			const url = `${Constants.SERVER_ADDRESS ?? ""}${eventKey}${teamPath(kind, team)}`;
-			void fetchRows<Database.MatchEntry & Database.StrategicEntry & Database.PitDataEntry>(url).then((result) => {
-				if (requestIds.current.get(key) !== requestId) {
-					return;
+		for (const team of openTeams) {
+			for (const kind of kindsFor(view)) {
+				const existing = sliceOf(cacheRef.current[team], kind);
+				if (existing && existing.status !== "loading") {
+					continue;
 				}
-				if (result.ok) {
-					storeSlice(kind, { status: "ready", rows: result.rows, message: "" });
-					return;
+				if (existing?.status === "loading") {
+					continue;
 				}
-				storeSlice(kind, { status: "error", rows: [], message: result.message });
-			});
+
+				const key = `${team}:${kind}`;
+				const requestId = (requestIds.current.get(key) ?? 0) + 1;
+				requestIds.current.set(key, requestId);
+				storeSlice(team, kind, { status: "loading", rows: [], message: "" });
+
+				const url = `${Constants.SERVER_ADDRESS ?? ""}${eventKey}${teamPath(kind, team)}`;
+				void fetchRows<Database.MatchEntry & Database.StrategicEntry & Database.PitDataEntry>(url).then((result) => {
+					if (requestIds.current.get(key) !== requestId) {
+						return;
+					}
+					if (result.ok) {
+						storeSlice(team, kind, { status: "ready", rows: result.rows, message: "" });
+						return;
+					}
+					storeSlice(team, kind, { status: "error", rows: [], message: result.message });
+				});
+			}
 		}
-	}, [openTeam, view, eventKey, retryToken]);
+	}, [openTeams, view, eventKey, retryToken]);
+
+	function writeTeams(nextTeams: number[]): void {
+		if (nextTeams.length === 0) {
+			void navigate("/scoutingapp/lookup", { replace: true });
+			return;
+		}
+
+		void navigate(`/scoutingapp/lookup/${nextTeams.join(",")}`, { replace: true });
+	}
+
+	function addTeam(team: number): void {
+		if (!selected.includes(team)) {
+			writeTeams([...selected, team]);
+		}
+		setQuery("");
+	}
+
+	function removeTeam(team: number): void {
+		writeTeams(selected.filter((item) => item !== team));
+		setOpenTeams((current) => current.filter((item) => item !== team));
+	}
+
+	function submitSearch(): void {
+		const trimmed = query.trim();
+		const matches = (teams ?? []).filter((team) => String(team).includes(trimmed) && !selected.includes(team));
+		const exact = matches.find((team) => String(team) === trimmed);
+		if (exact !== undefined) {
+			addTeam(exact);
+			return;
+		}
+		if (matches.length === 1) {
+			addTeam(matches[0]);
+		}
+	}
 
 	function retryTeam(team: number): void {
 		setCache((prev) => {
@@ -699,47 +782,38 @@ function DataLookup(props: Props): React.ReactElement {
 		setRetryToken((token) => token + 1);
 	}
 
-	const filtered = (teams ?? []).filter((team) => String(team).includes(query.trim()));
+	const trimmedQuery = query.trim();
+	const suggestions =
+		trimmedQuery === ""
+			? []
+			: (teams ?? []).filter((team) => String(team).includes(trimmedQuery) && !selected.includes(team));
 
-	let list: React.ReactElement;
+	let searchStatus: React.ReactElement | null = null;
 	if (eventKey === "") {
-		list = <p className="status-line">Set an event key in Settings before looking up teams.</p>;
-	} else if (teamsStatus === "loading") {
-		list = <p className="status-line">Loading teams...</p>;
-	} else if (teamsStatus === "error") {
-		list = (
-			<p className="status-line">
-				Could not load the team list.
-				<button type="button" className="retry" onClick={() => { setTeamListAttempt((attempt) => attempt + 1); }}>
-					Retry
-				</button>
-			</p>
-		);
-	} else if (filtered.length === 0) {
-		list = <p className="status-line">No teams match that search.</p>;
-	} else {
-		list = (
-			<div className="team-list">
-				{filtered.map((team) => (
-					<TeamCard
-						key={team}
-						team={team}
-						open={openTeam === team}
-						view={view}
-						cache={cache[team]}
-						onOpen={() => {
-							setOpenTeam(team);
+		searchStatus = <p className="status-line">Set an event key in Settings before looking up teams.</p>;
+	} else if (trimmedQuery !== "" && suggestions.length === 0) {
+		if (teamsStatus === "loading") {
+			searchStatus = <p className="status-line">Loading teams...</p>;
+		} else if (teamsStatus === "error") {
+			searchStatus = (
+				<p className="status-line">
+					Could not load the team list.
+					<button
+						type="button"
+						className="retry"
+						onClick={() => {
+							setTeamListAttempt((attempt) => attempt + 1);
 						}}
-						onClose={() => {
-							setOpenTeam((current) => (current === team ? null : current));
-						}}
-						onRetry={() => {
-							retryTeam(team);
-						}}
-					/>
-				))}
-			</div>
-		);
+					>
+						Retry
+					</button>
+				</p>
+			);
+		} else if ((teams ?? []).some((team) => String(team).includes(trimmedQuery))) {
+			searchStatus = <p className="status-line">That team is already added.</p>;
+		} else {
+			searchStatus = <p className="status-line">No teams match that search.</p>;
+		}
 	}
 
 	return (
@@ -764,7 +838,13 @@ function DataLookup(props: Props): React.ReactElement {
 					))}
 				</div>
 
-				<label className="search">
+				<form
+					className="search"
+					onSubmit={(event) => {
+						event.preventDefault();
+						submitSearch();
+					}}
+				>
 					<input
 						value={query}
 						onChange={(event) => {
@@ -773,11 +853,58 @@ function DataLookup(props: Props): React.ReactElement {
 						placeholder="Search Teams"
 						inputMode="numeric"
 						aria-label="Search Teams"
+						disabled={eventKey === ""}
 					/>
-					<SearchIcon />
-				</label>
+					<button type="submit" className="search-submit" aria-label="Add team">
+						<SearchIcon />
+					</button>
+				</form>
 
-				{list}
+				{suggestions.length > 0 ? (
+					<div className="suggestions" role="listbox" aria-label="Matching teams">
+						{suggestions.map((team) => (
+							<button
+								key={team}
+								type="button"
+								className="suggestion"
+								role="option"
+								onMouseDown={(event) => {
+									event.preventDefault();
+									addTeam(team);
+								}}
+							>
+								{team}
+							</button>
+						))}
+					</div>
+				) : null}
+
+				{searchStatus}
+
+				{selected.length > 0 ? (
+					<div className="team-list">
+						{selected.map((team) => (
+							<TeamCard
+								key={team}
+								team={team}
+								open={openTeams.includes(team)}
+								view={view}
+								cache={cache[team]}
+								onToggle={() => {
+									setOpenTeams((current) =>
+										current.includes(team) ? current.filter((item) => item !== team) : [...current, team],
+									);
+								}}
+								onRemove={() => {
+									removeTeam(team);
+								}}
+								onRetry={() => {
+									retryTeam(team);
+								}}
+							/>
+						))}
+					</div>
+				) : null}
 			</data-lookup>
 		</>
 	);

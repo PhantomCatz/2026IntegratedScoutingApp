@@ -52,8 +52,7 @@ function App(): React.ReactElement {
 				<Route path="/scoutingapp" element={<ScoutingAppRouter title="2637 Scouting App" />} />
 				<Route path="/scoutingapp/match" element={<MatchScout title="2637 Match Scout" />} />
 				<Route path="/scoutingapp/strategic" element={<StrategicScout title="2637 Strategic Scout" />} />
-				<Route path="/scoutingapp/lookup" element={<DataLookup title="2637 Data Lookup" />} />
-				<Route path="/scoutingapp/lookup/" element={<DataLookup title="2637 Data Lookup" />} />
+				<Route path="/scoutingapp/lookup/:teams?" element={<DataLookup title="2637 Data Lookup" />} />
 				<Route path="/scoutingapp/lookup/strategic" element={<Navigate to="/scoutingapp/lookup" replace />} />
 				<Route path="/scoutingapp/lookup/match" element={<Navigate to="/scoutingapp/lookup" replace />} />
 				<Route path="/scoutingapp/lookup/pit" element={<Navigate to="/scoutingapp/lookup" replace />} />
