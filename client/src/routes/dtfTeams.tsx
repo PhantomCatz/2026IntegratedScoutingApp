@@ -176,14 +176,24 @@ const ACTIONS = {
 	},
 } as const;
 
-const DATA_COLUMNS = {
+const DATA_COLUMNS_1 = {
 	"": {
 		"Competition Level": "comp_level",
 		"Match Number": "match_number",
 		"Auto Fuel Scored": "auton_fuel_scored",
 		"Teleop Fuel Scored": "teleop_fuel_scored",
-		"Climb Type": "endgame_climb_level",		
+		"Climb Type": "endgame_climb_level",
 		"Total Fuel Scored": "total_fuel_scored",
+	},
+} as const;
+
+const DATA_COLUMNS_2 = {
+	"": {
+		Team: "team_number",
+		Auto: "auton_fuel_scored",
+		Teleop: "teleop_fuel_scored",
+		Climb: "endgame_climb_level",
+		Total: "total_fuel_scored",
 	},
 } as const;
 
@@ -444,13 +454,56 @@ function DTFTeams(props: Props): React.ReactElement {
 			}
 			const key = `${match.id}`;
 			row["key"] = key;
+			row["id"] = match.id;
 
 			row["total_fuel_scored"] = match.auton_fuel_scored + match.teleop_fuel_scored;
 
 			table.push(row);
 		}
 
-		return <Table data={table} columns={DATA_COLUMNS} getKey={(row) => (row.id as unknown as number).toString()} />;
+		return <Table data={table} columns={DATA_COLUMNS_1} getKey={(row) => (row.id as unknown as number).toString()} />;
+	}
+	function SummaryMatchData(
+		teams: number[],
+		persistentData: { [team: number]: AggregateData | undefined },
+	): React.ReactElement {
+		const table: {
+			key: string;
+			[key: string]: React.ReactNode | undefined;
+		}[] = [];
+
+		for (const teamNumber of teams) {
+			if (!teamNumber) {
+				continue;
+			}
+
+			const data = persistentData[teamNumber];
+
+			if (!data) {
+				continue;
+			}
+
+			let mostCommonClimb = "None";
+			let highestCount = 0;
+
+			for (const [level, count] of data.endgame_climb_attempted) {
+				if (count > highestCount) {
+					highestCount = count;
+					mostCommonClimb = level;
+				}
+			}
+
+			table.push({
+				key: teamNumber.toString(),
+				team_number: teamNumber,
+				auton_fuel_scored: Utils.round(data.average_auton_fuel_count, 2),
+				teleop_fuel_scored: Utils.round(data.teleop_fuel_scored, 2),
+				endgame_climb_level: mostCommonClimb,
+				total_fuel_scored: Utils.round(data.average_fuel_count, 2),
+			});
+		}
+
+		return <Table data={table} columns={DATA_COLUMNS_2} getKey={(row) => row.key as string} />;
 	}
 	function mergeTeamMatches(matches: Database.MatchEntry[]): AggregateData {
 		const data: AggregateData = {
@@ -552,10 +605,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			}
 
 			const teamMatches = teamsMatchData[team];
-			const teamTabs: TabItems = [];
-
 			const strategicData = teamsStrategicData[team];
-
 			const pitData = teamsPitData[team];
 
 			if (teamMatches && teamMatches.length) {
@@ -574,125 +624,25 @@ function DTFTeams(props: Props): React.ReactElement {
 				persistentData[team] = data;
 				alliancePersistentData.push(data);
 
-				teamTabs.push({
-					key: "Auton",
-					label: "Auton",
+				tabs.push({
+					key: `${team}|${teamCount}`,
+					label: team.toString(),
 					children: (
 						<>
 							<div>{AutonMatchData(teamMatches)}</div>
-							<div className="inputRow">
-								<Input title="Avg Fuel Scored" disabled defaultValue={data.auton_fuel_scored.toString()} />
-								<Input
-									title="Climb Percentage"
-									disabled
-									defaultValue={Utils.toPercentageString(data.auton_climb_successful / data.auton_climb_attempted)}
-								/>
-							</div>
 							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
 							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
 							<TextArea title="Robot Comments" disabled defaultValue={data.overall_comments} />
 						</>
 					),
 				});
-
-				const teleop_fuel_hoarded_amount_ordering = {
-					High: 3,
-					Medium: 2,
-					Low: 1,
-					None: 0,
-				} as const;
-				teamTabs.push({
-					key: "Teleop/End",
-					label: "Teleop/End",
-					children: (
-						<>
-							<div className="inputRow">
-								<Input title="Fuel Scored" disabled defaultValue={data.teleop_fuel_scored.toString()} />
-								<Input
-									title="Fuel Hoard"
-									disabled
-									defaultValue={Utils.maximumOfMap(
-										data.teleop_fuel_hoarded_amount,
-										teleop_fuel_hoarded_amount_ordering,
-									)}
-								/>
-							</div>
-							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
-							<div className="inputRow">
-								<Input
-									title="Climb L1"
-									disabled
-									defaultValue={`${data.endgame_climb_successful.get("L1") ?? 0}/${data.endgame_climb_attempted.get("L1") ?? 0}`}
-								/>
-								<Input
-									title="Climb L2"
-									disabled
-									defaultValue={`${data.endgame_climb_successful.get("L2") ?? 0}/${data.endgame_climb_attempted.get("L2") ?? 0}`}
-								/>
-								<Input
-									title="Climb L3"
-									disabled
-									defaultValue={`${data.endgame_climb_successful.get("L3") ?? 0}/${data.endgame_climb_attempted.get("L3") ?? 0}`}
-								/>
-							</div>
-						</>
-					),
-				});
-
-				// TODO: remove legacy ordering
-				const teleop_primary_hoard_type_ordering = {
-					Shoot_Hoard: 2,
-					"Shoot Hoard": 2,
-					Push_Hoard: 1,
-					"Push Hoard": 1,
-					Dump_Hoard: 0,
-					"Dump Hoard": 0,
-				} as const;
-				teamTabs.push({
-					key: "OA",
-					label: "OA",
-					children: (
-						<>
-							<Input title="Robot Died (counter: matches)" disabled defaultValue={data.overall_robot_died.toString()} />
-							<Input title="Intake Fuel Type" disabled defaultValue={data.intake_type.values().toArray().join(", ")} />
-							<div className="inputRow">
-								<Checkbox title="Trench" align="center" disabled defaultValue={data.trench_capability} />
-								<Input title="Fuel Capacity" disabled defaultValue={data.fuel_capacity.toString()} />
-							</div>
-							<div className="inputRow">
-								<Checkbox
-									title="Shoot While Moving"
-									align="center"
-									disabled
-									defaultValue={(data.overall_shot_while_moving.get(1) ?? 0) > 0}
-								/>
-								<Input
-									title="Hoard Type"
-									disabled
-									defaultValue={Utils.maximumOfMap(data.teleop_primary_hoard_type, teleop_primary_hoard_type_ordering)}
-								/>
-							</div>
-							<TextArea title="Robot Comments" disabled defaultValue={data.overall_comments} />
-						</>
-					),
-				});
 			} else {
-				teamTabs.push({
-					key: "NoData",
-					label: "No Data",
+				tabs.push({
+					key: `${team}|${teamCount}`,
+					label: team.toString(),
 					children: <p className={"errorLabel"}>No Data for team {team}</p>,
 				});
 			}
-
-			tabs.push({
-				key: `${team}|${teamCount}`,
-				label: team.toString(),
-				children: (
-					<>
-						<Tabs items={teamTabs} />
-					</>
-				),
-			});
 		}
 
 		const averageScores: React.ReactElement[] = [];
@@ -739,21 +689,6 @@ function DTFTeams(props: Props): React.ReactElement {
 			);
 		}
 
-		tabs.push({
-			key: "Summary",
-			label: "Summary",
-			children: (
-				<>
-					<Input title="Alliance Avg Fuel Count" disabled defaultValue={totalAverageFuelCount.toString()} />
-					<Input title="Alliance Avg Climb Score" disabled defaultValue={totalAverageClimbScore.toString()} />
-					<Input title="Alliance Avg Auton Fuel Count" disabled defaultValue={totalAverageAutonFuelCount.toString()} />
-					<h2>Average Fuel Per Second</h2>
-
-					<div className="inputRow">{averageFuelPerSecondItems}</div>
-				</>
-			),
-		});
-
 		return tabs;
 	}
 	function getDTF(teams: number[]): void {
@@ -772,6 +707,7 @@ function DTFTeams(props: Props): React.ReactElement {
 		try {
 			const persistentData: { [teamNumber: number]: AggregateData | undefined } = {};
 			const allianceTabs: TabItems = [];
+			const allianceOverallTabs: TabItems = [];
 
 			for (let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
 				const alliance = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
@@ -841,7 +777,43 @@ function DTFTeams(props: Props): React.ReactElement {
 				);
 			}
 
-			allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children: <>{allianceAverageScores}</> });
+			const teamOverallTabs: TabItems = [];
+
+			function overallTeamTabs(): void {
+				for (let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
+					teamOverallTabs.push({
+						key: `Alliance${i}`,
+						label: `Alliance ${i}`,
+						children: <p>This is alliance {i}</p>,
+					});
+				}
+			}
+
+			overallTeamTabs();
+
+			// allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children: <>{allianceAverageScores}</> });
+			allianceTabs.push({
+				key: "OverallSummary",
+				label: "Overall Summary",
+				children: (
+					<>
+						<h2>Alliance 1</h2>
+						{SummaryMatchData(teamList.slice(0, Constants.TEAMS_PER_ALLIANCE), persistentData)}
+
+						<hr />
+
+						<h2>Alliance 2</h2>
+						{SummaryMatchData(
+							teamList.slice(Constants.TEAMS_PER_ALLIANCE, Constants.TEAMS_PER_ALLIANCE * 2),
+							persistentData,
+						)}
+
+						<hr />
+
+						<Tabs items={teamOverallTabs} />
+					</>
+				),
+			});
 
 			setTabItems(allianceTabs);
 		} catch (error) {
