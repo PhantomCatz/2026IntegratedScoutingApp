@@ -75,8 +75,6 @@ const noShowValues: Partial<MatchScoutTypes.All> = {
 	// Auton
 	// "auton_fuel_scored": 0,
 	//"auton_fuel_score_multiplier": "1x",
-	auton_shoot_location: ["None"],
-	auton_intake_location: ["None"],
 	auton_climb_attempted: false,
 	auton_climb_successful: false,
 	// Teleop
@@ -477,20 +475,6 @@ function MatchScout(props: Props): React.ReactElement {
 	function autonMatch(): React.ReactElement {
 		type FieldType = MatchScoutTypes.AutonMatch;
 
-		const shootLocation = [
-			{ label: "Tower", value: "Tower" },
-			{ label: "Outpost", value: "Outpost" },
-			{ label: "Depot", value: "Depot" },
-			{ label: "Trench", value: "Trench" },
-			{ label: "None", value: "None" },
-		];
-		const intakeLocation = [
-			{ label: "Neutral", value: "Neutral" },
-			{ label: "Outpost", value: "Outpost" },
-			{ label: "Depot", value: "Depot" },
-			{ label: "None", value: "None" },
-		];
-
 		return (
 			<div style={{ alignContent: "center" }}>
 				<NumberInput<FieldType> title="Fuel Scored" buttons={false} value={auton_fuel_number} disabled />
@@ -683,12 +667,6 @@ function MatchScout(props: Props): React.ReactElement {
 		type FieldType = MatchScoutTypes.OverallMatch;
 
 		const opposingTeams = opposingTeamNum.map((team) => ({ label: team.toString(), value: team.toString() }));
-		const overall_path_to_neutral_zone = [
-			{ label: "Bump", value: "Bump" },
-			{ label: "Trench", value: "Trench" },
-			{ label: "Both", value: "Both" },
-			{ label: "None", value: "None" },
-		];
 
 		return (
 			<div className="matchbody">
