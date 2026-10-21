@@ -12,14 +12,14 @@
 	min-width: 90%;
 	height: 120px !important;
 	min-height: 120px !important;
-	border: 2px solid var(--font-color) !important;
-	border-radius: 25px;
+	border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent) !important;
+	border-radius: 4px;
 	background-color: transparent;
 	font-size: 500% !important;
 	font-family: Audiowide !important;
 	font-weight: bold;
 	color: var(--font-color) !important;
-	text-align: center !important;
+	text-align: left !important;
 	background: transparent !important;
 }
 .watchlistbutton {
@@ -27,8 +27,8 @@
 	min-width: 50%;
 	height: 120px !important;
 	min-height: 120px !important;
-	border: 2px solid var(--font-color) !important;
-	border-radius: 100px;
+	border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent) !important;
+	border-radius: 4px;
 	background-color: transparent;
 	font-size: 350% !important;
 	font-family: Audiowide !important;
@@ -43,8 +43,8 @@
 	min-width: 50%;
 	height: 120px !important;
 	min-height: 120px !important;
-	border: 2px solid var(--font-color) !important;
-	border-radius: 100px;
+	border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent) !important;
+	border-radius: 4px;
 	background-color: transparent;
 	font-size: 350% !important;
 	font-family: Audiowide !important;

@@ -177,7 +177,7 @@ function Input<FieldType>(props: InputType<NoInfer<FieldType>>): React.ReactElem
 	const message = props.message ?? "";
 	const onChange = props.onChange ?? (() => {});
 	const onBlur = props.onBlur ?? (() => {});
-	const align = props.align ?? "center";
+	const align = props.align ?? "left";
 	const pattern = props.pattern;
 	const disabled = props.disabled;
 	const defaultValue = props.defaultValue;
