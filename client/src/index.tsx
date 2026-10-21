@@ -62,7 +62,6 @@ function App(): React.ReactElement {
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
 				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
-				<Route path="/picklist" element={<Picklist title="Picklist" />} />
 			</Routes>
 		</HashRouter>
 	);
