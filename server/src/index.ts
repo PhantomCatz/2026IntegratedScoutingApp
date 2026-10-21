@@ -79,7 +79,7 @@ for (const [endpoint, items] of Object.entries(API_GET_ENDPOINTS)) {
 		typeof items === "string" ? [items, []] : [items[0], items[1]];
 
 	app.get(endpointUrl, async function (request, response) {
-		let result = null;
+		let result;
 
 		const substitutionValues = substitutions.map(
 			(parameter) => request.params[parameter],
@@ -95,9 +95,20 @@ for (const [endpoint, items] of Object.entries(API_GET_ENDPOINTS)) {
 			});
 		} catch (err) {
 			console.error(`ERROR: `, err);
+
+			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+			response.status(500);
+			response.json(null);
+			return response;
+		}
+
+		if (result === null) {
+			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+			response.status(500);
 		}
 
 		response.json(result);
+		return response;
 	});
 }
 
@@ -112,13 +123,14 @@ for (const [endpoint, items] of Object.entries(API_POST_ENDPOINTS)) {
 
 		try {
 			if (typeof items === "string") {
-				if (!(typeof data === "object")) {
+				if (!(typeof data === "object") || data === null) {
 					// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 					response.status(400);
+					response.json(null);
 					return response;
 				}
 
-				result = await submitData(data as object, items);
+				result = await submitData(data, items);
 			} else {
 				result = await items(data);
 			}
@@ -127,7 +139,13 @@ for (const [endpoint, items] of Object.entries(API_POST_ENDPOINTS)) {
 
 			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 			response.status(500);
+			response.json(null);
 			return response;
+		}
+
+		if (result === null) {
+			// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+			response.status(500);
 		}
 
 		response.json(result);
