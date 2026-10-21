@@ -3,24 +3,30 @@ dtf-teams {
 	.input_checkbox,
 	input_checkbox_filled,
 	.textbox_input {
-		border: 2px solid var(--font-color);
-		border-radius: 1rem;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
+		border-radius: 4px;
 		background-color: transparent;
 		color: var(--font-color);
 		text-align: center;
 	}
 
+	.dtf-input,
+	.textbox_input {
+		padding: 0.5rem 0.75rem;
+		text-align: left;
+	}
+
 	.input_checkbox {
-		border: 2px solid var(--font-color);
-		border-radius: 1rem;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
+		border-radius: 4px;
 		background-color: red;
 		color: var(--font-color);
 		text-align: center;
 	}
 
 	.input_checkbox_filled {
-		border: 2px solid var(--font-color);
-		border-radius: 1rem;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
+		border-radius: 4px;
 		background-color: #61f761;
 		color: var(--font-color);
 		text-align: center;

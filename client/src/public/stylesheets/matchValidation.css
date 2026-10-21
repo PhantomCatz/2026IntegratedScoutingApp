@@ -1,17 +1,17 @@
 match-validation {
 	invalid-match {
 		display: block;
-		border: 2px solid black;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
 		padding: 0.25rem;
-		border-radius: 1rem;
+		border-radius: 4px;
 		margin-bottom: 1rem;
 
 		invalid-item {
 			display: block;
 			margin-bottom: 0.5rem;
-			--border-color: black;
-			border: 2px solid var(--border-color);
-			border-radius: 1rem;
+			--border-color: color-mix(in srgb, var(--font-color) 45%, transparent);
+			border: 1px solid var(--border-color);
+			border-radius: 4px;
 			padding: 0.25rem;
 
 			&.invalid-item__auton-mismatch {

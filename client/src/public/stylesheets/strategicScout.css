@@ -2,7 +2,7 @@ strategic-scout {
 	.canvas {
 		height: 300px;
 		width: 300px;
-		border: 2px solid black;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
 		margin-left: 535px;
 		margin-right: 535px;
 	}

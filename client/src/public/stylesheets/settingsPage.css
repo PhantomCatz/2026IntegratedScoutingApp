@@ -8,9 +8,9 @@ settings-page {
 	.fetchDataButton,
 	.clearDataButton {
 		width: 30%;
-		border: 2px solid var(--font-color);
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
 		background-color: var(--background-color);
-		border-radius: 1rem;
+		border-radius: 4px;
 		text-align: center;
 		margin-top: 0.5rem;
 		padding: 0.5rem 1rem;

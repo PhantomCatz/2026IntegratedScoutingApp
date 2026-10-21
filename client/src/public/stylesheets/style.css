@@ -54,8 +54,8 @@ footer {
 .submitButton {
 	width: 50%;
 	height: auto;
-	border: 2px solid var(--font-color) !important;
-	border-radius: 10px;
+	border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent) !important;
+	border-radius: 4px;
 	background-color: var(--background-color);
 	font-size: 2rem !important;
 	color: var(--font-color) !important;
@@ -103,8 +103,8 @@ footer {
 
 /* team number box */
 .teamNumber {
-	border: 2px solid white;
-	border-radius: 10px;
+	border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
+	border-radius: 4px;
 	padding: 6px 10px;
 	width: 60px;
 	text-align: center;
