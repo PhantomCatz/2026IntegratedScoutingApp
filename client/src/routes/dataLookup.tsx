@@ -440,7 +440,7 @@ function MatchTable(props: { rows: Database.MatchEntry[] }): React.ReactElement 
 			<table className="lookup-table match-table">
 				<thead>
 					<tr>
-						<th className="row-label">Qual #</th>
+						<th className="row-label">Match #</th>
 						{headings.map((heading, index) => (
 							<th key={`${heading}-${index}`}>{heading}</th>
 						))}
@@ -481,7 +481,7 @@ function CommentsTable(props: {
 			<table className="lookup-table comments-table">
 				<thead>
 					<tr>
-						<th>Qual #</th>
+						<th>Match #</th>
 						<th>Category</th>
 						<th>Comments</th>
 					</tr>
