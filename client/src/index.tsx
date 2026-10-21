@@ -8,7 +8,6 @@ import StrategicScout from "./routes/strategicScout";
 import DataLookup from "./routes/dataLookup";
 import PitScout from "./routes/pitScout";
 import SettingsPage from "./routes/settingsPage";
-import AllianceZone from "./routes/allianceZone";
 import MatchValidation from "./routes/matchValidation";
 import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
 
@@ -59,11 +58,11 @@ function App(): React.ReactElement {
 				<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
 				<Route path="/scoutingapp/lookup/teamData/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
 				<Route path="/scoutingapp/pit" element={<PitScout title="2637 Pit Scout" />} />
-				<Route path="/scoutingapp/alliance" element={<AllianceZone title="2637 Alliance Zone" />} />
 				<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
 				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
+				<Route path="/picklist" element={<Picklist title="Picklist" />} />
 			</Routes>
 		</HashRouter>
 	);
