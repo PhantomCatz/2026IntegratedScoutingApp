@@ -39,6 +39,8 @@ type AggregateData = {
 	endgame_climb_successful: Map<string, number>;
 
 	overall_robot_died: number;
+	overall_robot_died_count: number;
+	overall_defended_others_count: number;
 	overall_shot_while_moving: Map<Database.Tinyint, number>;
 
 	match_count: number;
@@ -51,6 +53,8 @@ type AggregateData = {
 	trench_capability: boolean;
 	intake_type: Set<string>;
 	fuel_capacity: number;
+	drive_train_type: string;
+	driving_motor_type: string;
 
 	average_fuel_count: number;
 	average_auton_fuel_count: number;
@@ -505,6 +509,106 @@ function DTFTeams(props: Props): React.ReactElement {
 
 		return <Table data={table} columns={DATA_COLUMNS_2} getKey={(row) => row.key as string} />;
 	}
+	function getMostCommonOption(options: Map<string, number>): string {
+		let highestCount = 0;
+		let mostCommonOption = "N/A";
+
+		for (const [option, count] of options) {
+			if (count > highestCount) {
+				highestCount = count;
+				mostCommonOption = option;
+			}
+		}
+
+		return mostCommonOption;
+	}
+	function AllianceOverviewTable(
+		allianceNumber: number,
+		allianceTeams: number[],
+		persistentData: { [team: number]: AggregateData | undefined },
+	): React.ReactElement {
+		const table: { key: string; label: string; values: React.ReactNode[] }[] = [];
+		const getAllianceValue = (teamNumber: number, getValue: (data: AggregateData | undefined) => React.ReactNode): React.ReactNode =>
+			teamNumber ? getValue(persistentData[teamNumber]) : "N/A";
+
+		table.push({
+			key: "robot-death",
+			label: "Robot Death",
+			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.overall_robot_died_count ?? "N/A")),
+		});
+		table.push({
+			key: "fuel-capacity",
+			label: "Fuel Capacity",
+			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.fuel_capacity ?? "N/A")),
+		});
+		table.push({
+			key: "hoard-type",
+			label: "Hoard Type",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => (data ? getMostCommonOption(data.teleop_primary_hoard_type) : "N/A")),
+			),
+		});
+		table.push({
+			key: "sotm",
+			label: "SOTM",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					if (!data || data.match_count === 0) {
+						return "N/A";
+					}
+
+					const shotWhileMovingCount = data.overall_shot_while_moving.get(1) ?? 0;
+					const shotWhileMovingPercent = Math.round((shotWhileMovingCount / data.match_count) * 100);
+					const className =
+						shotWhileMovingPercent >= 50 ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
+
+					return <span className={className}>{shotWhileMovingPercent}%</span>;
+				}),
+			),
+		});
+		table.push({
+			key: "drivetrain",
+			label: "Drivetrain",
+			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.drive_train_type || "N/A")),
+		});
+		table.push({
+			key: "motor-type",
+			label: "Motor Type",
+			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.driving_motor_type || "N/A")),
+		});
+		table.push({
+			key: "defense-match-count",
+			label: "# Def. Match",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => data?.overall_defended_others_count ?? "N/A"),
+			),
+		});
+
+		return (
+			<div className="alliance_overview_table_container">
+				<table className="alliance_overview_table">
+					<thead>
+						<tr>
+							<th>{`Alliance ${allianceNumber}`}</th>
+							{allianceTeams.map((teamNumber, index) => (
+								<th key={`${allianceNumber}|team|${index}`}>{teamNumber || "-"}</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{table.map((row) => (
+							<tr key={`${allianceNumber}|${row.key}`}>
+								<td>{row.label}</td>
+								{row.values.map((value, index) => (
+									<td key={`${allianceNumber}|${row.key}|${index}`}>{value}</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		);
+	}
 	function mergeTeamMatches(matches: Database.MatchEntry[]): AggregateData {
 		const data: AggregateData = {
 			auton_fuel_scored: 0,
@@ -522,6 +626,8 @@ function DTFTeams(props: Props): React.ReactElement {
 			endgame_climb_successful: new Map<string, number>(),
 
 			overall_robot_died: 0,
+			overall_robot_died_count: 0,
+			overall_defended_others_count: 0,
 			overall_shot_while_moving: new Map<Database.Tinyint, number>(),
 
 			match_count: 0,
@@ -534,6 +640,8 @@ function DTFTeams(props: Props): React.ReactElement {
 			trench_capability: false,
 			intake_type: new Set<string>(),
 			fuel_capacity: 0,
+			drive_train_type: "",
+			driving_motor_type: "",
 
 			average_fuel_count: 0,
 			average_auton_fuel_count: 0,
@@ -551,6 +659,9 @@ function DTFTeams(props: Props): React.ReactElement {
 			if (!match.robot_appeared) {
 				continue;
 			}
+
+			data.overall_robot_died_count += match.overall_robot_died;
+			data.overall_defended_others_count += match.overall_defended_others;
 
 			for (const [k, v] of Object.entries(match)) {
 				dispatchValueAction(k as keyof AggregateData, v, data, match);
@@ -620,6 +731,8 @@ function DTFTeams(props: Props): React.ReactElement {
 
 				data.fuel_capacity = latestPitMatch?.max_fuel_capacity ?? 0;
 				data.intake_type = new Set(latestPitMatch?.intake_type.split(","));
+				data.drive_train_type = latestPitMatch?.drive_train_type ?? "";
+				data.driving_motor_type = latestPitMatch?.driving_motor_type ?? "";
 
 				persistentData[team] = data;
 				alliancePersistentData.push(data);
@@ -781,10 +894,12 @@ function DTFTeams(props: Props): React.ReactElement {
 
 			function overallTeamTabs(): void {
 				for (let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
+					const allianceTeams = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
+
 					teamOverallTabs.push({
 						key: `Alliance${i}`,
 						label: `Alliance ${i}`,
-						children: <p>This is alliance {i}</p>,
+						children: AllianceOverviewTable(i, allianceTeams, persistentData),
 					});
 				}
 			}
