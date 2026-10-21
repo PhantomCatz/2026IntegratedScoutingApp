@@ -613,6 +613,7 @@ function SearchIcon(): React.ReactElement {
 function DataLookup(props: Props): React.ReactElement {
 	const [view, setView] = useState<DataView>("match");
 	const [query, setQuery] = useState("");
+	const [searchFocused, setSearchFocused] = useState(false);
 	const [teams, setTeams] = useState<number[] | null>(null);
 	const [teamsStatus, setTeamsStatus] = useState<"loading" | "ready" | "error">("loading");
 	const [teamListAttempt, setTeamListAttempt] = useState(0);
@@ -783,15 +784,15 @@ function DataLookup(props: Props): React.ReactElement {
 	}
 
 	const trimmedQuery = query.trim();
-	const suggestions =
-		trimmedQuery === ""
-			? []
-			: (teams ?? []).filter((team) => String(team).includes(trimmedQuery) && !selected.includes(team));
+	const showSuggestions = searchFocused || trimmedQuery !== "";
+	const suggestions = showSuggestions
+		? (teams ?? []).filter((team) => String(team).includes(trimmedQuery) && !selected.includes(team))
+		: [];
 
 	let searchStatus: React.ReactElement | null = null;
 	if (eventKey === "") {
 		searchStatus = <p className="status-line">Set an event key in Settings before looking up teams.</p>;
-	} else if (trimmedQuery !== "" && suggestions.length === 0) {
+	} else if (showSuggestions && suggestions.length === 0) {
 		if (teamsStatus === "loading") {
 			searchStatus = <p className="status-line">Loading teams...</p>;
 		} else if (teamsStatus === "error") {
@@ -809,9 +810,9 @@ function DataLookup(props: Props): React.ReactElement {
 					</button>
 				</p>
 			);
-		} else if ((teams ?? []).some((team) => String(team).includes(trimmedQuery))) {
+		} else if (trimmedQuery !== "" && (teams ?? []).some((team) => String(team).includes(trimmedQuery))) {
 			searchStatus = <p className="status-line">That team is already added.</p>;
-		} else {
+		} else if (trimmedQuery !== "") {
 			searchStatus = <p className="status-line">No teams match that search.</p>;
 		}
 	}
@@ -849,6 +850,12 @@ function DataLookup(props: Props): React.ReactElement {
 						value={query}
 						onChange={(event) => {
 							setQuery(event.target.value);
+						}}
+						onFocus={() => {
+							setSearchFocused(true);
+						}}
+						onBlur={() => {
+							setSearchFocused(false);
 						}}
 						placeholder="Search Teams"
 						inputMode="numeric"
