@@ -11,8 +11,10 @@
 			background-color: var(--color-hover);
 		}
 	}
+	th,
 	td {
-		border: 1px solid black;
+		border: 1px solid color-mix(in srgb, var(--font-color) 35%, transparent);
+		padding: 0.4rem 0.5rem;
 	}
 	td:has(.input__checkbox) {
 		text-align: center;

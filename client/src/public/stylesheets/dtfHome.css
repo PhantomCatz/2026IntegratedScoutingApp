@@ -11,8 +11,8 @@ dtf-home {
 		width: 100%;
 		background-color: var(--background-color);
 		height: 3rem;
-		border: 2px solid var(--font-color);
-		border-radius: 1rem;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent);
+		border-radius: 4px;
 		font-size: 1.5rem;
 	}
 	.clear {
@@ -24,8 +24,8 @@ dtf-home {
 	.clear {
 		width: 50%;
 		height: auto;
-		border: 2px solid var(--font-color) !important;
-		border-radius: 10px;
+		border: 1px solid color-mix(in srgb, var(--font-color) 45%, transparent) !important;
+		border-radius: 4px;
 		background-color: var(--background-color);
 		font-size: 2rem !important;
 		color: var(--font-color) !important;
