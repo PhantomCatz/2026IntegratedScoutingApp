@@ -8,6 +8,7 @@ import StrategicScout from "./routes/strategicScout";
 import DataLookup from "./routes/dataLookup";
 import PitScout from "./routes/pitScout";
 import SettingsPage from "./routes/settingsPage";
+import Picklist from "./routes/picklist";
 import MatchValidation from "./routes/matchValidation";
 import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
 
@@ -62,6 +63,7 @@ function App(): React.ReactElement {
 				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
 				<Route path="/settings" element={<SettingsPage title="Settings" />} />
 				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
+				<Route path="/picklist" element = {<Picklist title="Picklist" />} />
 			</Routes>
 		</HashRouter>
 	);
