@@ -156,6 +156,10 @@ const WEIGHT_COLUMNS = {
 	},
 } as const;
 
+type Props = {
+	title: string;
+};
+
 type picklistRow = { [key: string]: React.ReactNode };
 type PickRank = { [teamNumber: string]: number | "" };
 type PicklistRankingEntry = {
@@ -939,7 +943,7 @@ function Weights(): React.ReactElement {
 	);
 }
 
-function Picklist(): React.ReactElement {
+function Picklist(props: Props): React.ReactElement {
 	const [tabNumber, setTabNumber] = useState("1");
 	const [loading, setLoading] = useState(true);
 	const [baseRows, setBaseRows] = useState<picklistRow[] | null>(null);
@@ -951,6 +955,10 @@ function Picklist(): React.ReactElement {
 
 	const eventKey = _eventKey;
 
+	useEffect(() => {
+		document.title = props.title;
+	}, [props.title]);
+	
 	useEffect(() => {
 		void (async function () {
 			setLoading(true);
