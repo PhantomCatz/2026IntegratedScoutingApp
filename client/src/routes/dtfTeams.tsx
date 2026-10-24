@@ -7,7 +7,7 @@ import { Input, Checkbox } from "../parts/formItems";
 import { Tabs } from "../parts/tabs";
 import Header from "../parts/header";
 import Table from "../parts/table";
-import { DTFAutonChartComponent, DTFTeleopChartComponent } from "../parts/dtfChart";
+import { DTFChartGallery } from "../parts/dtfChart";
 import Constants from "../utils/constants";
 import * as Utils from "../utils/utils";
 
@@ -251,8 +251,8 @@ const ACTIONS = {
 
 const DATA_COLUMNS_1 = {
 	"": {
-		"Competition Level": "comp_level",
-		"Match Number": "match_number",
+		"Comp Level": "comp_level",
+		"Match": "match_number",
 		"Auto Fuel Scored": "auton_fuel_scored",
 		"Teleop Fuel Scored": "teleop_fuel_scored",
 		"Climb Type": "endgame_climb_level",
@@ -655,7 +655,7 @@ function DTFTeams(props: Props): React.ReactElement {
 
 		return (
 			<div className="alliance_overview_table_container">
-				<table className="alliance_overview_table">
+				<table className="table">
 					<thead>
 						<tr>
 							<th>{`Alliance ${allianceNumber}`}</th>
@@ -821,8 +821,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					children: (
 						<>
 							<div>{AutonMatchData(teamMatches)}</div>
-							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
-							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
+							<DTFChartGallery teamMatches={teamMatches} teamStrategic={strategicData} />
 							<div className="commentList">
 								{commentTable.length ? (
 									<>
