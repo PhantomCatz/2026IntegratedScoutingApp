@@ -41,12 +41,19 @@ dtf-teams {
 		white-space: pre-wrap;
 	}
 
-	.matchTable,
 	.commentList {
 		padding-bottom: 2rem;
 	}
 
 	.summary_text {
 		text-align: center;
+	}
+
+	.alliance_overview_value_positive {
+		color: var(--color-success);
+	}
+
+	.alliance_overview_value_negative {
+		color: var(--color-failure);
 	}
 }

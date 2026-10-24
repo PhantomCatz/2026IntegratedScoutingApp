@@ -507,9 +507,6 @@ function DTFTeams(props: Props): React.ReactElement {
 				}
 				case "id":
 					break;
-				default:
-					console.error(`Unknown field`, field);
-					break;
 			}
 
 			return result;
@@ -647,9 +644,16 @@ function DTFTeams(props: Props): React.ReactElement {
 		});
 		table.push({
 			key: "defense-match-count",
-			label: "# Def. Match",
+			label: "Defense Rate",
 			values: allianceTeams.map((teamNumber) =>
-				getAllianceValue(teamNumber, (data) => data?.overall_defended_others_count ?? "N/A"),
+				getAllianceValue(teamNumber, (data) => {
+					if (!data || data.match_count === 0) {
+						return "N/A";
+					}
+
+					const defensePercent = Math.round((data.overall_defended_others_count / data.match_count) * 100);
+					return `${defensePercent}%`;
+				}),
 			),
 		});
 
@@ -820,7 +824,8 @@ function DTFTeams(props: Props): React.ReactElement {
 					label: team.toString(),
 					children: (
 						<>
-							<div className="matchTable">{AutonMatchData(teamMatches)}</div>
+							<div>{AutonMatchData(teamMatches)}</div>
+							<hr />
 							<DTFChartGallery teamMatches={teamMatches} teamStrategic={strategicData} />
 							<div className="commentList">
 								{commentTable.length ? (
