@@ -41,6 +41,7 @@ dtf-teams {
 		white-space: pre-wrap;
 	}
 
+	.matchTable,
 	.commentList {
 		padding-bottom: 2rem;
 	}

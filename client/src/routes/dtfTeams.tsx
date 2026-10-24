@@ -820,7 +820,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					label: team.toString(),
 					children: (
 						<>
-							<div>{AutonMatchData(teamMatches)}</div>
+							<div className="matchTable">{AutonMatchData(teamMatches)}</div>
 							<DTFChartGallery teamMatches={teamMatches} teamStrategic={strategicData} />
 							<div className="commentList">
 								{commentTable.length ? (

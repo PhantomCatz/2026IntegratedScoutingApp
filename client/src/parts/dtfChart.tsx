@@ -43,10 +43,16 @@ function DTFAutonChartComponent(props: Props): React.ReactElement {
 			);
 
 			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
 			}
 			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
 			}
 		}
 
@@ -104,10 +110,16 @@ function DTFTeleopChartComponent(props: Props): React.ReactElement {
 			);
 
 			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
 			}
 			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
 			}
 		}
 
@@ -189,10 +201,16 @@ function DTFClimpChartComponent(props: Props): React.ReactElement {
 			);
 
 			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
 			}
 			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
 			}
 		}
 
@@ -257,10 +275,16 @@ function DTFOverallChartComponent(props: Props): React.ReactElement {
 			);
 
 			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
 			}
 			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
 			}
 		}
 
@@ -442,6 +466,7 @@ function DTFChartGallery(props: Props): React.ReactElement {
 
 	return (
 		<tabs-container>
+			<tab-page {...{ activetab: true }}>{chart}</tab-page>
 			<tabs-nav-container>
 				{CHART_TABS.map((tab) => (
 					<nav-label
@@ -455,7 +480,6 @@ function DTFChartGallery(props: Props): React.ReactElement {
 					</nav-label>
 				))}
 			</tabs-nav-container>
-			<tab-page {...{ activetab: true }}>{chart}</tab-page>
 		</tabs-container>
 	);
 }
