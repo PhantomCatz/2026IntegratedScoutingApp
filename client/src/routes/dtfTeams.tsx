@@ -3,10 +3,10 @@ import "../public/stylesheets/dtfTeams.css";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "react-use";
 import { useParams } from "react-router-dom";
-import { Input, TextArea, Checkbox } from "../parts/formItems";
+import { Input, Checkbox } from "../parts/formItems";
 import { Tabs } from "../parts/tabs";
-import Table from "../parts/table";
 import Header from "../parts/header";
+import Table from "../parts/table";
 import { DTFAutonChartComponent, DTFTeleopChartComponent } from "../parts/dtfChart";
 import Constants from "../utils/constants";
 import * as Utils from "../utils/utils";
@@ -89,6 +89,75 @@ const KEY_MAPPINGS: { [key: string]: ActionMapping | undefined } = {
 } as const;
 
 type PermittedKey<T> = TypedKey<AggregateData, T>;
+type CommentRow = {
+	id: string;
+	comment_type: string;
+	match_number: string;
+	scouter_initials: string;
+	comments: string;
+};
+
+const COMMENT_COLUMNS = {
+	"": {
+		Type: "comment_type",
+		"Match Number": "match_number",
+		Scouter: "scouter_initials",
+		Comments: "comments",
+	},
+} as const;
+
+function buildCommentRows(
+	matches: Database.MatchEntry[],
+	strategic: Database.StrategicEntry[],
+	pit: Database.PitDataEntry[],
+): CommentRow[] {
+	const rows: CommentRow[] = [];
+
+	for (const match of matches) {
+		const text = (match.overall_comments || "").trim();
+		if (!text) {
+			continue;
+		}
+		rows.push({
+			id: `match-${match.id}`,
+			comment_type: "Match",
+			match_number: match.match_number.toString(),
+			scouter_initials: match.scouter_initials,
+			comments: text.replaceAll("\\n", "\n"),
+		});
+	}
+
+	for (const strat of strategic) {
+		const text = (strat.comments || "").trim();
+		if (!text) {
+			continue;
+		}
+		rows.push({
+			id: `strategic-${strat.id}`,
+			comment_type: "Strategic",
+			match_number: strat.match_number.toString(),
+			scouter_initials: strat.scouter_initials,
+			comments: text.replaceAll("\\n", "\n"),
+		});
+	}
+
+	for (const entry of pit) {
+		const text = (entry.comments || "").trim();
+		if (!text) {
+			continue;
+		}
+		rows.push({
+			id: `pit-${entry.id}`,
+			comment_type: "Pit",
+			match_number: "",
+			scouter_initials: entry.scouter_initials,
+			comments: text.replaceAll("\\n", "\n"),
+		});
+	}
+
+	return rows;
+}
+
 const ACTIONS = {
 	[ActionMapping.ADD]: function (key: PermittedKey<number>, value: number, data: AggregateData): void {
 		if (!Object.hasOwn(data, key)) {
@@ -727,15 +796,24 @@ function DTFTeams(props: Props): React.ReactElement {
 					dispatchValueAction("overall_comments", row.comments, data, null as never);
 				});
 
-				const latestPitMatch = pitData[pitData.length - 1] as Database.PitDataEntry | undefined;
+				const latestPit = pitData[pitData.length - 1] as Database.PitDataEntry | undefined;
 
-				data.fuel_capacity = latestPitMatch?.max_fuel_capacity ?? 0;
-				data.intake_type = new Set(latestPitMatch?.intake_type.split(","));
-				data.drive_train_type = latestPitMatch?.drive_train_type ?? "";
-				data.driving_motor_type = latestPitMatch?.driving_motor_type ?? "";
+				data.fuel_capacity = latestPit?.max_fuel_capacity ?? 0;
+				data.intake_type = new Set(latestPit?.intake_type.split(","));
+				data.drive_train_type = latestPit?.drive_train_type ?? "";
+				data.driving_motor_type = latestPit?.driving_motor_type ?? "";
 
 				persistentData[team] = data;
 				alliancePersistentData.push(data);
+
+				const commentRows = buildCommentRows(teamMatches, strategicData, pitData);
+				const commentTable = commentRows.map((row) => ({
+					id: row.id,
+					comment_type: row.comment_type,
+					match_number: row.match_number,
+					scouter_initials: row.scouter_initials,
+					comments: <p className="commentBox">{row.comments}</p>,
+				}));
 
 				tabs.push({
 					key: `${team}|${teamCount}`,
@@ -745,7 +823,20 @@ function DTFTeams(props: Props): React.ReactElement {
 							<div>{AutonMatchData(teamMatches)}</div>
 							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
 							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
-							<TextArea title="Robot Comments" disabled defaultValue={data.overall_comments} />
+							<div className="commentList">
+								{commentTable.length ? (
+									<>
+										<h2>Robot Comments</h2>
+										<Table
+											data={commentTable}
+											columns={COMMENT_COLUMNS}
+											getKey={(row) => String(row.id ?? "")}
+										/>
+									</>
+								) : (
+									<h2>No Comments</h2>
+								)}
+							</div>
 						</>
 					),
 				});

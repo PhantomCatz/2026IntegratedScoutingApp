@@ -75,7 +75,9 @@ function toPercentageString(num: number): string {
 	return `${round(num * 100, 2)}%`;
 }
 function maximumOfMap(map: Map<string, number>, ordering?: { [key: string]: number | undefined }): string {
-	Assertions.assertTruthy(map.size);
+	if (map.size === 0) {
+		return "";
+	}
 	let maxValue = -Infinity;
 	for (const value of map.values()) {
 		if (value > maxValue) {

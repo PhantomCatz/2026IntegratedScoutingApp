@@ -36,6 +36,15 @@ dtf-teams {
 		min-height: 250px;
 	}
 
+	.commentBox {
+		margin: 0;
+		white-space: pre-wrap;
+	}
+
+	.commentList {
+		padding-bottom: 2rem;
+	}
+
 	.summary_text {
 		text-align: center;
 	}
