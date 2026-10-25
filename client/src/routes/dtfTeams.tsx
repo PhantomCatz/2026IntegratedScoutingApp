@@ -252,7 +252,7 @@ const ACTIONS = {
 const DATA_COLUMNS_1 = {
 	"": {
 		"Comp Level": "comp_level",
-		"Match": "match_number",
+		Match: "match_number",
 		"Auto Fuel Scored": "auton_fuel_scored",
 		"Teleop Fuel Scored": "teleop_fuel_scored",
 		"Climb Type": "endgame_climb_level",
@@ -594,13 +594,17 @@ function DTFTeams(props: Props): React.ReactElement {
 		persistentData: { [team: number]: AggregateData | undefined },
 	): React.ReactElement {
 		const table: { key: string; label: string; values: React.ReactNode[] }[] = [];
-		const getAllianceValue = (teamNumber: number, getValue: (data: AggregateData | undefined) => React.ReactNode): React.ReactNode =>
-			teamNumber ? getValue(persistentData[teamNumber]) : "N/A";
+		const getAllianceValue = (
+			teamNumber: number,
+			getValue: (data: AggregateData | undefined) => React.ReactNode,
+		): React.ReactNode => (teamNumber ? getValue(persistentData[teamNumber]) : "N/A");
 
 		table.push({
 			key: "robot-death",
 			label: "Robot Death",
-			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.overall_robot_died_count ?? "N/A")),
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => data?.overall_robot_died_count ?? "N/A"),
+			),
 		});
 		table.push({
 			key: "fuel-capacity",
@@ -635,12 +639,28 @@ function DTFTeams(props: Props): React.ReactElement {
 		table.push({
 			key: "drivetrain",
 			label: "Drivetrain",
-			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.drive_train_type || "N/A")),
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					const driveTrainType = data?.drive_train_type || "N/A";
+					const className =
+						driveTrainType === "Swerve" ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
+						
+					return <span className={className}>{driveTrainType}</span>;
+				}),
+			),
 		});
 		table.push({
 			key: "motor-type",
 			label: "Motor Type",
-			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.driving_motor_type || "N/A")),
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					const drivingMotorType = data?.driving_motor_type || "N/A";
+					const className =
+						drivingMotorType === "Kraken" ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
+						
+					return <span className={className}>{drivingMotorType}</span>;
+				}),
+			),
 		});
 		table.push({
 			key: "defense-match-count",
@@ -831,11 +851,7 @@ function DTFTeams(props: Props): React.ReactElement {
 								{commentTable.length ? (
 									<>
 										<h2>Robot Comments</h2>
-										<Table
-											data={commentTable}
-											columns={COMMENT_COLUMNS}
-											getKey={(row) => String(row.id ?? "")}
-										/>
+										<Table data={commentTable} columns={COMMENT_COLUMNS} getKey={(row) => String(row.id ?? "")} />
 									</>
 								) : (
 									<h2>No Comments</h2>
