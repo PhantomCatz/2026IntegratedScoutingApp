@@ -520,13 +520,43 @@ function DTFTeams(props: Props): React.ReactElement {
 
 			for (const field in match) {
 				const result = getCellValue(field, match[field as keyof typeof match] as unknown);
+
 				row[field as keyof typeof match] = result;
+
+				if (field === "match_number") {
+					const defended = match.overall_defended_others;
+
+					row[field] = (
+						<span className={defended === 1 ? "team_overview_value_defense" : "team_overview_value_white"}>
+							{result}
+						</span>
+					);
+				}
+
+				if (field === "endgame_climb_level") {
+					const climb = match.endgame_climb_successful;
+
+					row[field] = (
+						<span className={climb === 1 ? "alliance_overview_value_positive" : "alliance_overview_value_negative"}>
+							{result}
+						</span>
+					);
+				}
 			}
+
 			const key = `${match.id}`;
 			row["key"] = key;
 			row["id"] = match.id;
 
-			row["total_fuel_scored"] = match.auton_fuel_scored + match.teleop_fuel_scored;
+			row["total_fuel_scored"] = (
+				<span
+					className={
+						match.overall_was_defended === 1 ? "alliance_overview_value_negative" : "team_overview_value_white"
+					}
+				>
+					{match.auton_fuel_scored + match.teleop_fuel_scored}
+				</span>
+			);
 
 			table.push(row);
 		}
@@ -644,7 +674,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					const driveTrainType = data?.drive_train_type || "N/A";
 					const className =
 						driveTrainType === "Swerve" ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
-						
+
 					return <span className={className}>{driveTrainType}</span>;
 				}),
 			),
@@ -657,7 +687,7 @@ function DTFTeams(props: Props): React.ReactElement {
 					const drivingMotorType = data?.driving_motor_type || "N/A";
 					const className =
 						drivingMotorType === "Kraken" ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
-						
+
 					return <span className={className}>{drivingMotorType}</span>;
 				}),
 			),

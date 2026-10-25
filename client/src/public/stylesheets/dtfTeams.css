@@ -56,4 +56,12 @@ dtf-teams {
 	.alliance_overview_value_negative {
 		color: var(--color-failure);
 	}
+
+	.team_overview_value_normal {
+		color: white;
+	}
+
+	.team_overview_value_defense {
+		color: orange;
+	}
 }
