@@ -72,7 +72,7 @@ function MatchData(props: Props): React.ReactElement {
 				const response = await fetch(fetchLink);
 				const data = (await response.json()) as Database.MatchEntry[];
 
-				const table = [];
+				const table: { [key in keyof Database.MatchEntry]: React.ReactNode }[] = [];
 
 				if (!data.length) {
 					window.alert("Could not get data");
@@ -80,17 +80,12 @@ function MatchData(props: Props): React.ReactElement {
 				}
 
 				for (const match of data) {
-					const row: {
-						key: string;
-						[key: string]: React.ReactNode | undefined;
-					} = { key: "" };
+					const row = {} as { [key in keyof Database.MatchEntry]: React.ReactNode };
 
 					for (const field in match) {
 						const result = getCellValue(field, match[field as keyof typeof match] as unknown);
-						row[field as keyof typeof match] = result;
+						row[field as keyof Database.MatchEntry] = result;
 					}
-					const key = `${match.id}`;
-					row["key"] = key;
 
 					table.push(row);
 				}

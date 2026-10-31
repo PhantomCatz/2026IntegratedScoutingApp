@@ -6,7 +6,7 @@ import type * as Database from "../types/database";
 
 type Props = {
 	teamNumber: number;
-	data: Database.PitDataFullEntry[] | null;
+	data: Database.PitDataEntry[] | null;
 };
 
 function PitTabs(props: Props): TabItems {

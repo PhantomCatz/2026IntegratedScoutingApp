@@ -130,7 +130,7 @@ function PitLookup(props: Props): React.ReactElement {
 		);
 	}
 
-	function createTabs(teamNumber: number, data: Database.PitDataFullEntry[] | null): void {
+	function createTabs(teamNumber: number, data: Database.PitDataEntry[] | null): void {
 		try {
 			const tabs = PitTabs({ teamNumber: teamNumber, data: data });
 

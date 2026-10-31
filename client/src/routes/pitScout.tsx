@@ -88,7 +88,7 @@ function PitScout(props: Props): React.ReactElement {
 		})();
 	}, [eventKey]);
 
-	function submitData(event: PitScoutTypes.Pit, robot_image_uri: string[]): void {
+	function submitData(event: PitScoutTypes.Pit, _robotImageUri: string[]): void {
 		const body: PitScoutTypes.SubmitBody = {
 			event_key: eventKey,
 			team_number: event.team_number,
@@ -114,7 +114,6 @@ function PitScout(props: Props): React.ReactElement {
 			team_workmanship: event.team_workmanship,
 			gracious_professionalism: event.gracious_professionalism,
 			comments: event.comments,
-			robot_image_uri: "",
 		};
 		Object.entries(body).forEach((item) => {
 			const [field, value] = item;

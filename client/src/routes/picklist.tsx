@@ -87,7 +87,21 @@ function Picklist(): React.ReactElement {
 		throw new Error("Could not get event key");
 	}
 
-    type SortKey = keyof PicklistRow | "pickRank";
+    type SortKey =
+		| "teamNumber"
+		| "tbaRanking"
+		| "pickRanking"
+		| "pickRank"
+		| "autonAvg"
+		| "teleopAvg"
+		| "iegr"
+		| "sotm"
+		| "restriction"
+		| "drivetrain"
+		| "deathRate"
+		| "hoard"
+		| "defense"
+		| "motorType";
     type SortDirection = "asc" | "desc";
     type SortState = { key: SortKey; direction: SortDirection } | null;
     type PickRank = { [teamNumber: string]: number | "" };
@@ -206,7 +220,7 @@ function Picklist(): React.ReactElement {
 
         
 
-    function dataDump(props: Props): React.ReactElement {
+    function dataDump(): React.ReactElement {
         const [loading, setLoading] = useState(true);
         const [matchData, setMatchData] = useState<{ [key in keyof Database.MatchEntry]: React.ReactNode }[] | null>(null);
         const [_eventKey, _setEventKey] = useLocalStorage<TbaApi.EventKey>("eventKey", Constants.EVENT_KEY);
@@ -226,19 +240,32 @@ function Picklist(): React.ReactElement {
                         return;
                     }
                     const teams = await getAllTeams(eventKey);
-                    const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/team/"+team.toString();
-                    const response = await fetch(fetchLink);
-                        
-                    
-                    const table = [];
-
-                    if (!data.length) {
+                    if (!teams?.length) {
                         window.alert("Could not get data");
                         return;
                     }
-                    for(const team of teams){
+
+                    const table: { [key in keyof Database.MatchEntry]: React.ReactNode }[] = [];
+
+                    for (const team of teams) {
+                        const fetchLink = Constants.SERVER_ADDRESS + eventKey + "/match/team/" + team.toString();
+                        const response = await fetch(fetchLink);
                         const data = (await response.json()) as Database.MatchEntry[];
 
+                        if (!data.length) {
+                            continue;
+                        }
+
+                        for (const match of data) {
+                            const row = {} as { [key in keyof Database.MatchEntry]: React.ReactNode };
+
+                            for (const field in match) {
+                                const result = getCellValue(field, match[field as keyof typeof match] as unknown);
+                                row[field as keyof Database.MatchEntry] = result;
+                            }
+
+                            table.push(row);
+                        }
                     }
                     // const teams: teamsJson = {};
                     // for (const match of data) {
@@ -312,7 +339,7 @@ function Picklist(): React.ReactElement {
                 }
             }
             void fetchData();
-        });
+        }, [eventKey]);
         useEffect(() => {
             fixFields();
         }, [matchData]);
@@ -400,15 +427,19 @@ function Picklist(): React.ReactElement {
         );
     }
     
-    function comments(): React.ReactElement {}
-    function weights(): React.ReactElement {}
+    function comments(): React.ReactElement {
+        return <></>;
+    }
+    function weights(): React.ReactElement {
+        return <></>;
+    }
 
     return (
         <>
         <Header name={"Picklist"} back={"#"} />
-        <picklist>
+        <pick-list className="picklist">
             <Tabs defaultActiveKey="1" activeKey={tabNumber} items={tabItems} onChange={setTabNumber} />
-        </picklist>
+        </pick-list>
         </>
     );
 }
