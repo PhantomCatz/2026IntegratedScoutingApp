@@ -6,6 +6,7 @@ import whiteMenu from "../public/images/whiteMenu.png";
 import blackMenu from "../public/images/blackMenu.png";
 import "../public/stylesheets/header.css";
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { parseHexColor } from "../utils/utils";
 
@@ -16,8 +17,15 @@ type Props = {
 };
 
 function Header(props: Props): React.ReactElement {
+	const navigate = useNavigate();
 	const name = props.name || "No name set";
 	const backLink = props.back;
+
+	const handleLogout = () => {
+		sessionStorage.removeItem("signedIn");
+		sessionStorage.removeItem("scoutName");
+		navigate("/login");
+	};
 
 	const [backgroundColor, _setBackgroundColor] = useLocalStorage<string>("backgroundColor", "#ffffff");
 	const [fontColor, _setFontColor] = useLocalStorage<string>("fontColor", "#000000");
@@ -76,8 +84,11 @@ function Header(props: Props): React.ReactElement {
 
 			<h1 className={"pageTitle"}>{name}</h1>
 
-			{props.settingsPage ? (
-				<div className="settingsContainer">
+			<div className="settingsContainer">
+				<button type="button" className="logoutButton" onClick={handleLogout}>
+					Log out
+				</button>
+				{props.settingsPage ? (
 					<img
 						className={"menuImg"}
 						src={iconSet.menu}
@@ -86,12 +97,12 @@ function Header(props: Props): React.ReactElement {
 						}}
 						alt="Settings"
 					></img>
-				</div>
-			) : (
-				<a href={"#settings"} className="settingsContainer">
-					<img className={"menuImg"} src={iconSet.menu} alt="" />
-				</a>
-			)}
+				) : (
+					<a href={"#settings"}>
+						<img className={"menuImg"} src={iconSet.menu} alt="" />
+					</a>
+				)}
+			</div>
 		</header>
 	);
 }

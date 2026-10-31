@@ -9,7 +9,8 @@ import DataLookup from "./routes/dataLookup";
 import PitScout from "./routes/pitScout";
 import SettingsPage from "./routes/settingsPage";
 import MatchValidation from "./routes/matchValidation";
-import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
+import { Login } from "./parts/Login";
+import { HashRouter, Navigate, Outlet, Routes, Route } from "react-router-dom";
 
 const rootElement = document.getElementById("root") as HTMLElement;
 const root = ReactDOM.createRoot(rootElement);
@@ -41,27 +42,38 @@ window.alert = (function () {
 	};
 })();
 
+function RequireAuth(): React.ReactElement {
+	const signedIn = sessionStorage.getItem("signedIn") === "1";
+	if (!signedIn) {
+		return <Navigate to="/login" replace />;
+	}
+	return <Outlet />;
+}
+
 function App(): React.ReactElement {
 	// TODO: refactor titles
 	// TODO: add single header object for all pages
 	return (
 		<HashRouter>
 			<Routes>
-				<Route path="/" element={<HomeRouter title="2637 Strategy App" />} />
-				<Route path="/scoutingapp" element={<ScoutingAppRouter title="2637 Scouting App" />} />
-				<Route path="/scoutingapp/match" element={<MatchScout title="2637 Match Scout" />} />
-				<Route path="/scoutingapp/strategic" element={<StrategicScout title="2637 Strategic Scout" />} />
-				<Route path="/scoutingapp/lookup/:teams?" element={<DataLookup title="2637 Data Lookup" />} />
-				<Route path="/scoutingapp/lookup/strategic" element={<Navigate to="/scoutingapp/lookup" replace />} />
-				<Route path="/scoutingapp/lookup/match" element={<Navigate to="/scoutingapp/lookup" replace />} />
-				<Route path="/scoutingapp/lookup/pit" element={<Navigate to="/scoutingapp/lookup" replace />} />
-				<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
-				<Route path="/scoutingapp/lookup/teamData/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
-				<Route path="/scoutingapp/pit" element={<PitScout title="2637 Pit Scout" />} />
-				<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
-				<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
-				<Route path="/settings" element={<SettingsPage title="Settings" />} />
-				<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
+				<Route path="/login" element={<Login />} />
+				<Route element={<RequireAuth />}>
+					<Route path="/" element={<HomeRouter title="2637 Strategy App" />} />
+					<Route path="/scoutingapp" element={<ScoutingAppRouter title="2637 Scouting App" />} />
+					<Route path="/scoutingapp/match" element={<MatchScout title="2637 Match Scout" />} />
+					<Route path="/scoutingapp/strategic" element={<StrategicScout title="2637 Strategic Scout" />} />
+					<Route path="/scoutingapp/lookup/:teams?" element={<DataLookup title="2637 Data Lookup" />} />
+					<Route path="/scoutingapp/lookup/strategic" element={<Navigate to="/scoutingapp/lookup" replace />} />
+					<Route path="/scoutingapp/lookup/match" element={<Navigate to="/scoutingapp/lookup" replace />} />
+					<Route path="/scoutingapp/lookup/pit" element={<Navigate to="/scoutingapp/lookup" replace />} />
+					<Route path="/scoutingapp/lookup/teamdata/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
+					<Route path="/scoutingapp/lookup/teamData/:teamNumber" element={<Navigate to="/scoutingapp/lookup" replace />} />
+					<Route path="/scoutingapp/pit" element={<PitScout title="2637 Pit Scout" />} />
+					<Route path="/dtf" element={<DTFHome title="2637 Drive Team Feeder" />} />
+					<Route path="/dtf/:teamParams" element={<DTFTeams title="2637 Drive Team Feeder" />} />
+					<Route path="/settings" element={<SettingsPage title="Settings" />} />
+					<Route path="/validation" element={<MatchValidation title="Data Validation" />} />
+				</Route>
 			</Routes>
 		</HashRouter>
 	);
