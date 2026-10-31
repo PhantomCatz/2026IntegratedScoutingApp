@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { splitString } from "../utils/utils";
+import "../public/stylesheets/tabs.css";
 
 import type * as Database from "../types/database";
 import type { TooltipItem, ChartDataset } from "chart.js/auto";
@@ -10,85 +11,6 @@ type Props = {
 	teamMatches: Database.MatchEntry[];
 	teamStrategic: Database.StrategicEntry[];
 };
-
-function DTFChartComponent(props: Props): React.ReactElement {
-	const autonAlgaeCanvas = useRef<HTMLCanvasElement>(null);
-	const teleopAlgaeCanvas = useRef<HTMLCanvasElement>(null);
-	const autonCoralCanvas = useRef<HTMLCanvasElement>(null);
-	const teleopCoralCanvas = useRef<HTMLCanvasElement>(null);
-
-	const teamMatches = props.teamMatches;
-	const teamStrategic = props.teamStrategic;
-
-	useEffect(() => {
-		if (
-			!(autonAlgaeCanvas.current && teleopAlgaeCanvas.current && autonCoralCanvas.current && teleopCoralCanvas.current)
-		) {
-			return;
-		}
-		const matchNumbers = teamMatches.map(function (row) {
-			const comp_level = row.comp_level;
-			const match_number = row.match_number;
-
-			return comp_level[0].toUpperCase() + match_number.toString();
-		});
-
-		function commentCallback(message: string[], items: TooltipItem<"line">[]): void {
-			const dataPoint = items[0];
-			const match = teamMatches[dataPoint.dataIndex];
-			const match_number = match.match_number;
-			const comp_level = match.comp_level;
-
-			const currentTeamMatches = teamMatches.filter(
-				(row) => row.match_number === match_number && row.comp_level === comp_level,
-			);
-			const currentStrategicMatches = teamStrategic.filter(
-				(row) => row.match_number === match_number && row.comp_level === comp_level,
-			);
-
-			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
-			}
-			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
-			}
-		}
-
-		createChart(
-			autonAlgaeCanvas.current,
-			teamMatches,
-			matchNumbers,
-			{
-				Auton: {
-					values: {
-						Auton: "auton_fuel_scored",
-					},
-					// calculateAverage: true,
-				},
-				Teleop: {
-					values: {
-						Teleop: "teleop_fuel_scored",
-					},
-					// calculateAverage: true,
-				},
-			},
-			commentCallback,
-		);
-	}, [autonAlgaeCanvas.current, teleopAlgaeCanvas.current, autonCoralCanvas.current, teleopCoralCanvas.current]);
-
-	return (
-		<div className="dtfChart">
-			<h2>Auton Algae</h2>
-			{<canvas ref={autonAlgaeCanvas}></canvas>}
-			<h2>Teleop Algae</h2>
-			{<canvas ref={teleopAlgaeCanvas}></canvas>}
-			<h2>Auton Coral</h2>
-			{<canvas ref={autonCoralCanvas}></canvas>}
-			<h2>Teleop Coral</h2>
-			{<canvas ref={teleopCoralCanvas}></canvas>}
-		</div>
-	);
-}
 
 function DTFAutonChartComponent(props: Props): React.ReactElement {
 	const autonFuelScored = useRef<HTMLCanvasElement>(null);
@@ -121,10 +43,16 @@ function DTFAutonChartComponent(props: Props): React.ReactElement {
 			);
 
 			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
 			}
 			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
 			}
 		}
 
@@ -182,10 +110,16 @@ function DTFTeleopChartComponent(props: Props): React.ReactElement {
 			);
 
 			for (const match of currentTeamMatches) {
-				message.push("MS: " + match.overall_comments);
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
 			}
 			for (const match of currentStrategicMatches) {
-				message.push("SS: " + match.comments);
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
 			}
 		}
 
@@ -212,12 +146,183 @@ function DTFTeleopChartComponent(props: Props): React.ReactElement {
 	);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+const auton_climb_values = new Map<Database.Tinyint, number>([[1, 15]]);
+
+const teleop_climb_values = new Map<string, number>([
+	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+	["Level 1", 10],
+	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+	["Level 2", 10],
+	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+	["Level 3", 10],
+	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+	["Level_1", 10],
+	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+	["Level_2", 10],
+	// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+	["Level_3", 10],
+]);
+
+function climbScore(match: Database.MatchEntry): number {
+	const auton = auton_climb_values.get(match.auton_climb_successful) ?? 0;
+	const teleop = match.endgame_climb_successful ? (teleop_climb_values.get(match.endgame_climb_level) ?? 0) : 0;
+	return auton + teleop;
+}
+
+function DTFClimpChartComponent(props: Props): React.ReactElement {
+	const climbCanvas = useRef<HTMLCanvasElement>(null);
+
+	const teamMatches = props.teamMatches;
+	const teamStrategic = props.teamStrategic;
+
+	useEffect(() => {
+		if (!climbCanvas.current) {
+			return;
+		}
+		const matchNumbers = teamMatches.map(function (row) {
+			const comp_level = row.comp_level;
+			const match_number = row.match_number;
+
+			return comp_level[0].toUpperCase() + match_number.toString();
+		});
+
+		function commentCallback(message: string[], items: TooltipItem<"line">[]): void {
+			const dataPoint = items[0];
+			const match = teamMatches[dataPoint.dataIndex];
+			const match_number = match.match_number;
+			const comp_level = match.comp_level;
+
+			const currentTeamMatches = teamMatches.filter(
+				(row) => row.match_number === match_number && row.comp_level === comp_level,
+			);
+			const currentStrategicMatches = teamStrategic.filter(
+				(row) => row.match_number === match_number && row.comp_level === comp_level,
+			);
+
+			for (const match of currentTeamMatches) {
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
+			}
+			for (const match of currentStrategicMatches) {
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
+			}
+		}
+
+		createChart(
+			climbCanvas.current,
+			teamMatches,
+			matchNumbers,
+			{
+				Climb: {
+					values: {
+						"Auton Climb": "auton_climb_successful",
+						"Teleop Level": "endgame_climb_level",
+						"Teleop Climb": "endgame_climb_successful",
+					},
+					score: climbScore,
+				},
+			},
+			commentCallback,
+		);
+	}, [climbCanvas.current]);
+
+	return (
+		<div className="dtfChart">
+			<h2>Climb Score Graph</h2>
+			{<canvas ref={climbCanvas}></canvas>}
+		</div>
+	);
+}
+
+function overallScore(match: Database.MatchEntry): number {
+	return match.auton_fuel_scored + match.teleop_fuel_scored + climbScore(match);
+}
+
+function DTFOverallChartComponent(props: Props): React.ReactElement {
+	const overallCanvas = useRef<HTMLCanvasElement>(null);
+
+	const teamMatches = props.teamMatches;
+	const teamStrategic = props.teamStrategic;
+
+	useEffect(() => {
+		if (!overallCanvas.current) {
+			return;
+		}
+		const matchNumbers = teamMatches.map(function (row) {
+			const comp_level = row.comp_level;
+			const match_number = row.match_number;
+
+			return comp_level[0].toUpperCase() + match_number.toString();
+		});
+
+		function commentCallback(message: string[], items: TooltipItem<"line">[]): void {
+			const dataPoint = items[0];
+			const match = teamMatches[dataPoint.dataIndex];
+			const match_number = match.match_number;
+			const comp_level = match.comp_level;
+
+			const currentTeamMatches = teamMatches.filter(
+				(row) => row.match_number === match_number && row.comp_level === comp_level,
+			);
+			const currentStrategicMatches = teamStrategic.filter(
+				(row) => row.match_number === match_number && row.comp_level === comp_level,
+			);
+
+			for (const match of currentTeamMatches) {
+				message.push("MS: " + match.scouter_initials);
+				if (match.overall_comments) {
+					message.push(match.overall_comments);
+				}
+			}
+			for (const match of currentStrategicMatches) {
+				message.push("SS: " + match.scouter_initials);
+				if (match.comments) {
+					message.push(match.comments);
+				}
+			}
+		}
+
+		createChart(
+			overallCanvas.current,
+			teamMatches,
+			matchNumbers,
+			{
+				Overall: {
+					values: {
+						Auton: "auton_fuel_scored",
+						Teleop: "teleop_fuel_scored",
+						"Auton Climb": "auton_climb_successful",
+						"Teleop Level": "endgame_climb_level",
+						"Teleop Climb": "endgame_climb_successful",
+					},
+					score: overallScore,
+				},
+			},
+			commentCallback,
+		);
+	}, [overallCanvas.current]);
+
+	return (
+		<div className="dtfChart">
+			<h2>Overall Score Graph</h2>
+			{<canvas ref={overallCanvas}></canvas>}
+		</div>
+	);
+}
+
 type ChartConfig = {
 	[name: string]: {
 		values: {
 			[item_name: string]: string;
 		};
 		calculateAverage?: boolean;
+		score?: (row: Database.MatchEntry) => number;
 	};
 };
 
@@ -238,12 +343,16 @@ function createChart(
 		//function that returns the height of each "bar" of graph
 		const data = teamMatches.map(function (row) {
 			let value = 0;
-			for (const [_, item] of Object.entries(lineOptions.values)) {
-				// :eyes:
-				const itemValue = row[item as keyof typeof row];
-				//assertNumber checks if itemValue is "number" type or not
-				assertNumber(itemValue);
-				value += itemValue;
+			if (lineOptions.score) {
+				value = lineOptions.score(row);
+			} else {
+				for (const [_, item] of Object.entries(lineOptions.values)) {
+					// :eyes:
+					const itemValue = row[item as keyof typeof row];
+					//assertNumber checks if itemValue is "number" type or not
+					assertNumber(itemValue);
+					value += itemValue;
+				}
 			}
 
 			if (doAverage) {
@@ -327,4 +436,58 @@ function createChart(
 	});
 }
 
-export { DTFChartComponent, DTFAutonChartComponent, DTFTeleopChartComponent };
+const CHART_TABS = [
+	{ key: "auton", label: "Auton" },
+	{ key: "teleop", label: "Teleop" },
+	{ key: "climb", label: "Climb" },
+	{ key: "overall", label: "Overall" },
+] as const;
+
+type ChartTabKey = (typeof CHART_TABS)[number]["key"];
+
+function DTFChartGallery(props: Props): React.ReactElement {
+	const [chartKey, setChartKey] = useState<ChartTabKey>("auton");
+
+	let chart: React.ReactElement;
+	switch (chartKey) {
+		case "teleop":
+			chart = <DTFTeleopChartComponent teamMatches={props.teamMatches} teamStrategic={props.teamStrategic} />;
+			break;
+		case "climb":
+			chart = <DTFClimpChartComponent teamMatches={props.teamMatches} teamStrategic={props.teamStrategic} />;
+			break;
+		case "overall":
+			chart = <DTFOverallChartComponent teamMatches={props.teamMatches} teamStrategic={props.teamStrategic} />;
+			break;
+		default:
+			chart = <DTFAutonChartComponent teamMatches={props.teamMatches} teamStrategic={props.teamStrategic} />;
+			break;
+	}
+
+	return (
+		<tabs-container>
+			<tab-page {...{ activetab: true }}>{chart}</tab-page>
+			<tabs-nav-container>
+				{CHART_TABS.map((tab) => (
+					<nav-label
+						key={tab.key}
+						{...(tab.key === chartKey ? { selected: true } : {})}
+						onClick={() => {
+							setChartKey(tab.key);
+						}}
+					>
+						{tab.label}
+					</nav-label>
+				))}
+			</tabs-nav-container>
+		</tabs-container>
+	);
+}
+
+export {
+	DTFAutonChartComponent,
+	DTFTeleopChartComponent,
+	DTFClimpChartComponent,
+	DTFOverallChartComponent,
+	DTFChartGallery,
+};

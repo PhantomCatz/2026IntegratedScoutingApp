@@ -3,10 +3,11 @@ import "../public/stylesheets/dtfTeams.css";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "react-use";
 import { useParams } from "react-router-dom";
-import { Input, TextArea, Checkbox } from "../parts/formItems";
+import { Input, Checkbox } from "../parts/formItems";
 import { Tabs } from "../parts/tabs";
 import Header from "../parts/header";
-import { DTFAutonChartComponent, DTFTeleopChartComponent } from "../parts/dtfChart";
+import Table from "../parts/table";
+import { DTFChartGallery } from "../parts/dtfChart";
 import Constants from "../utils/constants";
 import * as Utils from "../utils/utils";
 
@@ -38,10 +39,12 @@ type AggregateData = {
 	endgame_climb_successful: Map<string, number>;
 
 	overall_robot_died: number;
+	overall_robot_died_count: number;
+	overall_defended_others_count: number;
 	overall_shot_while_moving: Map<Database.Tinyint, number>;
 
 	match_count: number;
-	robot_comments: string;
+	overall_comments: string;
 	total_score: number;
 	total_auton_score: number;
 	total_teleop_score: number;
@@ -50,6 +53,8 @@ type AggregateData = {
 	trench_capability: boolean;
 	intake_type: Set<string>;
 	fuel_capacity: number;
+	drive_train_type: string;
+	driving_motor_type: string;
 
 	average_fuel_count: number;
 	average_auton_fuel_count: number;
@@ -84,6 +89,75 @@ const KEY_MAPPINGS: { [key: string]: ActionMapping | undefined } = {
 } as const;
 
 type PermittedKey<T> = TypedKey<AggregateData, T>;
+type CommentRow = {
+	id: string;
+	comment_type: string;
+	match_number: string;
+	scouter_initials: string;
+	comments: string;
+};
+
+const COMMENT_COLUMNS = {
+	"": {
+		Type: "comment_type",
+		"Match Number": "match_number",
+		Scouter: "scouter_initials",
+		Comments: "comments",
+	},
+} as const;
+
+function buildCommentRows(
+	matches: Database.MatchEntry[],
+	strategic: Database.StrategicEntry[],
+	pit: Database.PitDataEntry[],
+): CommentRow[] {
+	const rows: CommentRow[] = [];
+
+	for (const match of matches) {
+		const text = (match.overall_comments || "").trim();
+		if (!text) {
+			continue;
+		}
+		rows.push({
+			id: `match-${match.id}`,
+			comment_type: "Match",
+			match_number: match.match_number.toString(),
+			scouter_initials: match.scouter_initials,
+			comments: text.replaceAll("\\n", "\n"),
+		});
+	}
+
+	for (const strat of strategic) {
+		const text = (strat.comments || "").trim();
+		if (!text) {
+			continue;
+		}
+		rows.push({
+			id: `strategic-${strat.id}`,
+			comment_type: "Strategic",
+			match_number: strat.match_number.toString(),
+			scouter_initials: strat.scouter_initials,
+			comments: text.replaceAll("\\n", "\n"),
+		});
+	}
+
+	for (const entry of pit) {
+		const text = (entry.comments || "").trim();
+		if (!text) {
+			continue;
+		}
+		rows.push({
+			id: `pit-${entry.id}`,
+			comment_type: "Pit",
+			match_number: "",
+			scouter_initials: entry.scouter_initials,
+			comments: text.replaceAll("\\n", "\n"),
+		});
+	}
+
+	return rows;
+}
+
 const ACTIONS = {
 	[ActionMapping.ADD]: function (key: PermittedKey<number>, value: number, data: AggregateData): void {
 		if (!Object.hasOwn(data, key)) {
@@ -172,6 +246,27 @@ const ACTIONS = {
 			value,
 			(data["endgame_climb_successful"].get(value) ?? 0) + match.endgame_climb_successful,
 		);
+	},
+} as const;
+
+const DATA_COLUMNS_1 = {
+	"": {
+		"Comp Level": "comp_level",
+		Match: "match_number",
+		"Auto Fuel Scored": "auton_fuel_scored",
+		"Teleop Fuel Scored": "teleop_fuel_scored",
+		"Climb Type": "endgame_climb_level",
+		"Total Fuel Scored": "total_fuel_scored",
+	},
+} as const;
+
+const DATA_COLUMNS_2 = {
+	"": {
+		Team: "team_number",
+		Auto: "auton_fuel_scored",
+		Teleop: "teleop_fuel_scored",
+		Climb: "endgame_climb_level",
+		Total: "total_fuel_scored",
 	},
 } as const;
 
@@ -387,6 +482,288 @@ function DTFTeams(props: Props): React.ReactElement {
 		}
 		return score;
 	}
+	function AutonMatchData(matches: Database.MatchEntry[]): React.ReactElement {
+		const table: {
+			key: string;
+			[key: string]: React.ReactNode | undefined;
+		}[] = [];
+
+		function getCellValue(field: string, value: unknown): React.ReactNode {
+			let result: React.ReactNode = null;
+
+			if (value === null || value === undefined) {
+				console.error(`field=`, field);
+				console.error(`value=`, value);
+			}
+
+			switch (field) {
+				case "comp_level":
+				case "match_number":
+				case "auton_fuel_scored":
+				case "teleop_fuel_scored":
+				case "endgame_climb_level": {
+					result = (value || "").toString();
+					break;
+				}
+				case "id":
+					break;
+			}
+
+			return result;
+		}
+
+		for (const match of matches) {
+			const row: {
+				key: string;
+				[key: string]: React.ReactNode | undefined;
+			} = { key: "" };
+
+			for (const field in match) {
+				const result = getCellValue(field, match[field as keyof typeof match] as unknown);
+
+				row[field as keyof typeof match] = result;
+
+				if (field === "match_number") {
+					const defended = match.overall_defended_others;
+
+					row[field] = <span className={defended === 1 ? "team_overview_value_defense" : ""}>{result}</span>;
+				}
+
+				if (field === "endgame_climb_level") {
+					const climb = match.endgame_climb_successful;
+
+					row[field] = (
+						<span className={climb === 1 ? "alliance_overview_value_positive" : "alliance_overview_value_negative"}>
+							{result}
+						</span>
+					);
+				}
+			}
+
+			const key = `${match.id}`;
+			row["key"] = key;
+			row["id"] = match.id;
+
+			row["total_fuel_scored"] = (
+				<span className={match.overall_was_defended === 1 ? "total_value_negative" : "total_value_normal"}>
+					{match.auton_fuel_scored + match.teleop_fuel_scored}
+				</span>
+			);
+
+			table.push(row);
+		}
+
+		return <Table data={table} columns={DATA_COLUMNS_1} getKey={(row) => (row.id as unknown as number).toString()} />;
+	}
+	function SummaryMatchData(
+		teams: number[],
+		persistentData: { [team: number]: AggregateData | undefined },
+	): React.ReactElement {
+		const table: {
+			key: string;
+			[key: string]: React.ReactNode | undefined;
+		}[] = [];
+
+		let totalAutonFuel = 0;
+		let totalTeleopFuel = 0;
+		let totalClimb = 0;
+		let totalFuel = 0;
+
+		for (const teamNumber of teams) {
+			if (!teamNumber) {
+				continue;
+			}
+
+			const data = persistentData[teamNumber];
+
+			if (!data) {
+				continue;
+			}
+
+			let climbAverage = 0;
+			const matches = teamsMatchData?.[teamNumber];
+			if (matches && matches.length > 0) {
+				let climbSum = 0;
+				let countedMatches = 0;
+				for (const match of matches) {
+					if (!match.robot_appeared) {
+						continue;
+					}
+					countedMatches++;
+					if (match.endgame_climb_successful) {
+						const level = match.endgame_climb_level;
+						if (level === "Level_3" || level === "Level 3") {
+							climbSum += 30;
+						} else if (level === "Level_2" || level === "Level 2") {
+							climbSum += 20;
+						} else if (level === "Level_1" || level === "Level 1") {
+							climbSum += 10;
+						}
+					}
+				}
+				if (countedMatches > 0) {
+					climbAverage = Utils.round(climbSum / countedMatches, 2);
+				}
+			}
+
+			totalClimb += climbAverage;
+
+			const autonFuel = Utils.round(data.average_auton_fuel_count, 2);
+			const teleopFuel = Utils.round(data.teleop_fuel_scored, 2);
+			const totalFuelVal = Utils.round(data.average_fuel_count, 2);
+
+			totalAutonFuel += autonFuel;
+			totalTeleopFuel += teleopFuel;
+			totalFuel += totalFuelVal;
+
+			table.push({
+				key: teamNumber.toString(),
+				team_number: teamNumber,
+				auton_fuel_scored: autonFuel,
+				teleop_fuel_scored: teleopFuel,
+				endgame_climb_level: climbAverage,
+				total_fuel_scored: <span className="total_value_normal">{totalFuelVal}</span>,
+			});
+		}
+
+		table.push({
+			key: "total",
+			team_number: <span className="total_value_normal">Total</span>,
+			auton_fuel_scored: <span className="total_value_normal">{Utils.round(totalAutonFuel, 2)}</span>,
+			teleop_fuel_scored: <span className="total_value_normal">{Utils.round(totalTeleopFuel, 2)}</span>,
+			endgame_climb_level: <span className="total_value_normal">{Utils.round(totalClimb, 2)}</span>,
+			total_fuel_scored: <span className="total_value_normal">{Utils.round(totalFuel, 2)}</span>,
+		});
+
+		return <Table data={table} columns={DATA_COLUMNS_2} getKey={(row) => row.key as string} />;
+	}
+	function getMostCommonOption(options: Map<string, number>): string {
+		let highestCount = 0;
+		let mostCommonOption = "N/A";
+
+		for (const [option, count] of options) {
+			if (count > highestCount) {
+				highestCount = count;
+				mostCommonOption = option;
+			}
+		}
+
+		return mostCommonOption;
+	}
+	function AllianceOverviewTable(
+		allianceNumber: number,
+		allianceTeams: number[],
+		persistentData: { [team: number]: AggregateData | undefined },
+	): React.ReactElement {
+		const table: { key: string; label: string; values: React.ReactNode[] }[] = [];
+		const getAllianceValue = (
+			teamNumber: number,
+			getValue: (data: AggregateData | undefined) => React.ReactNode,
+		): React.ReactNode => (teamNumber ? getValue(persistentData[teamNumber]) : "N/A");
+
+		table.push({
+			key: "robot-death",
+			label: "Robot Death",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => data?.overall_robot_died_count ?? "N/A"),
+			),
+		});
+		table.push({
+			key: "fuel-capacity",
+			label: "Fuel Capacity",
+			values: allianceTeams.map((teamNumber) => getAllianceValue(teamNumber, (data) => data?.fuel_capacity ?? "N/A")),
+		});
+		table.push({
+			key: "hoard-type",
+			label: "Hoard Type",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => (data ? getMostCommonOption(data.teleop_primary_hoard_type) : "N/A")),
+			),
+		});
+		table.push({
+			key: "sotm",
+			label: "SOTM",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					if (!data || data.match_count === 0) {
+						return "N/A";
+					}
+
+					const shotWhileMovingCount = data.overall_shot_while_moving.get(1) ?? 0;
+					const shotWhileMovingPercent = Math.round((shotWhileMovingCount / data.match_count) * 100);
+					const className =
+						shotWhileMovingPercent >= 50 ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
+
+					return <span className={className}>{shotWhileMovingPercent}%</span>;
+				}),
+			),
+		});
+		table.push({
+			key: "drivetrain",
+			label: "Drivetrain",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					const driveTrainType = data?.drive_train_type || "N/A";
+					const className =
+						driveTrainType === "Swerve" ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
+
+					return <span className={className}>{driveTrainType}</span>;
+				}),
+			),
+		});
+		table.push({
+			key: "motor-type",
+			label: "Motor Type",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					const drivingMotorType = data?.driving_motor_type || "N/A";
+					const className =
+						drivingMotorType === "Kraken" ? "alliance_overview_value_positive" : "alliance_overview_value_negative";
+
+					return <span className={className}>{drivingMotorType}</span>;
+				}),
+			),
+		});
+		table.push({
+			key: "defense-match-count",
+			label: "Defense Rate",
+			values: allianceTeams.map((teamNumber) =>
+				getAllianceValue(teamNumber, (data) => {
+					if (!data || data.match_count === 0) {
+						return "N/A";
+					}
+
+					const defensePercent = Math.round((data.overall_defended_others_count / data.match_count) * 100);
+					return `${defensePercent}%`;
+				}),
+			),
+		});
+
+		return (
+			<div className="alliance_overview_table_container">
+				<table className="table">
+					<thead>
+						<tr>
+							<th>{`Alliance ${allianceNumber}`}</th>
+							{allianceTeams.map((teamNumber, index) => (
+								<th key={`${allianceNumber}|team|${index}`}>{teamNumber || "-"}</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{table.map((row) => (
+							<tr key={`${allianceNumber}|${row.key}`}>
+								<td>{row.label}</td>
+								{row.values.map((value, index) => (
+									<td key={`${allianceNumber}|${row.key}|${index}`}>{value}</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		);
+	}
 	function mergeTeamMatches(matches: Database.MatchEntry[]): AggregateData {
 		const data: AggregateData = {
 			auton_fuel_scored: 0,
@@ -404,10 +781,12 @@ function DTFTeams(props: Props): React.ReactElement {
 			endgame_climb_successful: new Map<string, number>(),
 
 			overall_robot_died: 0,
+			overall_robot_died_count: 0,
+			overall_defended_others_count: 0,
 			overall_shot_while_moving: new Map<Database.Tinyint, number>(),
 
 			match_count: 0,
-			robot_comments: "",
+			overall_comments: "",
 			total_score: 0,
 			total_auton_score: 0,
 			total_teleop_score: 0,
@@ -416,6 +795,8 @@ function DTFTeams(props: Props): React.ReactElement {
 			trench_capability: false,
 			intake_type: new Set<string>(),
 			fuel_capacity: 0,
+			drive_train_type: "",
+			driving_motor_type: "",
 
 			average_fuel_count: 0,
 			average_auton_fuel_count: 0,
@@ -433,6 +814,9 @@ function DTFTeams(props: Props): React.ReactElement {
 			if (!match.robot_appeared) {
 				continue;
 			}
+
+			data.overall_robot_died_count += match.overall_robot_died;
+			data.overall_defended_others_count += match.overall_defended_others;
 
 			for (const [k, v] of Object.entries(match)) {
 				dispatchValueAction(k as keyof AggregateData, v, data, match);
@@ -487,10 +871,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			}
 
 			const teamMatches = teamsMatchData[team];
-			const teamTabs: TabItems = [];
-
 			const strategicData = teamsStrategicData[team];
-
 			const pitData = teamsPitData[team];
 
 			if (teamMatches && teamMatches.length) {
@@ -498,133 +879,56 @@ function DTFTeams(props: Props): React.ReactElement {
 
 				strategicData.forEach((row) => {
 					// :eyes:
-					dispatchValueAction("robot_comments", row.comments, data, null as never);
+					dispatchValueAction("overall_comments", row.comments, data, null as never);
 				});
 
-				const latestPitMatch = pitData[pitData.length - 1] as Database.PitDataEntry | undefined;
+				const latestPit = pitData[pitData.length - 1] as Database.PitDataEntry | undefined;
 
-				data.fuel_capacity = latestPitMatch?.max_fuel_capacity ?? 0;
-				data.intake_type = new Set(latestPitMatch?.intake_type.split(","));
+				data.fuel_capacity = latestPit?.max_fuel_capacity ?? 0;
+				data.intake_type = new Set(latestPit?.intake_type.split(","));
+				data.drive_train_type = latestPit?.drive_train_type ?? "";
+				data.driving_motor_type = latestPit?.driving_motor_type ?? "";
 
 				persistentData[team] = data;
 				alliancePersistentData.push(data);
 
-				teamTabs.push({
-					key: "Auton",
-					label: "Auton",
-					children: (
-						<>
-							<div className="inputRow">
-								<Input title="Avg Fuel Scored" disabled defaultValue={data.auton_fuel_scored.toString()} />
-								<Input
-									title="Climb Percentage"
-									disabled
-									defaultValue={Utils.toPercentageString(data.auton_climb_successful / data.auton_climb_attempted)}
-								/>
-							</div>
-							<DTFAutonChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
-						</>
-					),
-				});
+				const commentRows = buildCommentRows(teamMatches, strategicData, pitData);
+				const commentTable = commentRows.map((row) => ({
+					id: row.id,
+					comment_type: row.comment_type,
+					match_number: row.match_number,
+					scouter_initials: row.scouter_initials,
+					comments: <p className="commentBox">{row.comments}</p>,
+				}));
 
-				const teleop_fuel_hoarded_amount_ordering = {
-					High: 3,
-					Medium: 2,
-					Low: 1,
-					None: 0,
-				} as const;
-				teamTabs.push({
-					key: "Teleop/End",
-					label: "Teleop/End",
+				tabs.push({
+					key: `${team}|${teamCount}`,
+					label: team.toString(),
 					children: (
 						<>
-							<div className="inputRow">
-								<Input title="Fuel Scored" disabled defaultValue={data.teleop_fuel_scored.toString()} />
-								<Input
-									title="Fuel Hoard"
-									disabled
-									defaultValue={Utils.maximumOfMap(
-										data.teleop_fuel_hoarded_amount,
-										teleop_fuel_hoarded_amount_ordering,
-									)}
-								/>
+							<div>{AutonMatchData(teamMatches)}</div>
+							<hr />
+							<DTFChartGallery teamMatches={teamMatches} teamStrategic={strategicData} />
+							<div className="commentList">
+								{commentTable.length ? (
+									<>
+										<h2>Robot Comments</h2>
+										<Table data={commentTable} columns={COMMENT_COLUMNS} getKey={(row) => String(row.id ?? "")} />
+									</>
+								) : (
+									<h2>No Comments</h2>
+								)}
 							</div>
-							<DTFTeleopChartComponent teamMatches={teamMatches} teamStrategic={strategicData} />
-							<div className="inputRow">
-								<Input
-									title="Climb L1"
-									disabled
-									defaultValue={`${data.endgame_climb_successful.get("L1") ?? 0}/${data.endgame_climb_attempted.get("L1") ?? 0}`}
-								/>
-								<Input
-									title="Climb L2"
-									disabled
-									defaultValue={`${data.endgame_climb_successful.get("L2") ?? 0}/${data.endgame_climb_attempted.get("L2") ?? 0}`}
-								/>
-								<Input
-									title="Climb L3"
-									disabled
-									defaultValue={`${data.endgame_climb_successful.get("L3") ?? 0}/${data.endgame_climb_attempted.get("L3") ?? 0}`}
-								/>
-							</div>
-						</>
-					),
-				});
-
-				// TODO: remove legacy ordering
-				const teleop_primary_hoard_type_ordering = {
-					Shoot_Hoard: 2,
-					"Shoot Hoard": 2,
-					Push_Hoard: 1,
-					"Push Hoard": 1,
-					Dump_Hoard: 0,
-					"Dump Hoard": 0,
-				} as const;
-				teamTabs.push({
-					key: "OA",
-					label: "OA",
-					children: (
-						<>
-							<Input title="Robot Died (counter: matches)" disabled defaultValue={data.overall_robot_died.toString()} />
-							<Input title="Intake Fuel Type" disabled defaultValue={data.intake_type.values().toArray().join(", ")} />
-							<div className="inputRow">
-								<Checkbox title="Trench" align="center" disabled defaultValue={data.trench_capability} />
-								<Input title="Fuel Capacity" disabled defaultValue={data.fuel_capacity.toString()} />
-							</div>
-							<div className="inputRow">
-								<Checkbox
-									title="Shoot While Moving"
-									align="center"
-									disabled
-									defaultValue={(data.overall_shot_while_moving.get(1) ?? 0) > 0}
-								/>
-								<Input
-									title="Hoard Type"
-									disabled
-									defaultValue={Utils.maximumOfMap(data.teleop_primary_hoard_type, teleop_primary_hoard_type_ordering)}
-								/>
-							</div>
-							<TextArea title="Robot Comments" disabled defaultValue={data.robot_comments} />
 						</>
 					),
 				});
 			} else {
-				teamTabs.push({
-					key: "NoData",
-					label: "No Data",
+				tabs.push({
+					key: `${team}|${teamCount}`,
+					label: team.toString(),
 					children: <p className={"errorLabel"}>No Data for team {team}</p>,
 				});
 			}
-
-			tabs.push({
-				key: `${team}|${teamCount}`,
-				label: team.toString(),
-				children: (
-					<>
-						<Tabs items={teamTabs} />
-					</>
-				),
-			});
 		}
 
 		const averageScores: React.ReactElement[] = [];
@@ -671,21 +975,6 @@ function DTFTeams(props: Props): React.ReactElement {
 			);
 		}
 
-		tabs.push({
-			key: "Summary",
-			label: "Summary",
-			children: (
-				<>
-					<Input title="Alliance Avg Fuel Count" disabled defaultValue={totalAverageFuelCount.toString()} />
-					<Input title="Alliance Avg Climb Score" disabled defaultValue={totalAverageClimbScore.toString()} />
-					<Input title="Alliance Avg Auton Fuel Count" disabled defaultValue={totalAverageAutonFuelCount.toString()} />
-					<h2>Average Fuel Per Second</h2>
-
-					<div className="inputRow">{averageFuelPerSecondItems}</div>
-				</>
-			),
-		});
-
 		return tabs;
 	}
 	function getDTF(teams: number[]): void {
@@ -704,6 +993,7 @@ function DTFTeams(props: Props): React.ReactElement {
 		try {
 			const persistentData: { [teamNumber: number]: AggregateData | undefined } = {};
 			const allianceTabs: TabItems = [];
+			const allianceOverallTabs: TabItems = [];
 
 			for (let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
 				const alliance = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
@@ -773,7 +1063,45 @@ function DTFTeams(props: Props): React.ReactElement {
 				);
 			}
 
-			allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children: <>{allianceAverageScores}</> });
+			const teamOverallTabs: TabItems = [];
+
+			function overallTeamTabs(): void {
+				for (let i = 1; i <= Constants.NUM_ALLIANCES; i++) {
+					const allianceTeams = teams.slice((i - 1) * Constants.TEAMS_PER_ALLIANCE, i * Constants.TEAMS_PER_ALLIANCE);
+
+					teamOverallTabs.push({
+						key: `Alliance${i}`,
+						label: `Alliance ${i}`,
+						children: AllianceOverviewTable(i, allianceTeams, persistentData),
+					});
+				}
+			}
+
+			overallTeamTabs();
+
+			// allianceTabs.push({ key: "OverallSummary", label: "Overall Summary", children: <>{allianceAverageScores}</> });
+			allianceTabs.push({
+				key: "OverallSummary",
+				label: "Overall Summary",
+				children: (
+					<>
+						<h2>Alliance 1</h2>
+						{SummaryMatchData(teamList.slice(0, Constants.TEAMS_PER_ALLIANCE), persistentData)}
+
+						<hr />
+
+						<h2>Alliance 2</h2>
+						{SummaryMatchData(
+							teamList.slice(Constants.TEAMS_PER_ALLIANCE, Constants.TEAMS_PER_ALLIANCE * 2),
+							persistentData,
+						)}
+
+						<hr />
+
+						<Tabs items={teamOverallTabs} />
+					</>
+				),
+			});
 
 			setTabItems(allianceTabs);
 		} catch (error) {

@@ -27,7 +27,9 @@ function teamKeysToNumbers(teamKeys: TbaApi.TeamKey[]): number[] {
 }
 
 function teamsPlayingToTeamsList(teamsPlaying: ResultTypes.TeamsInMatch | null): number[] {
-	// TODO: fix
+	if (!teamsPlaying) {
+		return [];
+	}
 	return teamsPlaying.blue.concat(teamsPlaying.red);
 }
 function getRobotPositionOptions(teamsInMatch: ResultTypes.TeamsInMatch | null): { label: string; value: string }[] {
