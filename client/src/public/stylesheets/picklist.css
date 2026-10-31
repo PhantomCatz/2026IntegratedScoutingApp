@@ -1,8 +1,19 @@
-.picklist {
+picklist {
 	.commentBox {
 		max-height: 3rem;
-
 		width: fit-content;
 		display: inline-block;
+	}
+
+	.teamColumns {
+		display: flex;
+		gap: 2rem;
+		justify-content: center;
+		align-items: flex-start;
+	}
+
+	.teamColumn {
+		flex: 1;
+		text-align: center;
 	}
 }

@@ -123,6 +123,25 @@ async function getAllTeams(eventKey: TbaApi.EventKey): Promise<ResultTypes.AllTe
 		return data[eventKey] ?? null;
 	}
 }
+
+async function getEventRankings(eventKey: TbaApi.EventKey): Promise<{ [teamNumber: number]: number } | null> {
+	try {
+		const response = await request("event/" + eventKey + "/rankings");
+		const data = (await response.json()) as {
+			rankings?: { team_key: string; rank: number }[];
+		};
+
+		const map: { [teamNumber: number]: number } = {};
+		for (const entry of data.rankings ?? []) {
+			map[Number(entry.team_key.substring(3))] = entry.rank;
+		}
+		return map;
+	} catch (err) {
+		console.error(`An error occurred while trying to get event rankings: ${err}`);
+		return null;
+	}
+}
+
 async function getTeamsNotScouted(eventKey: TbaApi.EventKey): Promise<ResultTypes.TeamsNotScouted | null> {
 	try {
 		if (!Constants.SERVER_ADDRESS) {
@@ -360,6 +379,7 @@ export {
 	parseRobotPosition,
 	getOpposingAllianceColor,
 	getAllTeams,
+	getEventRankings,
 	getTeamsNotScouted,
 	getTeamsInMatch,
 	getMatchId,
