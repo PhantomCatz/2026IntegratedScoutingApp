@@ -526,11 +526,7 @@ function DTFTeams(props: Props): React.ReactElement {
 				if (field === "match_number") {
 					const defended = match.overall_defended_others;
 
-					row[field] = (
-						<span className={defended === 1 ? "team_overview_value_defense" : "team_overview_value_white"}>
-							{result}
-						</span>
-					);
+					row[field] = <span className={defended === 1 ? "team_overview_value_defense" : ""}>{result}</span>;
 				}
 
 				if (field === "endgame_climb_level") {
@@ -549,11 +545,7 @@ function DTFTeams(props: Props): React.ReactElement {
 			row["id"] = match.id;
 
 			row["total_fuel_scored"] = (
-				<span
-					className={
-						match.overall_was_defended === 1 ? "alliance_overview_value_negative" : "team_overview_value_white"
-					}
-				>
+				<span className={match.overall_was_defended === 1 ? "total_value_negative" : "total_value_normal"}>
 					{match.auton_fuel_scored + match.teleop_fuel_scored}
 				</span>
 			);
@@ -572,6 +564,11 @@ function DTFTeams(props: Props): React.ReactElement {
 			[key: string]: React.ReactNode | undefined;
 		}[] = [];
 
+		let totalAutonFuel = 0;
+		let totalTeleopFuel = 0;
+		let totalClimb = 0;
+		let totalFuel = 0;
+
 		for (const teamNumber of teams) {
 			if (!teamNumber) {
 				continue;
@@ -583,25 +580,60 @@ function DTFTeams(props: Props): React.ReactElement {
 				continue;
 			}
 
-			let mostCommonClimb = "None";
-			let highestCount = 0;
-
-			for (const [level, count] of data.endgame_climb_attempted) {
-				if (count > highestCount) {
-					highestCount = count;
-					mostCommonClimb = level;
+			let climbAverage = 0;
+			const matches = teamsMatchData?.[teamNumber];
+			if (matches && matches.length > 0) {
+				let climbSum = 0;
+				let countedMatches = 0;
+				for (const match of matches) {
+					if (!match.robot_appeared) {
+						continue;
+					}
+					countedMatches++;
+					if (match.endgame_climb_successful) {
+						const level = match.endgame_climb_level;
+						if (level === "Level_3" || level === "Level 3") {
+							climbSum += 30;
+						} else if (level === "Level_2" || level === "Level 2") {
+							climbSum += 20;
+						} else if (level === "Level_1" || level === "Level 1") {
+							climbSum += 10;
+						}
+					}
+				}
+				if (countedMatches > 0) {
+					climbAverage = Utils.round(climbSum / countedMatches, 2);
 				}
 			}
+
+			totalClimb += climbAverage;
+
+			const autonFuel = Utils.round(data.average_auton_fuel_count, 2);
+			const teleopFuel = Utils.round(data.teleop_fuel_scored, 2);
+			const totalFuelVal = Utils.round(data.average_fuel_count, 2);
+
+			totalAutonFuel += autonFuel;
+			totalTeleopFuel += teleopFuel;
+			totalFuel += totalFuelVal;
 
 			table.push({
 				key: teamNumber.toString(),
 				team_number: teamNumber,
-				auton_fuel_scored: Utils.round(data.average_auton_fuel_count, 2),
-				teleop_fuel_scored: Utils.round(data.teleop_fuel_scored, 2),
-				endgame_climb_level: mostCommonClimb,
-				total_fuel_scored: Utils.round(data.average_fuel_count, 2),
+				auton_fuel_scored: autonFuel,
+				teleop_fuel_scored: teleopFuel,
+				endgame_climb_level: climbAverage,
+				total_fuel_scored: <span className="total_value_normal">{totalFuelVal}</span>,
 			});
 		}
+
+		table.push({
+			key: "total",
+			team_number: <span className="total_value_normal">Total</span>,
+			auton_fuel_scored: <span className="total_value_normal">{Utils.round(totalAutonFuel, 2)}</span>,
+			teleop_fuel_scored: <span className="total_value_normal">{Utils.round(totalTeleopFuel, 2)}</span>,
+			endgame_climb_level: <span className="total_value_normal">{Utils.round(totalClimb, 2)}</span>,
+			total_fuel_scored: <span className="total_value_normal">{Utils.round(totalFuel, 2)}</span>,
+		});
 
 		return <Table data={table} columns={DATA_COLUMNS_2} getKey={(row) => row.key as string} />;
 	}

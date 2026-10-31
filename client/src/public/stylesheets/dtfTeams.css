@@ -8,7 +8,7 @@ dtf-teams {
 		background-color: transparent;
 		color: var(--font-color);
 		text-align: center;
-	}
+	}	
 
 	.dtf-input,
 	.textbox_input {
@@ -63,5 +63,14 @@ dtf-teams {
 
 	.team_overview_value_defense {
 		color: orange;
+	}
+
+	.total_value_negative {
+		color: var(--color-failure);
+		font-weight: bold;
+	}
+
+	.total_value_normal {
+		font-weight: bold;
 	}
 }
