@@ -29,6 +29,7 @@ export function Login() {
 		const scoutName = name.trim();
 		sessionStorage.setItem("signedIn", "1");
 		sessionStorage.setItem("scoutName", scoutName);
+		sessionStorage.setItem("scouterInitial", scoutName.toUpperCase().split(" ",2)[0][0]+scoutName.toUpperCase().split(" ",2)[1][0])
 		setScoutNameCookie(scoutName);
 		navigate("/");
 	};
