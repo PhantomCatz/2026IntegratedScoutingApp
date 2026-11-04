@@ -31,7 +31,7 @@ type Props = {
 
 const formDefaultValues: MatchScoutTypes.All = {
 	// Pre-match
-	scouter_initials: "",
+	scouter_initials: sessionStorage.getItem("scouterInitial") ?? "NA",
 	comp_level: "qm",
 	match_number: 0,
 	robot_position: "B1",

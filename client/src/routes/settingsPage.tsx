@@ -13,7 +13,6 @@ import type * as TbaApi from "../types/tbaApi";
 const DEFAULT_SETTINGS = {
 	backgroundColor: "#ffffff",
 	fontColor: "#000000",
-	scouterIntial: "",
 	eventKey: Constants.EVENT_KEY,
 	tbaData: {},
 	tbaTeams: {},
@@ -35,7 +34,6 @@ function SettingsPage(props: Props): React.ReactElement {
 		DEFAULT_SETTINGS.backgroundColor,
 	);
 	const [fontColor, setFontColor] = useLocalStorage<string>("fontColor", DEFAULT_SETTINGS.fontColor);
-	const [scouterInitial, setScouterInitial] = useLocalStorage<string>("scouterIntial", DEFAULT_SETTINGS.scouterIntial);
 	const [eventKey, setEventCode] = useLocalStorage<TbaApi.EventKey>("eventKey", DEFAULT_SETTINGS.eventKey);
 	const [tbaData, setTbaData] = useLocalStorage<LocalStorage.TbaData>("tbaData", DEFAULT_SETTINGS.tbaData);
 	const [tbaTeams, setTbaTeams] = useLocalStorage<LocalStorage.TbaTeams>("tbaTeams", DEFAULT_SETTINGS.tbaTeams);
@@ -114,20 +112,6 @@ function SettingsPage(props: Props): React.ReactElement {
 			<Header name={"Settings"} back="#/" settingsPage />
 
 			<settings-page>
-				<Input<FieldType>
-					title="Scouter Initials"
-					name="scouter_initials"
-					maxLength={2}
-					onChange={setScouterInitial}
-					pattern="^[A-Za-z]{2}$"
-					// onInput={(event) => {
-					// 	const keyValue = event.key;
-					// 	if (!/^[A-Za-z]{2}$/.test(keyValue)) {
-					// 		event.preventDefault();
-					// 	}
-					// }}
-					defaultValue={scouterInitial}
-				/>
 
 				<Input<FieldType>
 					title="Event Key"

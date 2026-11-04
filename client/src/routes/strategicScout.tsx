@@ -23,7 +23,7 @@ import type * as Database from "../types/database";
 import type * as ResultTypes from "../types/resultTypes";
 
 const formDefaultValues: StrategicScoutTypes.All = {
-	scouter_initials: "",
+	scouter_initials: sessionStorage.getItem("scouterInitial") ?? "NA",
 	comp_level: "qm",
 	match_number: 0,
 	robot_position: "B1",

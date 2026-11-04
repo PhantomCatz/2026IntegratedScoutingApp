@@ -24,6 +24,8 @@ function Header(props: Props): React.ReactElement {
 	const handleLogout = () => {
 		sessionStorage.removeItem("signedIn");
 		sessionStorage.removeItem("scoutName");
+		console.log(sessionStorage.getItem("scouterInitial"));
+		sessionStorage.removeItem("scouterInitial");
 		navigate("/login");
 	};
 
@@ -83,11 +85,13 @@ function Header(props: Props): React.ReactElement {
 			<img className={"logoImg"} src={iconSet.icon} alt="2637 Logo" />
 
 			<h1 className={"pageTitle"}>{name}</h1>
-
 			<div className="settingsContainer">
-				<button type="button" className="logoutButton" onClick={handleLogout}>
-					Log out
-				</button>
+				<div className="logoutGroup">
+					<h2 className="scouterInitial">{sessionStorage.getItem("scouterInitial")}</h2>
+					<button type="button" className="logoutButton" onClick={handleLogout}>
+						Log out
+					</button>
+				</div>
 				{props.settingsPage ? (
 					<img
 						className={"menuImg"}
