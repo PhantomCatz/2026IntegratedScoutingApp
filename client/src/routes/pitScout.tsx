@@ -18,7 +18,7 @@ type Props = {
 
 const formDefaultValues: Partial<PitScoutTypes.Pit> = {
 	team_number: 0,
-	scouter_initials: "",
+	scouter_initials: sessionStorage.getItem("scouterInitial") ?? "NA",
 	robot_weight: 0,
 	drive_train_type: "",
 	driving_motor_type: "",
@@ -92,7 +92,7 @@ function PitScout(props: Props): React.ReactElement {
 		const body: PitScoutTypes.SubmitBody = {
 			event_key: eventKey,
 			team_number: event.team_number,
-			scouter_initials: sessionStorage.getItem("scouterInitial") ?? "NA",
+			scouter_initials: event.scouter_initials.toLowerCase(),
 			robot_weight: event.robot_weight,
 			drive_train_type: event.drive_train_type,
 			driving_motor_type: event.driving_motor_type,
